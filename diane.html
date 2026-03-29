@@ -816,6 +816,62 @@
             <span style="font-size:20px;">▶</span>
           </div>
 
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin:16px 0 10px;">Classic Movies</div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('hisgirl','His Girl Friday (1940)','https://archive.org/embed/his_girl_friday')">
+            <span style="font-size:32px;flex-shrink:0;">🎬</span>
+            <div style="flex:1;"><h3 style="margin:0;">His Girl Friday</h3><p style="margin:0;font-size:12px;color:var(--lite);">Cary Grant & Rosalind Russell — screwball comedy classic</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('godfrey','My Man Godfrey (1936)','https://archive.org/embed/MyManGodfrey1936')">
+            <span style="font-size:32px;flex-shrink:0;">🎬</span>
+            <div style="flex:1;"><h3 style="margin:0;">My Man Godfrey</h3><p style="margin:0;font-size:12px;color:var(--lite);">William Powell & Carole Lombard — romantic comedy</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('charade','Charade (1963)','https://archive.org/embed/ecatma-Old_Time_Movie_Show_-_Charade_1963')">
+            <span style="font-size:32px;flex-shrink:0;">🎬</span>
+            <div style="flex:1;"><h3 style="margin:0;">Charade</h3><p style="margin:0;font-size:12px;color:var(--lite);">Cary Grant & Audrey Hepburn — romantic mystery</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('royalwed','Royal Wedding (1951)','https://archive.org/embed/royal_wedding')">
+            <span style="font-size:32px;flex-shrink:0;">💃</span>
+            <div style="flex:1;"><h3 style="margin:0;">Royal Wedding</h3><p style="margin:0;font-size:12px;color:var(--lite);">Fred Astaire & Jane Powell — musical comedy</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('starisborn','A Star is Born (1937)','https://archive.org/embed/a-star-is-born-1937')">
+            <span style="font-size:32px;flex-shrink:0;">⭐</span>
+            <div style="flex:1;"><h3 style="margin:0;">A Star is Born</h3><p style="margin:0;font-size:12px;color:var(--lite);">Janet Gaynor & Fredric March — original classic</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('angel','Angel and the Badman (1947)','https://archive.org/embed/angel-and-the-badman-1947')">
+            <span style="font-size:32px;flex-shrink:0;">🤠</span>
+            <div style="flex:1;"><h3 style="margin:0;">Angel and the Badman</h3><p style="margin:0;font-size:12px;color:var(--lite);">John Wayne western — a gunslinger meets a Quaker woman</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('general','The General (1926)','https://archive.org/embed/The_General_Buster_Keaton')">
+            <span style="font-size:32px;flex-shrink:0;">🚂</span>
+            <div style="flex:1;"><h3 style="margin:0;">The General</h3><p style="margin:0;font-size:12px;color:var(--lite);">Buster Keaton — legendary silent comedy</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('temple1','Rebecca of Sunnybrook Farm','https://archive.org/embed/shirley-temple-.-rebecca-of-sunnybrook-farm-1938-classic-color-well-done-classic-film-channel')">
+            <span style="font-size:32px;flex-shrink:0;">👧</span>
+            <div style="flex:1;"><h3 style="margin:0;">Rebecca of Sunnybrook Farm</h3><p style="margin:0;font-size:12px;color:var(--lite);">Shirley Temple (1938) — colorized</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('temple2','The Little Princess','https://archive.org/embed/the-little-princess-shirley-temple-1939-hd-quality-musical-comedy')">
+            <span style="font-size:32px;flex-shrink:0;">👧</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Little Princess</h3><p style="margin:0;font-size:12px;color:var(--lite);">Shirley Temple (1939) — musical comedy</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
         </div>
       </div>
     </div>
@@ -1231,14 +1287,12 @@ function goTo(id,btn){
 
 let tvIdleTimer=null;
 function announceTvShows(){
-  const shows=['I Love Lucy','Beverly Hillbillies','Andy Griffith','Bonanza','Dick Van Dyke','Carol Burnett','Dragnet','The Lone Ranger','That Girl','Cheers','Bewitched and All in the Family'];
-  const pick=shows.slice(0,5).join(', ');
-  speak("Here are your TV shows, Diane! You can watch "+pick+", and more. Just tap any show to start watching! Scroll down to see more shows.");
+  speak("Here are your TV shows and movies, Diane! You can watch I Love Lucy, Beverly Hillbillies, Andy Griffith, Bonanza, and Dick Van Dyke. Scroll down for more shows and classic movies like Charade with Cary Grant, musicals, and westerns! Just tap any title to start watching.");
   clearTimeout(tvIdleTimer);
   tvIdleTimer=setTimeout(()=>{
     const sec=document.getElementById('sec-tv');
     if(sec&&sec.classList.contains('on')){
-      speak("Don't forget, Diane — you can scroll down to see more shows! There are YouTube episodes of Dick Van Dyke, Bonanza, Dragnet, and more below.");
+      speak("Don't forget to scroll down, Diane! There are classic movies below — His Girl Friday, My Man Godfrey, Shirley Temple, Fred Astaire, and more.");
     }
   },60000);
 }
@@ -1272,7 +1326,8 @@ function stopAudio(){
 
 function browserSpeak(text){
   try{ synth.cancel(); }catch(e){}
-  setTimeout(()=>{
+  // iPad Safari sometimes needs voices to load first
+  const doSpeak=()=>{
     const u=new SpeechSynthesisUtterance(text);
     u.lang='en-US'; u.rate=0.85; u.pitch=1.0; u.volume=1;
     const vs=synth.getVoices();
@@ -1281,9 +1336,16 @@ function browserSpeak(text){
     if(v) u.voice=v;
     u.onstart=()=>setStat('🔊 Speaking…');
     u.onend=()=>setStat('');
-    u.onerror=()=>{ setStat(''); };
+    u.onerror=(e)=>{ console.warn('Browser TTS error:',e); setStat(''); };
     synth.speak(u);
-  },50);
+  };
+  const voices=synth.getVoices();
+  if(voices.length===0){
+    synth.onvoiceschanged=()=>{ synth.onvoiceschanged=null; setTimeout(doSpeak,50); };
+    setTimeout(doSpeak,200); // fallback if onvoiceschanged never fires
+  } else {
+    setTimeout(doSpeak,50);
+  }
 }
 
 async function speak(text){
@@ -1296,37 +1358,50 @@ async function speak(text){
     return;
   }
 
-  // ElevenLabs via AudioContext — works on iPad Safari after await
+  // ElevenLabs TTS — try AudioContext first, then Audio element fallback for iPad
   setStat('🔊 Speaking…');
   try{
-    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice,{
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
       method:'POST',
       headers:{'Content-Type':'application/json','xi-api-key':elKey},
       body:JSON.stringify({
         text:text,
-        model_id:'eleven_turbo_v2_5',
+        model_id:'eleven_flash_v2_5',
         voice_settings:{stability:0.5,similarity_boost:0.75,style:0.2}
       })
     });
     if(!r.ok){
-      console.warn('ElevenLabs HTTP error:',r.status);
+      console.warn('ElevenLabs HTTP error:',r.status,await r.text().catch(()=>''));
       setStat('');
       browserSpeak(text);
       return;
     }
     const arrayBuf=await r.arrayBuffer();
-    // Make sure AudioContext is ready
-    if(!dAudioCtx){
-      dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    // Try AudioContext first
+    let played=false;
+    try{
+      if(!dAudioCtx) dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
+      const decoded=await dAudioCtx.decodeAudioData(arrayBuf.slice(0));
+      const source=dAudioCtx.createBufferSource();
+      source.buffer=decoded;
+      source.connect(dAudioCtx.destination);
+      source.onended=()=>{ dAudioSource=null; setStat(''); };
+      dAudioSource=source;
+      source.start(0);
+      played=true;
+    } catch(acErr){
+      console.warn('AudioContext failed, trying Audio element:',acErr.message);
     }
-    if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
-    const decoded=await dAudioCtx.decodeAudioData(arrayBuf);
-    const source=dAudioCtx.createBufferSource();
-    source.buffer=decoded;
-    source.connect(dAudioCtx.destination);
-    source.onended=()=>{ dAudioSource=null; setStat(''); };
-    dAudioSource=source;
-    source.start(0);
+    // Fallback: use Audio element (more reliable on iPad Safari)
+    if(!played){
+      const blob=new Blob([arrayBuf],{type:'audio/mpeg'});
+      const url=URL.createObjectURL(blob);
+      const audio=new Audio(url);
+      audio.onended=()=>{ URL.revokeObjectURL(url); setStat(''); };
+      audio.onerror=()=>{ URL.revokeObjectURL(url); setStat(''); browserSpeak(text); };
+      await audio.play();
+    }
     setStat('🔊 Speaking…');
   } catch(e){
     console.warn('ElevenLabs error, falling back to browser TTS:',e.message);
