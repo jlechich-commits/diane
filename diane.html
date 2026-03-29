@@ -927,8 +927,9 @@
 
     <div class="set-sec">
       <div class="set-lbl">Voice</div>
-      <button class="set-btn pri" style="background:var(--green);" onclick="testVoice()">🔊 Test Voice</button>
-      <div class="set-hint">Uses your iPad's built-in voice. For a better voice, go to iPad Settings → Accessibility → Spoken Content → Voices → English and download "Ava (Premium)".</div>
+      <select id="set-voice-pick" class="set-inp" style="width:100%;margin-bottom:8px;" onchange="saveVoiceChoice()"></select>
+      <button class="set-btn pri" style="background:var(--green);" onclick="testVoice()">🔊 Test Selected Voice</button>
+      <div class="set-hint">Pick a voice above and tap Test. Premium/Enhanced voices sound best — download them in iPad Settings → Accessibility → Spoken Content → Voices → English.</div>
     </div>
 
     <div class="set-sec">
@@ -1151,6 +1152,7 @@ function checkPIN(){
 // SETTINGS
 // ══════════════════════════════════════════════════
 function testVoice(){
+  saveVoiceChoice();
   try{ synth.cancel(); }catch(e){}
   const u=new SpeechSynthesisUtterance('Hello Diane! Can you hear me? This is your companion app speaking.');
   u.lang='en-US'; u.rate=0.9; u.pitch=1.05; u.volume=1;
@@ -1162,12 +1164,11 @@ function testVoice(){
   u.onend=()=>{ document.getElementById('stat').textContent='✅ Voice: '+vName; };
   u.onerror=(e)=>{ alert('Voice error: '+JSON.stringify(e.error||e)); };
   synth.speak(u);
-  if(!vs.length) alert('No voices found. Go to iPad Settings > Accessibility > Spoken Content > Voices > English and download a voice.');
-  else alert('Using voice: '+vName+'\n\nFor a better voice, go to iPad Settings > Accessibility > Spoken Content > Voices > English and download "Ava (Premium)" or "Zoe (Enhanced)".');
 }
 
 function openSettings(){
   renderMemList();
+  populateVoicePicker();
   document.getElementById('set-modal').classList.add('on');
 }
 function closeSettings(){
@@ -1322,8 +1323,15 @@ function stopAudio(){
   setStat('');
 }
 
+let chosenVoiceName=localStorage.getItem('diane_voice_name')||'';
+
 function pickBestVoice(voices){
-  // Prefer premium/enhanced voices, then standard — all warm female en-US
+  // If user chose a voice, use it
+  if(chosenVoiceName){
+    const chosen=voices.find(x=>x.name===chosenVoiceName);
+    if(chosen) return chosen;
+  }
+  // Auto-pick best available
   const prefs=[
     'Ava (Premium','Zoe (Premium','Samantha (Premium',
     'Ava (Enhanced','Zoe (Enhanced','Samantha (Enhanced',
@@ -1334,6 +1342,28 @@ function pickBestVoice(voices){
     if(v) return v;
   }
   return voices.find(x=>x.lang==='en-US')||voices[0];
+}
+
+function populateVoicePicker(){
+  const sel=document.getElementById('set-voice-pick');
+  if(!sel) return;
+  const voices=synth.getVoices().filter(v=>v.lang.startsWith('en'));
+  sel.innerHTML='';
+  const cur=pickBestVoice(synth.getVoices());
+  voices.sort((a,b)=>a.name.localeCompare(b.name));
+  voices.forEach(v=>{
+    const opt=document.createElement('option');
+    opt.value=v.name;
+    opt.textContent=v.name+(v.localService?' (on device)':' (network)');
+    if(cur&&v.name===cur.name) opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+
+function saveVoiceChoice(){
+  const sel=document.getElementById('set-voice-pick');
+  chosenVoiceName=sel.value;
+  localStorage.setItem('diane_voice_name',chosenVoiceName);
 }
 
 function browserSpeak(text){
