@@ -76,9 +76,12 @@
     #txtin:focus{border-color:var(--gold);}
     #sendb{width:46px;height:46px;background:var(--gold);border:none;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(196,154,60,.3);flex-shrink:0;}
     #sendb svg{width:19px;height:19px;fill:white;}
-    #micb{width:100%;padding:14px;border:none;border-radius:15px;background:var(--rose);color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-family:'Nunito';font-weight:700;box-shadow:0 4px 14px rgba(196,116,90,.3);}
+    #micb{width:100%;padding:22px 14px;border:none;border-radius:20px;background:var(--rose);color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;font-size:22px;font-family:'Nunito';font-weight:800;box-shadow:0 6px 20px rgba(196,116,90,.4);letter-spacing:.5px;min-height:80px;}
+    #micb .mic-icon{font-size:34px;line-height:1;}
     #micb.hot{background:var(--brown);animation:glow 1.6s ease-in-out infinite;}
-    @keyframes glow{0%,100%{box-shadow:0 4px 14px rgba(122,92,62,.3);}50%{box-shadow:0 4px 26px rgba(122,92,62,.6),0 0 0 10px rgba(122,92,62,.07);}}
+    #micb.hot .mic-icon{animation:pulse-mic 1s ease-in-out infinite;}
+    @keyframes pulse-mic{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+    @keyframes glow{0%,100%{box-shadow:0 6px 20px rgba(122,92,62,.3);}50%{box-shadow:0 6px 36px rgba(122,92,62,.7),0 0 0 14px rgba(122,92,62,.08);}}
 
     /* ─── HELP ───────────────────────────────────── */
     #sec-help{padding:0;}
@@ -308,7 +311,7 @@
           <textarea id="txtin" rows="1" placeholder="Type a message…" onkeydown="ck(event)" oninput="grow(this)"></textarea>
           <button id="sendb" onclick="sendTxt()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
-        <button id="micb" onclick="toggleMic()"><span>🎙</span><span id="miclbl">Tap to Speak</span></button>
+        <button id="micb" onclick="toggleMic()"><span class="mic-icon">🎙</span><span id="miclbl">Tap to Speak</span></button>
       </div>
     </div>
 
@@ -538,6 +541,13 @@
       </div>
     </div>
 
+
+    <div class="set-sec">
+      <div class="set-lbl">Daily Cognitive Check Log</div>
+      <div id="cog-log-summary" style="font-size:13px;color:var(--mid);line-height:1.7;background:white;border-radius:12px;padding:14px;box-shadow:0 2px 8px var(--shad);margin-bottom:8px;">Loading…</div>
+      <button class="set-btn sec full" onclick="showFullCogLog()">View Full Log</button>
+    </div>
+
     <div class="set-sec">
       <div class="set-lbl">Chat History</div>
       <button class="set-btn red" onclick="clearChat()">🗑 Clear All Chat</button>
@@ -642,7 +652,7 @@ function doMemSave(btnId, encodedText){
 // ══════════════════════════════════════════════════
 let apiKey='', elKey='', elVoice='EXAVITQu4vr4xnSDxMaL';
 let conv=[], listening=false, recog=null;
-let currentAudio=null;
+// currentAudio replaced by AudioContext system
 let helpListening=false, helpRecog=null, helpResponse='', camStream=null, camMode='help';
 const synth=window.speechSynthesis;
 let newsItems=[], curStoryText='', curStoryCat='';
@@ -688,11 +698,13 @@ function launch(){
   initDraw(); setCardDims(); initCbColors();
   window.addEventListener('resize',setCardDims);
   setTimeout(()=>{
-    const g="Hi Diane! It's so wonderful to talk with you today. How are you feeling?";
+    unlockAudio(); const g="Hi Diane! It's so wonderful to talk with you today. How are you feeling?";
     bubble('c',g); speak(g);
   },500);
   // Start proactive companion system
   setTimeout(startCompanion, 2000);
+  // Start daily cognitive check system
+  setTimeout(scheduleCogCheck, 3000);
 }
 
 // ══════════════════════════════════════════════════
@@ -766,6 +778,43 @@ function clearChat(){
   conv=[]; document.getElementById('chat-msgs').innerHTML='';
   closeSettings();
 }
+
+function renderCogSummary(){
+  const el = document.getElementById('cog-log-summary');
+  if(!el) return;
+  const log = getCogLog();
+  if(!log.length){ el.textContent = 'No assessments yet. The first check-in will happen today between 10am and 3pm.'; return; }
+  const recent = log.slice(-7);
+  const avgScore = (recent.reduce((s,e)=>s+e.score,0)/recent.length).toFixed(1);
+  const concerns = recent.filter(e=>e.concern).length;
+  const lastEntry = log[log.length-1];
+  const scoreLabels = ['No response','Partial','Mostly correct','Clear & accurate'];
+  let html = `<strong>Last 7 assessments — avg score: ${avgScore}/3</strong><br>`;
+  if(concerns > 0) html += `<span style="color:#E74C3C">⚠ ${concerns} concern${concerns>1?'s':''} flagged</span><br>`;
+  else html += `<span style="color:var(--green)">✓ No concerns flagged</span><br>`;
+  html += `<br><em>Most recent (${lastEntry.date}):</em><br>`;
+  html += `Q: "${lastEntry.question.slice(0,60)}…"<br>`;
+  html += `Score: ${lastEntry.score}/3 — ${scoreLabels[lastEntry.score]}<br>`;
+  html += `Note: ${lastEntry.notes}`;
+  el.innerHTML = html;
+}
+
+function showFullCogLog(){
+  const log = getCogLog();
+  if(!log.length){ alert('No cognitive check data yet.'); return; }
+  const recent = log.slice(-14).reverse();
+  const scoreLabels = ['No response','Partial','Mostly correct','Clear & accurate'];
+  let text = 'COGNITIVE CHECK LOG (last 14 entries)\n'+'─'.repeat(40)+'\n\n';
+  recent.forEach(e=>{
+    text += `📅 ${e.date} ${e.time}\n`;
+    text += `Category: ${e.category}\n`;
+    text += `Score: ${e.score}/3 — ${scoreLabels[e.score]}${e.concern?' ⚠ CONCERN':''}\n`;
+    text += `Note: ${e.notes}\n`;
+    text += `Response: "${e.response.slice(0,100)}"\n\n`;
+  });
+  alert(text);
+}
+
 function renderMemList(){
   const mems=loadMems();
   const list=document.getElementById('mem-list');
@@ -821,38 +870,57 @@ function goTo(id,btn){
 // ══════════════════════════════════════════════════
 // TTS — ELEVENLABS + BROWSER FALLBACK
 // ══════════════════════════════════════════════════
-// Pre-created audio element — must exist before any async calls for iPad Safari
-const dAudio = new Audio();
-dAudio.preload = 'none';
+// ── AUDIO SYSTEM ─────────────────────────────────
+// Uses AudioContext (works on iPad Safari after async/await)
+// unlocked on first user tap
+let dAudioCtx = null;
+let dAudioSource = null;
+
+function unlockAudio(){
+  // Call this on any user tap to unlock AudioContext for iPad Safari
+  if(!dAudioCtx){
+    try{
+      dAudioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    } catch(e){ console.warn('AudioContext not supported'); }
+  }
+  if(dAudioCtx && dAudioCtx.state==='suspended'){
+    dAudioCtx.resume();
+  }
+}
 
 function stopAudio(){
-  synth.cancel();
-  try{ dAudio.pause(); dAudio.src=''; }catch(e){}
-  currentAudio=null;
+  try{ synth.cancel(); }catch(e){}
+  try{ if(dAudioSource){ dAudioSource.stop(); dAudioSource=null; } }catch(e){}
   setStat('');
 }
 
 function browserSpeak(text){
-  // Plain browser TTS fallback
-  synth.cancel();
+  try{ synth.cancel(); }catch(e){}
   setTimeout(()=>{
     const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US'; u.rate=0.87; u.pitch=1.05; u.volume=1;
+    u.lang='en-US'; u.rate=0.85; u.pitch=1.0; u.volume=1;
     const vs=synth.getVoices();
     const v=vs.find(x=>x.name==='Samantha')||vs.find(x=>x.name.includes('Karen'))||
             vs.find(x=>x.name.includes('Moira'))||vs.find(x=>x.lang==='en-US')||vs[0];
     if(v) u.voice=v;
     u.onstart=()=>setStat('🔊 Speaking…');
     u.onend=()=>setStat('');
-    u.onerror=()=>setStat('');
+    u.onerror=()=>{ setStat(''); };
     synth.speak(u);
-  },80);
+  },50);
 }
 
 async function speak(text){
-  stopAudio();
   if(!text||!text.trim()) return;
-  if(!elKey){ browserSpeak(text); return; }
+  stopAudio();
+  unlockAudio();
+
+  if(!elKey){
+    browserSpeak(text);
+    return;
+  }
+
+  // ElevenLabs via AudioContext — works on iPad Safari after await
   setStat('🔊 Speaking…');
   try{
     const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice,{
@@ -861,32 +929,31 @@ async function speak(text){
       body:JSON.stringify({
         text:text,
         model_id:'eleven_turbo_v2_5',
-        voice_settings:{stability:0.5,similarity_boost:0.75,style:0.2,use_speaker_boost:true}
+        voice_settings:{stability:0.5,similarity_boost:0.75,style:0.2}
       })
     });
     if(!r.ok){
-      const errText=await r.text();
-      console.warn('ElevenLabs error '+r.status+':',errText);
+      console.warn('ElevenLabs HTTP error:',r.status);
       setStat('');
       browserSpeak(text);
       return;
     }
-    const blob=await r.blob();
-    const url=URL.createObjectURL(blob);
-    // Reuse the pre-created audio element (already trusted by iPad Safari)
-    dAudio.src=url;
-    dAudio.onended=()=>{ URL.revokeObjectURL(url); dAudio.src=''; setStat(''); };
-    dAudio.onerror=()=>{ URL.revokeObjectURL(url); setStat(''); browserSpeak(text); };
-    const playPromise=dAudio.play();
-    if(playPromise!==undefined){
-      playPromise.catch(e=>{
-        console.warn('Audio play blocked:',e);
-        setStat('');
-        browserSpeak(text);
-      });
+    const arrayBuf=await r.arrayBuffer();
+    // Make sure AudioContext is ready
+    if(!dAudioCtx){
+      dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
     }
+    if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
+    const decoded=await dAudioCtx.decodeAudioData(arrayBuf);
+    const source=dAudioCtx.createBufferSource();
+    source.buffer=decoded;
+    source.connect(dAudioCtx.destination);
+    source.onended=()=>{ dAudioSource=null; setStat(''); };
+    dAudioSource=source;
+    source.start(0);
+    setStat('🔊 Speaking…');
   } catch(e){
-    console.warn('ElevenLabs fetch failed:',e);
+    console.warn('ElevenLabs error, falling back to browser TTS:',e.message);
     setStat('');
     browserSpeak(text);
   }
@@ -896,7 +963,7 @@ function setStat(t){ document.getElementById('stat').textContent=t; }
 // ══════════════════════════════════════════════════
 // STT — CHAT MIC
 // ══════════════════════════════════════════════════
-function toggleMic(){ listening?stopMic():startMic(); }
+function toggleMic(){ unlockAudio(); listening?stopMic():startMic(); }
 function startMic(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){ alert('Voice input requires Safari on iPad.\nPlease open this page in Safari.'); return; }
@@ -1849,7 +1916,7 @@ function sendWelcomeMessage(){
   // This fires on SUBSEQUENT opens of the app (not first load)
 }
 
-// Patch sendMsg and toggleMic to track interaction
+// Patch sendMsg to track interaction (cog check adds its own layer later)
 const _origSendMsg = sendMsg;
 window.sendMsg = async function(text){
   touchInteraction();
@@ -1868,6 +1935,216 @@ function startCompanion(){
   if(!isFirstLoad && isWakingHours()){
     setTimeout(()=>sendProactiveMessage('open'), 3000);
   }
+}
+
+
+// ══════════════════════════════════════════════════
+// DAILY COGNITIVE CHECK SYSTEM
+// ══════════════════════════════════════════════════
+const COG_KEY = 'diane_cog_v1';
+const COG_LOG_KEY = 'diane_cog_log_v1';
+
+function getCogData(){ try{ return JSON.parse(localStorage.getItem(COG_KEY)||'{}'); }catch{return {};} }
+function saveCogData(d){ localStorage.setItem(COG_KEY, JSON.stringify(d)); }
+function getCogLog(){ try{ return JSON.parse(localStorage.getItem(COG_LOG_KEY)||'[]'); }catch{return [];} }
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+function shouldRunCogCheck(){
+  const d = getCogData();
+  const today = todayStr();
+  // Only once per day, between 10am and 3pm
+  const h = new Date().getHours();
+  if(h < 10 || h > 15) return false;
+  if(d.lastCheck === today) return false;
+  return true;
+}
+
+// The 8 gentle question types — rotated so it feels natural
+const COG_QUESTIONS = [
+  {
+    id: 'family_grandkids',
+    ask: "Diane, I've been thinking about your grandchildren — can you tell me about Willy and Isabella? What are they up to these days?",
+    assess: 'Mentions Willy (3, Brian's son), Isabella (turning 1), recognizes family members',
+    category: 'family_memory'
+  },
+  {
+    id: 'family_sons',
+    ask: "I feel so lucky to know your whole family! Can you remind me — what do Brian and Jon do for work?",
+    assess: 'Brian is SEC lawyer in Miami, Jon runs business in Bay Area',
+    category: 'family_memory'
+  },
+  {
+    id: 'day_awareness',
+    ask: "Diane, I always lose track of time — do you happen to know what day of the week it is today?",
+    assess: 'Day of week orientation',
+    category: 'time_orientation'
+  },
+  {
+    id: 'location',
+    ask: "You know, I love hearing about where you live — can you tell me about Atria? What do you like about living there?",
+    assess: 'Awareness of living at Atria Valley View, Walnut Creek',
+    category: 'place_orientation'
+  },
+  {
+    id: 'recent_activity',
+    ask: "Tell me what you've been up to lately! Have you watched anything fun on TV, or had any nice visitors?",
+    assess: 'Recent memory and engagement with daily life',
+    category: 'recent_memory'
+  },
+  {
+    id: 'personal_history',
+    ask: "I love hearing your stories — can you tell me about one of the businesses you ran? I think what you built is so impressive.",
+    assess: 'Recall of career: hair salon, candy/soda business, insurance, HR manager',
+    category: 'long_term_memory'
+  },
+  {
+    id: 'favorite_things',
+    ask: "I'm always curious — what's your all-time favorite thing to eat? If you could have any meal right now, what would it be?",
+    assess: 'Personal preferences, likely Italian food',
+    category: 'personal_identity'
+  },
+  {
+    id: 'mark_memory',
+    ask: "Tell me about Mark — what was something you two loved to do together?",
+    assess: 'Memory of husband Mark, emotional connection, positive recall',
+    category: 'long_term_memory'
+  }
+];
+
+let cogCheckActive = false;
+let cogCurrentQ = null;
+let cogCheckingNext = false;
+
+function pickCogQuestion(){
+  const d = getCogData();
+  const used = d.usedQuestions || [];
+  // Rotate through questions, don't repeat until all used
+  const available = COG_QUESTIONS.filter(q => !used.includes(q.id));
+  if(!available.length){
+    // Reset rotation
+    d.usedQuestions = [];
+    saveCogData(d);
+    return COG_QUESTIONS[Math.floor(Math.random()*COG_QUESTIONS.length)];
+  }
+  // Pick random from available, prefer different category than last
+  const lastCat = d.lastCategory;
+  const preferred = available.filter(q => q.category !== lastCat);
+  const pool = preferred.length ? preferred : available;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+async function runCogCheck(){
+  if(cogCheckActive || !isWakingHours()) return;
+  const d = getCogData();
+  if(d.lastCheck === todayStr()) return;
+
+  cogCheckActive = true;
+  const q = pickCogQuestion();
+  cogCurrentQ = q;
+
+  // Mark as started
+  d.lastCheck = todayStr();
+  d.lastCategory = q.category;
+  d.usedQuestions = [...(d.usedQuestions||[]), q.id];
+  saveCogData(d);
+
+  // Weave into conversation naturally — wait 2 mins after last message
+  const idleMs = Date.now() - lastInteraction;
+  const delay = idleMs > 120000 ? 500 : 180000; // if idle > 2 min, ask soon; else wait 3 min
+
+  setTimeout(async ()=>{
+    // Send the question via normal chat
+    conv.push({role:'assistant', content: q.ask});
+    bubble('c', q.ask);
+    speak(q.ask);
+    touchInteraction();
+    // Flag that next user response should be assessed
+    cogCheckingNext = true;
+  }, delay);
+}
+
+async function assessCogResponse(userResponse){
+  if(!cogCheckingNext || !cogCurrentQ) return;
+  cogCheckingNext = false;
+
+  // Use AI to gently assess the response
+  try{
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-opus-4-5',
+        max_tokens:300,
+        messages:[{
+          role:'user',
+          content:`You are a clinical cognitive assessment assistant. A caregiver asked their elderly mother named Diane (born 1954, early cognitive impairment) a gentle question to assess her cognition.
+
+QUESTION ASKED: "${cogCurrentQ.ask}"
+WHAT A HEALTHY RESPONSE LOOKS LIKE: ${cogCurrentQ.assess}
+DIANE'S ACTUAL RESPONSE: "${userResponse}"
+CATEGORY: ${cogCurrentQ.category}
+
+Assess her response briefly. Return JSON only, no markdown:
+{
+  "score": 0-3 (0=confused/no answer, 1=partial/vague, 2=mostly correct, 3=clear and accurate),
+  "notes": "brief clinical observation in 1-2 sentences",
+  "concern": true/false (true if response suggests meaningful decline or confusion)
+}`
+        }]
+      })
+    });
+    const d = await r.json();
+    const raw = d.content?.[0]?.text || '{}';
+    let assessment;
+    try{ assessment = JSON.parse(raw.replace(/```json|```/g,'')); }
+    catch{ assessment = {score:1, notes:'Could not parse response', concern:false}; }
+
+    // Log the assessment
+    const log = getCogLog();
+    log.push({
+      date: todayStr(),
+      time: new Date().toLocaleTimeString(),
+      questionId: cogCurrentQ.id,
+      category: cogCurrentQ.category,
+      question: cogCurrentQ.ask,
+      response: userResponse,
+      score: assessment.score,
+      notes: assessment.notes,
+      concern: assessment.concern
+    });
+    // Keep last 90 days of logs
+    const trimmed = log.slice(-90);
+    localStorage.setItem(COG_LOG_KEY, JSON.stringify(trimmed));
+
+  } catch(e){
+    console.warn('Cog assessment failed:', e);
+  }
+  cogCurrentQ = null;
+  cogCheckActive = false;
+}
+
+// Hook into sendMsg to intercept cog check responses
+const _origSendMsg2 = window.sendMsg;
+window.sendMsg = async function(text){
+  touchInteraction();
+  if(cogCheckingNext) assessCogResponse(text);
+  return _origSendMsg2(text);
+};
+
+// Schedule daily cog check
+function scheduleCogCheck(){
+  // Check every 30 minutes if it's time to run
+  setInterval(()=>{
+    if(shouldRunCogCheck()) runCogCheck();
+  }, 30 * 60 * 1000);
+  // Also check shortly after app opens
+  setTimeout(()=>{ if(shouldRunCogCheck()) runCogCheck(); }, 5 * 60 * 1000);
 }
 
 
