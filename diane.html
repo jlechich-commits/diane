@@ -1513,14 +1513,18 @@ function speak(text){
   if(!text||!text.trim()) return;
   stopAudio();
   unlockAudio();
-  // Always start browser TTS immediately (iPad Safari gesture chain)
-  browserSpeak(text);
-  // If Google TTS is set, upgrade to natural voice
-  if(gcpKey) speakGCP(text);
+  if(gcpKey){
+    // Use Google TTS only — no robotic voice
+    speakGCP(text);
+  } else {
+    // Fallback to browser TTS only when no Google key
+    browserSpeak(text);
+  }
 }
 
 async function speakGCP(text){
   try{
+    setStat('🔊 Speaking…');
     let r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+gcpKey,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1531,7 +1535,6 @@ async function speakGCP(text){
       })
     });
     if(!r.ok){
-      // Retry without specific voice name
       r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+gcpKey,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -1542,10 +1545,9 @@ async function speakGCP(text){
         })
       });
     }
-    if(!r.ok) return; // silently fall back to browser TTS
+    if(!r.ok){ browserSpeak(text); return; } // fall back to browser on failure
     const d=await r.json();
-    if(!d.audioContent) return;
-    try{ synth.cancel(); }catch(e){} // cancel browser TTS
+    if(!d.audioContent){ browserSpeak(text); return; }
     const bin=atob(d.audioContent);
     const bytes=new Uint8Array(bin.length);
     for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
@@ -1554,11 +1556,11 @@ async function speakGCP(text){
     const audio=new Audio(url);
     currentElAudio=audio;
     audio.onended=()=>{ URL.revokeObjectURL(url); currentElAudio=null; setStat(''); };
-    audio.onerror=()=>{ URL.revokeObjectURL(url); currentElAudio=null; };
+    audio.onerror=()=>{ URL.revokeObjectURL(url); currentElAudio=null; browserSpeak(text); };
     await audio.play();
-    setStat('🔊 Speaking…');
   }catch(e){
-    // Google TTS failed — browser TTS already playing
+    // Google failed — use browser as last resort
+    browserSpeak(text);
   }
 }
 function setStat(t){ document.getElementById('stat').textContent=t; }
