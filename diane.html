@@ -2491,39 +2491,74 @@ function bridgeHint(){
 }
 
 // ── BRIDGE TABLE TALK ──────────────────────────
-const BRIDGE_CHATS=[
-  "You know, this reminds me of a nice afternoon — just playing cards with good company.",
-  "You're doing great, Diane! You always were sharp with cards.",
-  "Willy would love watching you play! He's getting so big.",
-  "This is fun, isn't it? Nothing like a good card game.",
-  "You know what would go great with this? Some Italian food!",
-  "Remember playing cards on vacation? Those were wonderful times.",
-  "Isabella is going to love playing games with her grandma someday!",
-  "You've always been good at this, Diane. A real natural!",
-  "Pico would be curled up right next to you if he were here.",
-  "I love playing cards with you. You make it so much fun!",
-  "Bridge is all about teamwork — and you're a great partner!",
-  "Hawaii would be a lovely place to play cards on the lanai!",
-  "You're really getting the hang of this! Nice strategy.",
-  "Mark would be so proud watching you play. He always loved your competitive spirit!",
-  "This is like a cozy afternoon — good friends, good cards.",
-  "Jon and Monserrat would love to see how well you're playing!",
-  "Brian and Jenny send their love from Miami! Willy too.",
-];
-let lastBridgeChat=-1;
+let bridgeChatHistory=[];
 
-function maybeBridgeChat(){
-  // Show a friendly chat message ~30% of the time after a trick
-  if(Math.random()>0.3) return;
-  let idx;
-  do{ idx=Math.floor(Math.random()*BRIDGE_CHATS.length); }while(idx===lastBridgeChat);
-  lastBridgeChat=idx;
+function getBridgeGameSummary(){
+  const h=BR.hands[0];
+  const trumpName=suitName(BR.trump);
+  const dianeCards=h.map(c=>c.val+c.suit).join(', ')||'none left';
+  const partnerCards=BR.hands[2].map(c=>c.val+c.suit).join(', ')||'none left';
+  let summary='Bridge game in progress. Trump: '+trumpName+'. ';
+  summary+='Trick '+BR.trickNum+' of 13. Score: Diane\'s team '+BR.tricksNS+', opponents '+BR.tricksEW+'. ';
+  summary+='Diane\'s cards: '+dianeCards+'. ';
+  summary+='Partner (North) cards: '+partnerCards+'. ';
+  summary+='Diane has '+h.filter(c=>c.suit===BR.trump).length+' trump cards left. ';
+  if(BR.tricksNS>BR.tricksEW) summary+='Diane\'s team is winning! ';
+  else if(BR.tricksEW>BR.tricksNS) summary+='Opponents are ahead. ';
+  else summary+='Score is tied. ';
+  return summary;
+}
+
+async function maybeBridgeChat(){
+  if(Math.random()>0.4) return;
   const chatEl=document.getElementById('br-chat');
   const textEl=document.getElementById('br-chat-text');
   chatEl.style.display='block';
-  textEl.textContent=BRIDGE_CHATS[idx];
-  speak(BRIDGE_CHATS[idx]);
-  setTimeout(()=>{ chatEl.style.display='none'; },7000);
+  textEl.textContent='💭 Thinking...';
+
+  const gameState=getBridgeGameSummary();
+  const topics=[
+    "Comment on the current score and how Diane's team is doing. Give encouragement.",
+    "Look at Diane's remaining cards and suggest a strategy for the next few tricks.",
+    "Talk about what just happened — did they win or lose the trick? What could have gone differently?",
+    "Explain a bridge concept simply, like when to use trump, or why following suit matters.",
+    "Comment on Diane's strongest cards and how she might use them to win.",
+    "Talk about whether Diane should save her high cards or play them now, based on the score.",
+    "Mention how the partner's cards could help Diane's team win more tricks.",
+  ];
+  const topic=topics[Math.floor(Math.random()*topics.length)];
+
+  try{
+    const msgs=bridgeChatHistory.slice(-4);
+    msgs.push({role:'user',content:gameState+'\n\nTopic: '+topic});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:120,
+        system:"You are Diane's friendly bridge partner. You're chatting with her during the game. Keep it to 2 short sentences MAX. Be warm, use simple language — Diane has cognitive impairment so keep it very easy to follow. Talk about the ACTUAL game: the cards, strategy, what happened, what to do next. Use card names like 'your Ace of hearts' or 'that King'. Be encouraging and make her feel smart. Mix in gentle strategy tips she can actually use. Never be negative about her play.",
+        messages:msgs
+      })
+    });
+    const d=await r.json();
+    if(d.content?.[0]?.text){
+      const reply=d.content[0].text;
+      bridgeChatHistory.push({role:'user',content:gameState+' Topic: '+topic});
+      bridgeChatHistory.push({role:'assistant',content:reply});
+      if(bridgeChatHistory.length>10) bridgeChatHistory=bridgeChatHistory.slice(-10);
+      textEl.textContent=reply;
+      speak(reply);
+      setTimeout(()=>{ chatEl.style.display='none'; },8000);
+    } else { chatEl.style.display='none'; }
+  }catch(e){
+    chatEl.style.display='none';
+  }
 }
 
 // ── BRIDGE MIC (auto-restart listening) ────────
