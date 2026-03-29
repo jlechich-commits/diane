@@ -106,9 +106,11 @@
     /* ─── CAMERA MODAL ───────────────────────────── */
     #cam-modal{display:none;position:fixed;inset:0;background:#000;z-index:700;flex-direction:column;}
     #camvid{flex:1;width:100%;object-fit:cover;}
-    .cam-bar{background:#111;padding:20px 24px 38px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
-    .cam-cancel{background:#333;color:white;border:none;border-radius:14px;padding:14px 22px;font-size:16px;font-family:'Nunito';font-weight:600;cursor:pointer;}
-    .cam-snap{background:white;border:none;border-radius:50%;width:72px;height:72px;font-size:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,255,255,.3);}
+    .cam-bar{background:#111;padding:16px 16px 34px;display:flex;align-items:center;justify-content:center;gap:16px;}
+    .cam-cancel{background:#555;color:white;border:none;border-radius:14px;padding:16px 24px;font-size:18px;font-family:'Nunito';font-weight:700;cursor:pointer;}
+    .cam-snap{background:#4CAF50;color:white;border:none;border-radius:20px;padding:18px 40px;font-size:22px;font-family:'Nunito';font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(76,175,80,.5);animation:pulse-snap 1.5s ease-in-out infinite;}
+    @keyframes pulse-snap{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+    .cam-countdown{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:80px;color:white;font-weight:900;text-shadow:0 4px 20px rgba(0,0,0,.8);pointer-events:none;z-index:10;}
     .cam-tip{color:#999;font-size:13px;font-family:'Nunito';}
 
     /* ─── NEWS ───────────────────────────────────── */
@@ -413,19 +415,18 @@
         </div>
 
         <div id="help-main">
-          <button class="help-big-btn photo" onclick="openCamera()">
-            📷 Take a Photo of Something
+          <button class="help-big-btn photo" onclick="openCamera()" style="font-size:24px;padding:30px 20px;min-height:100px;">
+            📷 Take a Photo — I'll Help!
           </button>
-          <div class="help-div">— or speak a question —</div>
-          <button class="help-big-btn voice" onclick="toggleHelpMic()">
-            <span>🎙</span><span id="helpmiclbl">Speak Your Question</span>
-          </button>
-          <div class="help-listen-ind" id="help-listen-ind">🎙 Listening… tap again to stop</div>
-          <div style="margin-top:20px;padding:16px;background:var(--warm);border-radius:14px;font-size:14px;color:var(--mid);line-height:1.6;">
-            <strong style="color:var(--brown)">Try these:</strong><br>
+          <div style="text-align:center;padding:16px 0;font-size:18px;color:var(--mid);font-weight:600;">
+            Point your iPad at anything confusing.<br>I'll tell you what it is and how to use it!
+          </div>
+          <div style="margin-top:12px;padding:16px;background:var(--warm);border-radius:14px;font-size:16px;color:var(--mid);line-height:1.8;">
+            <strong style="color:var(--brown)">Or just say:</strong><br>
             📺 "I can't figure out my remote"<br>
             💡 "How do I turn on the lights"<br>
-            📱 "How do I call Jon"
+            📱 "How do I call Jon"<br>
+            <span style="font-size:14px;color:var(--lite);">I'm always listening — just speak!</span>
           </div>
         </div>
       </div>
@@ -922,10 +923,10 @@
 <!-- ═══════════════════════════ CAMERA MODAL ═════════════════════ -->
 <div id="cam-modal">
   <video id="camvid" autoplay playsinline muted></video>
+  <div class="cam-countdown" id="cam-countdown" style="display:none;"></div>
   <div class="cam-bar">
     <button class="cam-cancel" onclick="cancelCamera()">Cancel</button>
-    <button class="cam-snap" onclick="snapPhoto()">📸</button>
-    <span class="cam-tip" id="cam-tip">Point at anything<br>confusing</span>
+    <button class="cam-snap" onclick="snapPhoto()">📸 TAP TO TAKE PHOTO</button>
   </div>
 </div>
 
@@ -1757,9 +1758,9 @@ async function sendMsg(text){
 // ══════════════════════════════════════════════════
 // CAMERA & HELP
 // ══════════════════════════════════════════════════
+let camAutoTimer=null;
 async function openCamera(mode){
   camMode=mode||'help';
-  const tipEl=document.getElementById('cam-tip'); if(tipEl) tipEl.innerHTML=camMode==='color'?'Point at anything<br>to color':'Point at anything<br>confusing';
   const modal=document.getElementById('cam-modal');
   modal.style.display='flex';
   try{
@@ -1767,12 +1768,32 @@ async function openCamera(mode){
       video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}
     });
     document.getElementById('camvid').srcObject=camStream;
+    // Tell Diane what to do
+    if(camMode==='color') speak("Point your iPad at what you'd like to color, Diane! I'll take the photo in 5 seconds, or tap the green button.");
+    else speak("Point your iPad at what you need help with, Diane! I'll take the photo in 5 seconds, or tap the green button.");
+    // Auto-snap countdown
+    startCamCountdown(5);
   } catch(e){
     modal.style.display='none';
-    alert('Camera access was not allowed.\n\nTo fix this:\niPad Settings → Safari → Camera → Allow');
+    speak('I need camera access to help you. A caregiver can enable it in iPad Settings, Safari, Camera.');
   }
 }
+
+function startCamCountdown(seconds){
+  clearTimeout(camAutoTimer);
+  const el=document.getElementById('cam-countdown');
+  if(seconds<=0){
+    el.style.display='none';
+    snapPhoto();
+    return;
+  }
+  el.style.display='block';
+  el.textContent=seconds;
+  camAutoTimer=setTimeout(()=>startCamCountdown(seconds-1),1000);
+}
 function cancelCamera(){
+  clearTimeout(camAutoTimer);
+  document.getElementById('cam-countdown').style.display='none';
   stopCamStream();
   document.getElementById('cam-modal').style.display='none';
 }
@@ -1780,6 +1801,8 @@ function stopCamStream(){
   if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
 }
 async function snapPhoto(){
+  clearTimeout(camAutoTimer);
+  document.getElementById('cam-countdown').style.display='none';
   const vid=document.getElementById('camvid');
   const canvas=document.createElement('canvas');
   canvas.width=vid.videoWidth||640; canvas.height=vid.videoHeight||480;
