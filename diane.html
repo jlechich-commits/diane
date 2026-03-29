@@ -1364,19 +1364,22 @@ function browserSpeak(text){
   }
 }
 
-async function speak(text){
+function speak(text){
   if(!text||!text.trim()) return;
   stopAudio();
   unlockAudio();
 
-  // If no ElevenLabs key, use browser TTS immediately (stays in user gesture chain)
-  if(!elKey){
-    browserSpeak(text);
-    return;
-  }
+  // ALWAYS start browser TTS immediately (must be in user gesture chain for iPad Safari)
+  browserSpeak(text);
 
-  // ElevenLabs TTS
-  setStat('🔊 Speaking…');
+  // If ElevenLabs key is set, try to upgrade to natural voice
+  // If it works, cancel browser TTS and play ElevenLabs audio instead
+  if(elKey){
+    speakEL(text);
+  }
+}
+
+async function speakEL(text){
   try{
     const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
       method:'POST',
@@ -1387,58 +1390,36 @@ async function speak(text){
         voice_settings:{stability:0.5,similarity_boost:0.75,style:0.2}
       })
     });
-    if(!r.ok){
-      const errText=await r.text().catch(()=>'');
-      console.warn('ElevenLabs HTTP error:',r.status,errText);
-      setStat('⚠️ EL error '+r.status+' — using iPad voice');
-      browserSpeak(text);
-      setTimeout(()=>setStat(''),4000);
-      return;
-    }
+    if(!r.ok) return; // browser TTS already playing, just let it continue
     const arrayBuf=await r.arrayBuffer();
-    // Method 1: Audio element (most reliable on iPad Safari)
+    // Cancel browser TTS since we have ElevenLabs audio
+    try{ synth.cancel(); }catch(e){}
+    // Play via Audio element (most reliable on iPad Safari)
     try{
       const blob=new Blob([arrayBuf],{type:'audio/mpeg'});
       const url=URL.createObjectURL(blob);
       const audio=new Audio(url);
       audio.onended=()=>{ URL.revokeObjectURL(url); setStat(''); };
-      audio.onerror=(e)=>{
-        console.warn('Audio element error:',e);
-        URL.revokeObjectURL(url);
-        // Method 2: AudioContext
-        tryAudioContext(arrayBuf);
-      };
+      audio.onerror=()=>{ URL.revokeObjectURL(url); setStat(''); };
       await audio.play();
       setStat('🔊 Speaking…');
       return;
-    } catch(audioErr){
-      console.warn('Audio element play failed:',audioErr.message);
-    }
-    // Method 2: AudioContext fallback
-    tryAudioContext(arrayBuf);
+    } catch(e){}
+    // Fallback: AudioContext
+    try{
+      if(!dAudioCtx) dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
+      const decoded=await dAudioCtx.decodeAudioData(arrayBuf.slice(0));
+      const source=dAudioCtx.createBufferSource();
+      source.buffer=decoded;
+      source.connect(dAudioCtx.destination);
+      source.onended=()=>{ dAudioSource=null; setStat(''); };
+      dAudioSource=source;
+      source.start(0);
+      setStat('🔊 Speaking…');
+    } catch(e){}
   } catch(e){
-    console.warn('ElevenLabs error:',e.message);
-    browserSpeak(text);
-    setStat('');
-  }
-}
-
-async function tryAudioContext(arrayBuf){
-  try{
-    if(!dAudioCtx) dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
-    const decoded=await dAudioCtx.decodeAudioData(arrayBuf.slice(0));
-    const source=dAudioCtx.createBufferSource();
-    source.buffer=decoded;
-    source.connect(dAudioCtx.destination);
-    source.onended=()=>{ dAudioSource=null; setStat(''); };
-    dAudioSource=source;
-    source.start(0);
-    setStat('🔊 Speaking…');
-  } catch(e){
-    console.warn('AudioContext also failed:',e.message);
-    setStat('⚠️ Audio failed');
-    setTimeout(()=>setStat(''),3000);
+    // ElevenLabs failed entirely — browser TTS already playing, nothing to do
   }
 }
 function setStat(t){ document.getElementById('stat').textContent=t; }
