@@ -194,27 +194,31 @@
 
     /* ─── BRIDGE ─────────────────────────────────── */
     .bridge-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:4px;}
-    .bridge-info{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;font-size:13px;flex-shrink:0;flex-wrap:wrap;gap:4px;}
-    .bridge-trump{background:var(--gold);color:white;padding:4px 12px;border-radius:8px;font-weight:700;font-size:14px;}
-    .bridge-score{color:var(--mid);font-weight:600;}
+    .bridge-info{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;font-size:16px;flex-shrink:0;flex-wrap:wrap;gap:6px;}
+    .bridge-trump{background:var(--gold);color:white;padding:6px 16px;border-radius:10px;font-weight:700;font-size:18px;}
+    .bridge-score{color:var(--mid);font-weight:700;font-size:17px;}
     .bridge-table{flex:1;display:flex;flex-direction:column;min-height:0;position:relative;}
-    .bridge-top{display:flex;justify-content:center;gap:3px;padding:4px 0;flex-wrap:wrap;flex-shrink:0;}
-    .bridge-middle{flex:1;display:flex;align-items:center;min-height:80px;}
-    .bridge-side{width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
-    .bridge-side-label{font-size:11px;color:var(--lite);font-weight:700;margin-bottom:4px;}
-    .bridge-side-count{font-size:16px;color:var(--brown);font-weight:700;}
-    .bridge-trick-area{flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;background:rgba(196,154,60,.06);border-radius:14px;margin:4px;min-height:70px;padding:8px;}
+    .bridge-top{display:flex;justify-content:center;gap:2px;padding:2px 0;flex-wrap:wrap;flex-shrink:0;}
+    .bridge-middle{flex:1;display:flex;align-items:center;min-height:90px;}
+    .bridge-side{width:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+    .bridge-side-label{font-size:13px;color:var(--lite);font-weight:700;margin-bottom:4px;}
+    .bridge-side-count{font-size:20px;color:var(--brown);font-weight:700;}
+    .bridge-trick-area{flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;background:rgba(196,154,60,.08);border-radius:14px;margin:4px;min-height:80px;padding:10px;}
     .bridge-trick-card{position:relative;text-align:center;}
-    .bridge-trick-label{font-size:10px;color:var(--lite);margin-bottom:2px;}
-    .bridge-trick-card .card{position:relative;width:52px;height:75px;}
-    .bridge-trick-card .card .crank{font-size:13px;}.bridge-trick-card .card .csm{font-size:12px;}.bridge-trick-card .card .cctr{font-size:20px;}
-    .bridge-bottom{display:flex;justify-content:center;gap:2px;padding:4px 0;flex-wrap:wrap;flex-shrink:0;}
-    .bridge-bottom .card{position:relative;width:var(--cw);height:var(--ch);flex-shrink:0;cursor:pointer;transition:transform .15s;}
-    .bridge-bottom .card:hover,.bridge-bottom .card:active{transform:translateY(-8px);}
-    .bridge-bottom .card.disabled{opacity:.5;pointer-events:none;}
-    .bridge-top .card{position:relative;width:44px;height:64px;}
-    .bridge-top .card .crank{font-size:11px;}.bridge-top .card .csm{font-size:10px;}.bridge-top .card .cctr{font-size:16px;}
-    .bridge-msg{text-align:center;padding:8px;color:var(--mid);font-style:italic;font-size:14px;flex-shrink:0;}
+    .bridge-trick-label{font-size:12px;color:var(--lite);margin-bottom:2px;font-weight:700;}
+    .bridge-trick-card .card{position:relative;width:58px;height:82px;}
+    .bridge-trick-card .card .crank{font-size:15px;}.bridge-trick-card .card .csm{font-size:14px;}.bridge-trick-card .card .cctr{font-size:24px;}
+    .bridge-bottom{display:flex;justify-content:center;gap:4px;padding:6px 0;flex-wrap:wrap;flex-shrink:0;}
+    .bridge-bottom .card{position:relative;width:70px;height:100px;flex-shrink:0;cursor:pointer;transition:transform .15s;border:2px solid transparent;border-radius:9px;}
+    .bridge-bottom .card:hover,.bridge-bottom .card:active{transform:translateY(-10px);}
+    .bridge-bottom .card.disabled{opacity:.35;pointer-events:none;transform:scale(.9);}
+    .bridge-bottom .card .crank{font-size:18px;font-weight:800;}.bridge-bottom .card .csm{font-size:16px;}.bridge-bottom .card .cctr{font-size:30px;}
+    .bridge-top .card{position:relative;width:36px;height:52px;}
+    .bridge-top .card .crank{font-size:10px;}.bridge-top .card .csm{font-size:9px;}.bridge-top .card .cctr{font-size:14px;}
+    .bridge-msg{text-align:center;padding:10px 12px;color:var(--dark);font-weight:700;font-size:18px;flex-shrink:0;min-height:44px;line-height:1.4;}
+    .bridge-msg.hint{color:var(--green);background:rgba(46,125,82,.08);border-radius:12px;margin:4px 8px;}
+    .bridge-bottom .card.suggested{border-color:var(--green)!important;box-shadow:0 0 0 3px var(--green),0 0 20px rgba(46,125,82,0.4)!important;animation:pulse-hint 1.2s ease-in-out infinite;}
+    @keyframes pulse-hint{0%,100%{box-shadow:0 0 0 3px var(--green),0 0 20px rgba(46,125,82,0.4);}50%{box-shadow:0 0 0 5px var(--green),0 0 30px rgba(46,125,82,0.6);}}
 
     /* ─── MEMORY MATCH ───────────────────────────── */
     .mem-wrap{flex:1;display:flex;flex-direction:column;padding:8px;overflow-y:auto;}
@@ -564,6 +568,17 @@
       <!-- Bridge -->
       <div class="game-screen" id="game-bridge">
         <button class="game-back-btn" onclick="showGame('picker')">← Back to Games</button>
+        <div class="game-help-box" style="margin-bottom:6px;">
+          <button class="game-help-toggle" onclick="toggleGameHelp(this)">❓ How to Play Bridge</button>
+          <div class="game-help-content">
+            <p><strong>You are South.</strong> North is your partner (cards shown face up). East and West are opponents.</p>
+            <p><strong>Goal:</strong> Win more tricks than the other team. Win 7 or more out of 13 to win the game!</p>
+            <p><strong>How:</strong> Tap one of your cards to play it. Everyone plays one card per round (a "trick"). The highest card of the suit that was led wins the trick.</p>
+            <p><strong>Trump:</strong> The trump suit beats all other suits. If you cannot follow the suit that was led, you can play a trump card to win.</p>
+            <p><strong>Must follow suit:</strong> If a heart is led and you have hearts, you must play a heart.</p>
+            <button class="solbtn" onclick="speak('You are South, and North is your partner. The goal is to win more tricks than the other team. Each round, everyone plays one card. The highest card of the led suit wins. But the trump suit beats everything! You must follow suit if you can. Win 7 or more tricks out of 13 to win!')" style="margin-top:8px;">🔊 Read Instructions</button>
+          </div>
+        </div>
         <div class="bridge-wrap">
           <div class="bridge-info">
             <span class="bridge-trump" id="br-trump">Trump: ♠</span>
@@ -580,17 +595,6 @@
             </div>
             <div class="bridge-msg" id="br-msg">Tap a card to play it</div>
             <div class="bridge-bottom" id="br-south"></div>
-          </div>
-        </div>
-        <div class="game-help-box">
-          <button class="game-help-toggle" onclick="toggleGameHelp(this)">❓ How to Play Bridge</button>
-          <div class="game-help-content">
-            <p><strong>You are South.</strong> North is your partner (cards shown face up). East and West are opponents.</p>
-            <p><strong>Goal:</strong> Win more tricks than the other team. Win 7 or more out of 13 to win the game!</p>
-            <p><strong>How:</strong> Tap one of your cards to play it. Everyone plays one card per round (a "trick"). The highest card of the suit that was led wins the trick.</p>
-            <p><strong>Trump:</strong> The trump suit beats all other suits. If you cannot follow the suit that was led, you can play a trump card to win.</p>
-            <p><strong>Must follow suit:</strong> If a heart is led and you have hearts, you must play a heart.</p>
-            <button class="solbtn" onclick="speak('You are South, and North is your partner. The goal is to win more tricks than the other team. Each round, everyone plays one card. The highest card of the led suit wins. But the trump suit beats everything! You must follow suit if you can. Win 7 or more tricks out of 13 to win!')" style="margin-top:8px;">🔊 Read Instructions</button>
           </div>
         </div>
       </div>
@@ -1321,6 +1325,7 @@ const SUBS={
 };
 function goTo(id,btn){
   stopAudio();
+  clearTimeout(tvIdleTimer);
   if(id!=='tv') closeTvPlayer();
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
@@ -2324,11 +2329,15 @@ function renderBridge(){
   const ledSuit=BR.trick.length?BR.trick[0].card.suit:null;
   const hasLed=ledSuit?BR.hands[0].some(c=>c.suit===ledSuit):false;
 
+  // Get suggested card index for auto-hint
+  const suggestedIdx=(BR.turn===0&&!BR.busy)?getBridgeSuggestion():-1;
+
   BR.hands[0].forEach((c,i)=>{
     const el=mkBridgeCard(c,true,false);
     const canPlay=BR.turn===0&&!BR.busy;
     const mustFollow=ledSuit&&hasLed&&c.suit!==ledSuit;
     if(!canPlay||mustFollow) el.classList.add('disabled');
+    else if(i===suggestedIdx) el.classList.add('suggested');
     el.addEventListener('click',()=>{
       if(BR.turn!==0||BR.busy) return;
       if(mustFollow){
@@ -2340,11 +2349,18 @@ function renderBridge(){
     south.appendChild(el);
   });
 
-  // Message
+  // Message — auto-hint when it's Diane's turn
   const msg=document.getElementById('br-msg');
-  if(BR.trickNum>=13) msg.textContent='Game over!';
-  else if(BR.turn===0) msg.textContent='Your turn — tap a card to play';
-  else msg.textContent=PLAYERS[BR.turn]+' is thinking...';
+  msg.className='bridge-msg';
+  if(BR.trickNum>=13){ msg.textContent='Game over!'; }
+  else if(BR.turn===0&&!BR.busy){
+    const hintText=getBridgeHintText();
+    msg.textContent='👆 '+hintText;
+    msg.className='bridge-msg hint';
+    // Scroll Diane's cards into view
+    setTimeout(()=>south.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+  }
+  else msg.textContent=PLAYERS[BR.turn]+' is playing...';
 }
 
 function mkBridgeCard(card,faceUp,small){
@@ -2432,100 +2448,87 @@ function aiPlayBridge(){
   }
 }
 
-function bridgeHint(){
-  if(!BR.started||BR.turn!==0||BR.busy){ speak("It is not your turn yet, Diane. Wait for the other players."); return; }
+function getBridgeAnalysis(){
   const hand=BR.hands[0];
-  if(!hand.length) return;
-
+  if(!hand.length) return{idx:0,hint:'No cards left.',short:'No cards'};
   const ledSuit=BR.trick.length?BR.trick[0].card.suit:null;
   const hasLed=ledSuit?hand.some(c=>c.suit===ledSuit):false;
-  let hint='', pickIdx=0;
+  let hint='', short='', pickIdx=0;
 
   if(BR.trick.length===0){
-    // Diane is leading
-    const trumpCards=hand.filter(c=>c.suit===BR.trump);
-    const nonTrump=hand.filter(c=>c.suit!==BR.trump);
-    // Count high cards (A, K, Q)
     const aces=hand.filter(c=>c.val==='A');
     const kings=hand.filter(c=>c.val==='K');
-
     if(aces.length){
-      // Lead an ace — guaranteed winner
-      const ace=aces[0];
-      pickIdx=hand.indexOf(ace);
-      hint="You have an Ace of "+suitName(ace.suit)+"! Lead with it — Aces always win the trick. Tap the "+ace.val+ace.suit+".";
+      const ace=aces[0]; pickIdx=hand.indexOf(ace);
+      short='Tap your Ace of '+suitName(ace.suit)+'!';
+      hint="You have an Ace of "+suitName(ace.suit)+"! Lead with it — Aces always win. Tap the glowing card!";
     } else if(kings.length&&kings.some(c=>c.suit!==BR.trump)){
-      const king=kings.find(c=>c.suit!==BR.trump)||kings[0];
-      pickIdx=hand.indexOf(king);
-      hint="Try leading with your King of "+suitName(king.suit)+". High cards are great for winning tricks! Tap the "+king.val+king.suit+".";
-    } else if(nonTrump.length){
-      // Lead from longest suit
-      const suitCounts={};
-      nonTrump.forEach(c=>{ suitCounts[c.suit]=(suitCounts[c.suit]||0)+1; });
-      let bestSuit=nonTrump[0].suit, bestCount=0;
-      for(const s in suitCounts){ if(suitCounts[s]>bestCount){bestCount=suitCounts[s];bestSuit=s;} }
-      const suitCards=hand.filter(c=>c.suit===bestSuit);
-      pickIdx=hand.indexOf(suitCards[0]);
-      hint="Try leading from your longest suit, "+suitName(bestSuit)+". You have "+bestCount+" of them. Play the highest one — "+suitCards[0].val+suitCards[0].suit+".";
+      const king=kings.find(c=>c.suit!==BR.trump)||kings[0]; pickIdx=hand.indexOf(king);
+      short='Tap your King of '+suitName(king.suit);
+      hint="Lead with your King of "+suitName(king.suit)+". High cards win tricks!";
     } else {
-      pickIdx=hand.length-1;
-      hint="You only have trump cards. Play your lowest trump to save the big ones for later. Tap the "+hand[hand.length-1].val+hand[hand.length-1].suit+".";
+      const nonTrump=hand.filter(c=>c.suit!==BR.trump);
+      if(nonTrump.length){
+        const suitCounts={};
+        nonTrump.forEach(c=>{ suitCounts[c.suit]=(suitCounts[c.suit]||0)+1; });
+        let bestSuit=nonTrump[0].suit,bestCount=0;
+        for(const s in suitCounts){if(suitCounts[s]>bestCount){bestCount=suitCounts[s];bestSuit=s;}}
+        const suitCards=hand.filter(c=>c.suit===bestSuit); pickIdx=hand.indexOf(suitCards[0]);
+        short='Tap the '+suitCards[0].val+suitCards[0].suit;
+        hint="Lead from your longest suit, "+suitName(bestSuit)+". Play "+suitCards[0].val+suitCards[0].suit+"!";
+      } else { pickIdx=hand.length-1; short='Tap lowest trump'; hint="Play your lowest trump to save the big ones."; }
     }
   } else if(hasLed){
-    // Must follow suit
     const suitCards=hand.filter(c=>c.suit===ledSuit);
     const currentBest=getBridgeBest();
     const canWin=suitCards.filter(c=>valRank(c.val)>valRank(currentBest.val)&&c.suit===currentBest.suit);
-    const partnerPlayed=BR.trick.some(t=>t.player===2);
-    const partnerWinning=partnerPlayed&&getBridgeWinner()===2;
-
+    const partnerWinning=BR.trick.some(t=>t.player===2)&&getBridgeWinner()===2;
     if(partnerWinning){
-      // Partner is winning — play lowest
-      const lowest=suitCards[suitCards.length-1];
-      pickIdx=hand.indexOf(lowest);
-      hint="Your partner is winning this trick! Play your lowest "+suitName(ledSuit)+" to save your good cards. Tap "+lowest.val+lowest.suit+".";
+      const lowest=suitCards[suitCards.length-1]; pickIdx=hand.indexOf(lowest);
+      short='Partner wins! Play low '+lowest.val+lowest.suit;
+      hint="Your partner is winning! Play your lowest card, "+lowest.val+lowest.suit+".";
     } else if(canWin.length){
-      // Can beat current winner — play lowest winner
-      const winner=canWin[canWin.length-1];
-      pickIdx=hand.indexOf(winner);
-      hint="You can win this trick! Play the "+winner.val+winner.suit+" — it beats what is on the table.";
+      const winner=canWin[canWin.length-1]; pickIdx=hand.indexOf(winner);
+      short='You can win! Tap '+winner.val+winner.suit;
+      hint="You can win this trick! Tap the "+winner.val+winner.suit+".";
     } else {
-      // Can't win — dump lowest
-      const lowest=suitCards[suitCards.length-1];
-      pickIdx=hand.indexOf(lowest);
-      hint="You cannot beat what is on the table, so play your lowest "+suitName(ledSuit)+" to save your good cards. Tap "+lowest.val+lowest.suit+".";
+      const lowest=suitCards[suitCards.length-1]; pickIdx=hand.indexOf(lowest);
+      short='Play low '+lowest.val+lowest.suit;
+      hint="You can't beat them this round. Play your lowest, "+lowest.val+lowest.suit+".";
     }
   } else {
-    // Void in led suit
     const currentWinner=getBridgeWinner();
     const partnerWinning=(currentWinner%2===0);
     const trumpCards=hand.filter(c=>c.suit===BR.trump);
-
     if(partnerWinning){
       const nonTrump=hand.filter(c=>c.suit!==BR.trump);
-      const dump=nonTrump.length?nonTrump[nonTrump.length-1]:hand[hand.length-1];
-      pickIdx=hand.indexOf(dump);
-      hint="Your partner is winning! You do not have "+suitName(ledSuit)+", so just throw away a low card. Tap "+dump.val+dump.suit+".";
+      const dump=nonTrump.length?nonTrump[nonTrump.length-1]:hand[hand.length-1]; pickIdx=hand.indexOf(dump);
+      short='Partner wins! Throw '+dump.val+dump.suit;
+      hint="Your partner is winning! Just throw away "+dump.val+dump.suit+".";
     } else if(trumpCards.length){
-      const trump=trumpCards[trumpCards.length-1];
-      pickIdx=hand.indexOf(trump);
-      hint="You are out of "+suitName(ledSuit)+"! Play a trump card to win the trick. Tap "+trump.val+trump.suit+".";
+      const trump=trumpCards[trumpCards.length-1]; pickIdx=hand.indexOf(trump);
+      short='Use trump! Tap '+trump.val+trump.suit;
+      hint="You're out of "+suitName(ledSuit)+"! Play your trump "+trump.val+trump.suit+" to steal the trick!";
     } else {
-      const dump=hand[hand.length-1];
-      pickIdx=hand.indexOf(dump);
-      hint="You cannot follow suit and have no trump. Just throw away your lowest card. Tap "+dump.val+dump.suit+".";
+      const dump=hand[hand.length-1]; pickIdx=hand.indexOf(dump);
+      short='Throw away '+dump.val+dump.suit;
+      hint="No trump, no "+suitName(ledSuit)+". Just discard "+dump.val+dump.suit+".";
     }
   }
+  return{idx:pickIdx,hint:hint,short:short};
+}
 
-  // Highlight the suggested card
-  const southEl=document.getElementById('br-south');
-  const cards=southEl.querySelectorAll('.card');
-  cards.forEach(c=>c.style.boxShadow='');
-  if(cards[pickIdx]) cards[pickIdx].style.boxShadow='0 0 0 4px #2E7D52, 0 0 16px rgba(46,125,82,0.6)';
+function getBridgeSuggestion(){
+  try{ return getBridgeAnalysis().idx; }catch(e){ return -1; }
+}
+function getBridgeHintText(){
+  try{ return getBridgeAnalysis().short; }catch(e){ return 'Your turn — tap a card'; }
+}
 
-  // Show and speak hint
-  document.getElementById('br-msg').textContent='💡 '+hint;
-  speak(hint);
+function bridgeHint(){
+  if(!BR.started||BR.turn!==0||BR.busy){ speak("It is not your turn yet, Diane."); return; }
+  const a=getBridgeAnalysis();
+  speak(a.hint);
 }
 
 function getBridgeBest(){
