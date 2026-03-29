@@ -927,6 +927,7 @@
         <button class="set-btn pri" onclick="updateElKey()">Save</button>
       </div>
       <div class="set-hint">Free at elevenlabs.io → Sign up → Profile → API Key. Makes Diane's voice sound completely natural.</div>
+      <button class="set-btn pri" style="margin-top:8px;background:var(--green);" onclick="testVoice()">🔊 Test Voice</button>
       <div style="margin-top:8px;">
         <select id="set-voice" class="set-inp" style="width:100%;" onchange="updateVoice()">
           <option value="EXAVITQu4vr4xnSDxMaL">Sarah — warm &amp; gentle (recommended)</option>
@@ -1182,6 +1183,22 @@ async function updateElKey(){
 }
 function updateVoice(){ elVoice=document.getElementById('set-voice').value; localStorage.setItem('diane_el_voice',elVoice); }
 
+function testVoice(){
+  // Direct test — no async, no setTimeout, pure user gesture chain
+  try{ synth.cancel(); }catch(e){}
+  const u=new SpeechSynthesisUtterance('Hello Diane! Can you hear me?');
+  u.lang='en-US'; u.rate=0.85; u.pitch=1.0; u.volume=1;
+  const vs=synth.getVoices();
+  const v=vs.find(x=>x.name==='Samantha')||vs.find(x=>x.name.includes('Karen'))||
+          vs.find(x=>x.name.includes('Moira'))||vs.find(x=>x.lang==='en-US')||vs[0];
+  if(v) u.voice=v;
+  u.onstart=()=>{ document.getElementById('stat').textContent='🔊 Speaking…'; };
+  u.onend=()=>{ document.getElementById('stat').textContent='✅ Voice works!'; };
+  u.onerror=(e)=>{ alert('Voice error: '+JSON.stringify(e.error||e)); document.getElementById('stat').textContent='❌ Voice failed'; };
+  synth.speak(u);
+  if(!vs.length) alert('No voices found on this device. Is speech enabled in Settings > Accessibility > Spoken Content?');
+}
+
 function openSettings(){
   renderMemList();
   const elBadge=document.getElementById('el-badge');
@@ -1342,26 +1359,16 @@ function stopAudio(){
 
 function browserSpeak(text){
   try{ synth.cancel(); }catch(e){}
-  // iPad Safari sometimes needs voices to load first
-  const doSpeak=()=>{
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US'; u.rate=0.85; u.pitch=1.0; u.volume=1;
-    const vs=synth.getVoices();
-    const v=vs.find(x=>x.name==='Samantha')||vs.find(x=>x.name.includes('Karen'))||
-            vs.find(x=>x.name.includes('Moira'))||vs.find(x=>x.lang==='en-US')||vs[0];
-    if(v) u.voice=v;
-    u.onstart=()=>setStat('🔊 Speaking…');
-    u.onend=()=>setStat('');
-    u.onerror=(e)=>{ console.warn('Browser TTS error:',e); setStat(''); };
-    synth.speak(u);
-  };
-  const voices=synth.getVoices();
-  if(voices.length===0){
-    synth.onvoiceschanged=()=>{ synth.onvoiceschanged=null; setTimeout(doSpeak,50); };
-    setTimeout(doSpeak,200); // fallback if onvoiceschanged never fires
-  } else {
-    setTimeout(doSpeak,50);
-  }
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US'; u.rate=0.85; u.pitch=1.0; u.volume=1;
+  const vs=synth.getVoices();
+  const v=vs.find(x=>x.name==='Samantha')||vs.find(x=>x.name.includes('Karen'))||
+          vs.find(x=>x.name.includes('Moira'))||vs.find(x=>x.lang==='en-US')||vs[0];
+  if(v) u.voice=v;
+  u.onstart=()=>setStat('🔊 Speaking…');
+  u.onend=()=>setStat('');
+  u.onerror=(e)=>{ console.warn('Browser TTS error:',e); setStat('TTS error'); };
+  synth.speak(u);
 }
 
 function speak(text){
