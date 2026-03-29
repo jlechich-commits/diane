@@ -6,6 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Diane</title>
+  <!-- v2 -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -169,7 +170,47 @@
     .win-msg{display:none;background:var(--gold);color:white;text-align:center;padding:16px;border-radius:12px;margin-bottom:10px;font-family:'Playfair Display';font-size:22px;}
     .win-msg.on{display:block;}
 
-    /* ─── DRAWING ────────────────────────────────── */
+
+    /* ─── DRAW TABS ──────────────────────────────── */
+    #sec-draw{padding:0;overflow:hidden;}
+    .draw-tabs{display:flex;border-bottom:2px solid var(--gold-pale);flex-shrink:0;background:var(--cream);}
+    .draw-tab{flex:1;padding:10px;border:none;background:none;font-size:14px;font-family:'Nunito';font-weight:600;color:var(--lite);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;}
+    .draw-tab.on{color:var(--gold);border-bottom-color:var(--gold);}
+    .draw-panel{display:none;flex:1;flex-direction:column;overflow:hidden;}
+    .draw-panel.on{display:flex;}
+    #free-draw-panel{padding:6px;gap:6px;}
+    /* ─── COLORING BOOK ──────────────────────────── */
+    #color-book-panel{overflow-y:auto;}
+    .cb-inner{padding:12px;}
+    .cb-section-title{font-size:13px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:14px;}
+    .cb-themes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
+    .cb-theme{padding:12px 6px;background:white;border:2px solid var(--gold-pale);border-radius:14px;cursor:pointer;text-align:center;box-shadow:0 2px 8px var(--shad);}
+    .cb-theme:active{border-color:var(--gold);transform:scale(.96);}
+    .cb-theme-icon{font-size:26px;display:block;margin-bottom:4px;}
+    .cb-theme-name{font-size:12px;font-weight:700;color:var(--dark);}
+    .cb-photo-btn{width:100%;padding:18px;margin-top:12px;border:none;border-radius:16px;background:var(--rose);color:white;font-size:16px;font-family:'Nunito';font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 16px rgba(196,116,90,.3);}
+    .cb-loading{display:none;text-align:center;padding:32px 16px;color:var(--lite);font-style:italic;}
+    .cb-loading.on{display:block;}
+    .cb-canvas-wrap{display:none;flex-direction:column;flex:1;overflow:hidden;}
+    .cb-canvas-wrap.on{display:flex;}
+    #color-cvs{display:block;touch-action:none;background:white;flex-shrink:0;max-width:100%;}
+    .cb-tools{flex-shrink:0;padding:8px;background:var(--cream);border-top:1px solid var(--gold-pale);}
+    .cb-colors{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;}
+    .cb-col{width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform .15s,border-color .15s;flex-shrink:0;}
+    .cb-col.on{border-color:var(--dark);transform:scale(1.18);}
+    .cb-btns{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
+    .cb-btn{padding:8px 14px;border:none;border-radius:9px;font-size:13px;font-family:'Nunito';font-weight:700;cursor:pointer;}
+    .cb-btn.bucket{background:var(--gold);color:white;}
+    .cb-btn.bucket.on{outline:3px solid var(--dark);}
+    .cb-btn.brush{background:var(--warm);color:var(--brown);border:2px solid var(--gold-pale);}
+    .cb-btn.brush.on{background:var(--gold-pale);border-color:var(--gold);}
+    .cb-btn.back{background:var(--warm);color:var(--brown);border:2px solid var(--gold-pale);}
+    .cb-btn.savepng{background:var(--green-lt);color:white;}
+    .set-hint{font-size:12px;color:var(--lite);margin-top:4px;line-height:1.5;}
+    .set-badge{display:inline-block;padding:2px 8px;background:#EFF8F2;color:var(--green);border-radius:6px;font-size:11px;font-weight:700;margin-left:6px;}
+    .set-badge.warn{background:#FFF3CD;color:#856404;}
+
+    /* ─── FREE DRAWING (original) ───────────────── */
     #sec-draw{padding:6px;gap:6px;overflow:hidden;}
     #cvs{border-radius:14px;background:white;touch-action:none;box-shadow:0 2px 12px var(--shad);cursor:crosshair;flex-shrink:0;display:block;}
     .dtool{flex-shrink:0;}
@@ -361,17 +402,57 @@
       <div class="tab" id="tab"></div>
     </div>
 
-    <!-- ── DRAWING ────────────────────────────── -->
+    <!-- ── DRAW + COLORING BOOK ───────────────────── -->
     <div class="sec" id="sec-draw">
-      <canvas id="cvs"></canvas>
-      <div class="dtool">
-        <div class="dcolors" id="dcols"></div>
-        <div class="dbtms">
-          <button class="dszbtn on" onclick="setBS(7,this)">Small ●</button>
-          <button class="dszbtn" onclick="setBS(17,this)">Med ●</button>
-          <button class="dszbtn" onclick="setBS(34,this)">Big ●</button>
-          <button class="dact erase" id="erasebtn" onclick="togErase()">Eraser</button>
-          <button class="dact clr" onclick="clearCvs()">🗑 Clear</button>
+      <div class="draw-tabs">
+        <button class="draw-tab on" onclick="switchDrawTab('free',this)">✏️ Free Draw</button>
+        <button class="draw-tab" onclick="switchDrawTab('color',this)">🎨 Coloring Book</button>
+      </div>
+      <!-- Free draw panel -->
+      <div class="draw-panel on" id="free-draw-panel">
+        <canvas id="cvs" style="margin:6px;"></canvas>
+        <div class="dtool" style="padding:0 6px 6px;">
+          <div class="dcolors" id="dcols"></div>
+          <div class="dbtms">
+            <button class="dszbtn on" onclick="setBS(7,this)">Small ●</button>
+            <button class="dszbtn" onclick="setBS(17,this)">Med ●</button>
+            <button class="dszbtn" onclick="setBS(34,this)">Big ●</button>
+            <button class="dact erase" id="erasebtn" onclick="togErase()">Eraser</button>
+            <button class="dact clr" onclick="clearCvs()">🗑 Clear</button>
+          </div>
+        </div>
+      </div>
+      <!-- Coloring book panel -->
+      <div class="draw-panel" id="color-book-panel">
+        <div id="cb-picker" style="overflow-y:auto;flex:1;">
+          <div class="cb-inner">
+            <div class="cb-section-title">Choose a coloring page</div>
+            <div class="cb-themes">
+              <button class="cb-theme" onclick="makeColorPage('A beautiful bouquet of large flowers with big petals and leaves in a vase')"><span class="cb-theme-icon">🌸</span><span class="cb-theme-name">Flowers</span></button>
+              <button class="cb-theme" onclick="makeColorPage('A cute cat sitting and looking happy with big eyes and a collar')"><span class="cb-theme-icon">🐱</span><span class="cb-theme-name">Animals</span></button>
+              <button class="cb-theme" onclick="makeColorPage('A large tropical hibiscus flower with palm tree and bright sun')"><span class="cb-theme-icon">🌺</span><span class="cb-theme-name">Hawaii</span></button>
+              <button class="cb-theme" onclick="makeColorPage('A bowl of pasta with sauce and a wine glass, Italian style')"><span class="cb-theme-icon">🍝</span><span class="cb-theme-name">Italy</span></button>
+              <button class="cb-theme" onclick="makeColorPage('A large butterfly with beautiful symmetrical patterned wings')"><span class="cb-theme-icon">🦋</span><span class="cb-theme-name">Butterfly</span></button>
+              <button class="cb-theme" onclick="makeColorPage('A cozy garden with flowers, a birdhouse, a bee and watering can')"><span class="cb-theme-icon">🌻</span><span class="cb-theme-name">Garden</span></button>
+              <button class="cb-theme" onclick="makeColorPage('A friendly bird on a flowering branch with leaves and berries')"><span class="cb-theme-icon">🐦</span><span class="cb-theme-name">Birds</span></button>
+              <button class="cb-theme" onclick="makeColorPage('Ocean scene with waves, a sailboat, lighthouse and seagulls')"><span class="cb-theme-icon">⛵</span><span class="cb-theme-name">Ocean</span></button>
+              <button class="cb-theme" onclick="makeColorPage('A Christmas tree with ornaments star on top and presents underneath')"><span class="cb-theme-icon">🎄</span><span class="cb-theme-name">Holiday</span></button>
+            </div>
+            <button class="cb-photo-btn" onclick="openCamera('color')">📷 Turn a Photo Into a Coloring Page</button>
+          </div>
+        </div>
+        <div class="cb-loading" id="cb-loading"><div style="font-size:40px;margin-bottom:12px">🎨</div>Creating your coloring page…</div>
+        <div class="cb-canvas-wrap" id="cb-canvas-wrap">
+          <canvas id="color-cvs"></canvas>
+          <div class="cb-tools">
+            <div class="cb-colors" id="cb-cols"></div>
+            <div class="cb-btns">
+              <button class="cb-btn bucket on" id="cb-bucket-btn" onclick="setCbTool('bucket')">🪣 Fill</button>
+              <button class="cb-btn brush" id="cb-brush-btn" onclick="setCbTool('brush')">✏️ Draw</button>
+              <button class="cb-btn back" onclick="resetColorPage()">🔙 New Page</button>
+              <button class="cb-btn savepng" onclick="saveColorPage()">💾 Save</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -394,7 +475,7 @@
   <div class="cam-bar">
     <button class="cam-cancel" onclick="cancelCamera()">Cancel</button>
     <button class="cam-snap" onclick="snapPhoto()">📸</button>
-    <span class="cam-tip">Point at anything<br>confusing</span>
+    <span class="cam-tip" id="cam-tip">Point at anything<br>confusing</span>
   </div>
 </div>
 
@@ -422,6 +503,27 @@
       <div class="set-row">
         <input type="password" id="set-key" class="set-inp" placeholder="sk-ant-…">
         <button class="set-btn pri" onclick="updateKey()">Save</button>
+      </div>
+    </div>
+
+
+    <div class="set-sec">
+      <div class="set-lbl">
+        ElevenLabs Voice Key
+        <span class="set-badge warn" id="el-badge">Not set</span>
+      </div>
+      <div class="set-row">
+        <input type="password" id="set-el-key" class="set-inp" placeholder="Paste ElevenLabs API key…">
+        <button class="set-btn pri" onclick="updateElKey()">Save</button>
+      </div>
+      <div class="set-hint">Free at elevenlabs.io → Sign up → Profile → API Key. Makes Diane's voice sound completely natural.</div>
+      <div style="margin-top:8px;">
+        <select id="set-voice" class="set-inp" style="width:100%;" onchange="updateVoice()">
+          <option value="EXAVITQu4vr4xnSDxMaL">Sarah — warm &amp; gentle (recommended)</option>
+          <option value="9BWtsMINqrJLrRacOk9x">Aria — bright &amp; friendly</option>
+          <option value="FGY2WhTYpPnrIDTdsKH5">Laura — clear &amp; upbeat</option>
+          <option value="XrExE9yKIg1WjnnlVkGX">Matilda — soft &amp; calm</option>
+        </select>
       </div>
     </div>
 
@@ -550,8 +652,10 @@ function doMemSave(btnId, encodedText){
 // ══════════════════════════════════════════════════
 // GLOBALS
 // ══════════════════════════════════════════════════
-let apiKey='', conv=[], listening=false, recog=null;
-let helpListening=false, helpRecog=null, helpResponse='', camStream=null;
+let apiKey='', elKey='', elVoice='EXAVITQu4vr4xnSDxMaL';
+let conv=[], listening=false, recog=null;
+let currentAudio=null;
+let helpListening=false, helpRecog=null, helpResponse='', camStream=null, camMode='help';
 const synth=window.speechSynthesis;
 let newsItems=[], curStoryText='', curStoryCat='';
 let pinCallback=null;
@@ -561,6 +665,8 @@ let pinCallback=null;
 // ══════════════════════════════════════════════════
 window.addEventListener('load',()=>{
   apiKey=localStorage.getItem('diane_key')||'';
+  elKey=localStorage.getItem('diane_el_key')||'';
+  elVoice=localStorage.getItem('diane_el_voice')||'EXAVITQu4vr4xnSDxMaL';
   synth.getVoices();
   if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=()=>synth.getVoices();
   setInterval(()=>{ if(synth.speaking&&!synth.paused){synth.pause();synth.resume();} },8000);
@@ -589,7 +695,7 @@ function doSetup(){
 function launch(){
   document.getElementById('setup').classList.add('gone');
   document.getElementById('app').classList.remove('gone');
-  initDraw(); setCardDims();
+  initDraw(); setCardDims(); initCbColors();
   window.addEventListener('resize',setCardDims);
   setTimeout(()=>{
     const g="Hi Diane! It's so wonderful to talk with you today. How are you feeling?";
@@ -628,8 +734,21 @@ function checkPIN(){
 // ══════════════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════════════
+function updateElKey(){
+  const k=document.getElementById('set-el-key').value.trim();
+  if(!k){ alert('Please paste your ElevenLabs API key.'); return; }
+  localStorage.setItem('diane_el_key',k); elKey=k;
+  document.getElementById('set-el-key').value='';
+  alert('ElevenLabs voice activated! 🎙 Diane will now sound completely natural.');
+  openSettings();
+}
+function updateVoice(){ elVoice=document.getElementById('set-voice').value; localStorage.setItem('diane_el_voice',elVoice); }
+
 function openSettings(){
   renderMemList();
+  const elBadge=document.getElementById('el-badge');
+  if(elBadge){ if(elKey){elBadge.textContent='Active ✓';elBadge.className='set-badge';}else{elBadge.textContent='Not set';elBadge.className='set-badge warn';} }
+  const vs=document.getElementById('set-voice'); if(vs) vs.value=elVoice;
   document.getElementById('set-modal').classList.add('on');
 }
 function closeSettings(){
@@ -695,7 +814,7 @@ const SUBS={
   sol:'Solitaire',draw:'Drawing & Coloring'
 };
 function goTo(id,btn){
-  synth.cancel();
+  stopAudio();
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('sec-'+id).classList.add('on');
@@ -707,9 +826,33 @@ function goTo(id,btn){
 }
 
 // ══════════════════════════════════════════════════
-// TTS
+// TTS — ELEVENLABS + BROWSER FALLBACK
 // ══════════════════════════════════════════════════
-function speak(text){
+function stopAudio(){
+  synth.cancel();
+  if(currentAudio){ currentAudio.pause(); currentAudio=null; }
+  setStat('');
+}
+async function speak(text){
+  stopAudio();
+  if(elKey){
+    try{
+      const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${elVoice}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','xi-api-key':elKey},
+        body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.5,similarity_boost:0.75,style:0.3,use_speaker_boost:true}})
+      });
+      if(r.ok){
+        const blob=await r.blob();
+        const url=URL.createObjectURL(blob);
+        currentAudio=new Audio(url);
+        currentAudio.onended=()=>{ URL.revokeObjectURL(url); setStat(''); };
+        currentAudio.play();
+        setStat('🔊 Speaking…');
+        return;
+      }
+    } catch(e){ console.warn('ElevenLabs failed, using browser TTS'); }
+  }
   if(!synth) return;
   synth.cancel();
   setTimeout(()=>{
@@ -827,7 +970,9 @@ async function sendMsg(text){
 // ══════════════════════════════════════════════════
 // CAMERA & HELP
 // ══════════════════════════════════════════════════
-async function openCamera(){
+async function openCamera(mode){
+  camMode=mode||'help';
+  const tipEl=document.getElementById('cam-tip'); if(tipEl) tipEl.innerHTML=camMode==='color'?'Point at anything<br>to color':'Point at anything<br>confusing';
   const modal=document.getElementById('cam-modal');
   modal.style.display='flex';
   try{
@@ -855,7 +1000,8 @@ async function snapPhoto(){
   const b64=canvas.toDataURL('image/jpeg',0.85).split(',')[1];
   stopCamStream();
   document.getElementById('cam-modal').style.display='none';
-  await analyzePhoto(b64);
+  if(camMode==='color') photoToColorPage(b64);
+  else await analyzePhoto(b64);
 }
 
 async function analyzePhoto(b64){
@@ -1270,8 +1416,222 @@ function renderTab(){
   });
 }
 
+
 // ══════════════════════════════════════════════════
-// DRAWING
+// DRAW TAB SWITCHING
+// ══════════════════════════════════════════════════
+function switchDrawTab(tab,btn){
+  document.querySelectorAll('.draw-tab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.draw-panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  if(tab==='free'){ document.getElementById('free-draw-panel').classList.add('on'); resizeCvs(); }
+  else document.getElementById('color-book-panel').classList.add('on');
+}
+
+// ══════════════════════════════════════════════════
+// COLORING BOOK
+// ══════════════════════════════════════════════════
+let cbTool='bucket', cbColor='#E74C3C';
+const CB_COLORS=['#E74C3C','#E67E22','#F1C40F','#27AE60','#2980B9','#8E44AD','#C4745A','#1ABC9C','#E91E63','#FF9800','#795548','#000000'];
+
+function initCbColors(){
+  const cb=document.getElementById('cb-cols');
+  CB_COLORS.forEach((c,i)=>{
+    const btn=document.createElement('button'); btn.className='cb-col'+(i===0?' on':''); btn.style.background=c;
+    btn.addEventListener('click',()=>{ document.querySelectorAll('.cb-col').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); cbColor=c; });
+    cb.appendChild(btn);
+  });
+}
+
+function setCbTool(t){
+  cbTool=t;
+  document.getElementById('cb-bucket-btn').classList.toggle('on',t==='bucket');
+  document.getElementById('cb-brush-btn').classList.toggle('on',t==='brush');
+}
+
+async function makeColorPage(description){
+  document.getElementById('cb-picker').style.display='none';
+  const loading=document.getElementById('cb-loading'); loading.classList.add('on');
+  speak('Let me draw a beautiful coloring page for you, Diane!');
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2000,messages:[{role:'user',content:`Create a simple SVG coloring page for an elderly woman. Theme: ${description}.
+
+STRICT REQUIREMENTS:
+- viewBox="0 0 500 500" width="500" height="500"
+- Start with white background: <rect width="500" height="500" fill="white"/>
+- ALL shapes must have: fill="white" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+- Use ONLY: circle, ellipse, rect, path, line, polyline, polygon
+- 6-12 large distinct regions to color in
+- Simple bold outlines like a children's coloring book
+- No text, no gradients, no patterns, no clipPath, no image tags
+- Output ONLY the raw SVG starting with <svg and ending with </svg>. Nothing else. No markdown.`}]})
+    });
+    const d=await r.json();
+    let svgText=d.content?.[0]?.text||'';
+    const match=svgText.match(/<svg[\s\S]*<\/svg>/i);
+    if(match) svgText=match[0];
+    loading.classList.remove('on');
+    renderColorPage(svgText);
+  } catch(e){
+    loading.classList.remove('on');
+    document.getElementById('cb-picker').style.display='';
+    alert('Could not create a coloring page right now. Please try again!');
+  }
+}
+
+function renderColorPage(svgText){
+  const sec=document.getElementById('sec-draw');
+  const toolH=80, tabH=44;
+  const avail=sec.clientHeight-toolH-tabH-8;
+  const sz=Math.min(sec.clientWidth-8,avail,520);
+  const cvs=document.getElementById('color-cvs');
+  cvs.width=sz; cvs.height=sz; cvs.style.width=sz+'px'; cvs.style.height=sz+'px';
+  const img=new Image();
+  const blob=new Blob([svgText],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  img.onload=()=>{
+    const ctx=cvs.getContext('2d');
+    ctx.fillStyle='white'; ctx.fillRect(0,0,sz,sz);
+    ctx.drawImage(img,0,0,sz,sz);
+    URL.revokeObjectURL(url);
+    setupColorCanvas(cvs);
+    document.getElementById('cb-canvas-wrap').classList.add('on');
+    speak("Here is your coloring page, Diane! Tap a color, then tap any area to fill it in. Have fun!");
+  };
+  img.onerror=()=>{ URL.revokeObjectURL(url); alert('Could not render the page. Please try again.'); document.getElementById('cb-picker').style.display=''; };
+  img.src=url;
+}
+
+function setupColorCanvas(cvs){
+  let painting=false;
+  const onDown=e=>{
+    e.preventDefault();
+    const pos=cbPos(e,cvs);
+    if(cbTool==='bucket') floodFill(cvs,Math.round(pos.x),Math.round(pos.y),cbColor);
+    else{ painting=true; const ctx=cvs.getContext('2d'); ctx.beginPath(); ctx.moveTo(pos.x,pos.y); }
+  };
+  const onMove=e=>{
+    e.preventDefault(); if(!painting||cbTool!=='brush') return;
+    const pos=cbPos(e,cvs); const ctx=cvs.getContext('2d');
+    ctx.lineTo(pos.x,pos.y); ctx.strokeStyle=cbColor; ctx.lineWidth=12; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+  };
+  const onUp=e=>{ e.preventDefault(); painting=false; };
+  cvs.addEventListener('pointerdown',onDown);
+  cvs.addEventListener('pointermove',onMove);
+  cvs.addEventListener('pointerup',onUp);
+  cvs.addEventListener('pointercancel',onUp);
+}
+
+function cbPos(e,cvs){
+  const r=cvs.getBoundingClientRect(); const scale=cvs.width/r.width;
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-r.left)*scale,y:(src.clientY-r.top)*scale};
+}
+
+function hexToRgb(hex){ return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]; }
+
+function floodFill(cvs,startX,startY,fillHex){
+  const ctx=cvs.getContext('2d');
+  const W=cvs.width,H=cvs.height;
+  const imageData=ctx.getImageData(0,0,W,H);
+  const data=imageData.data;
+  const[fR,fG,fB]=hexToRgb(fillHex);
+  const pos=(startY*W+startX)*4;
+  if(pos<0||pos>=data.length) return;
+  const tR=data[pos],tG=data[pos+1],tB=data[pos+2];
+  if(tR<60&&tG<60&&tB<60) return; // don't fill black outlines
+  if(tR===fR&&tG===fG&&tB===fB) return;
+  const TOL=40;
+  const match=p=>Math.abs(data[p]-tR)<=TOL&&Math.abs(data[p+1]-tG)<=TOL&&Math.abs(data[p+2]-tB)<=TOL;
+  const visited=new Uint8Array(W*H);
+  const stack=[[startX,startY]];
+  while(stack.length){
+    const[x,y]=stack.pop();
+    if(x<0||x>=W||y<0||y>=H||visited[y*W+x]) continue;
+    const p=(y*W+x)*4; if(!match(p)) continue;
+    let lx=x; while(lx>0&&match((y*W+lx-1)*4)&&!visited[y*W+lx-1]) lx--;
+    let rx=x; while(rx<W-1&&match((y*W+rx+1)*4)&&!visited[y*W+rx+1]) rx++;
+    for(let i=lx;i<=rx;i++){
+      const ip=(y*W+i)*4;
+      if(!visited[y*W+i]&&match(ip)){
+        data[ip]=fR;data[ip+1]=fG;data[ip+2]=fB;data[ip+3]=255;
+        visited[y*W+i]=1;
+        if(y>0&&!visited[(y-1)*W+i]) stack.push([i,y-1]);
+        if(y<H-1&&!visited[(y+1)*W+i]) stack.push([i,y+1]);
+      }
+    }
+  }
+  ctx.putImageData(imageData,0,0);
+}
+
+function resetColorPage(){
+  document.getElementById('cb-canvas-wrap').classList.remove('on');
+  document.getElementById('cb-loading').classList.remove('on');
+  document.getElementById('cb-picker').style.display='';
+}
+
+function saveColorPage(){
+  const cvs=document.getElementById('color-cvs');
+  const link=document.createElement('a');
+  link.download='diane-coloring-'+Date.now()+'.png';
+  link.href=cvs.toDataURL('image/png');
+  link.click();
+  speak("Saved! What beautiful coloring, Diane!");
+}
+
+function photoToColorPage(b64){
+  document.getElementById('cb-picker').style.display='none';
+  document.getElementById('cb-loading').classList.add('on');
+  speak("Turning your photo into a coloring page, Diane!");
+  const img=new Image();
+  img.onload=()=>{
+    const sz=500; const tmp=document.createElement('canvas'); tmp.width=sz; tmp.height=sz;
+    const ctx=tmp.getContext('2d');
+    ctx.fillStyle='white'; ctx.fillRect(0,0,sz,sz);
+    const scale=Math.min(sz/img.width,sz/img.height);
+    const ow=img.width*scale,oh=img.height*scale;
+    ctx.drawImage(img,(sz-ow)/2,(sz-oh)/2,ow,oh);
+    const id=ctx.getImageData(0,0,sz,sz);
+    ctx.putImageData(sobelEdge(id,sz,sz),0,0);
+    const sec=document.getElementById('sec-draw');
+    const toolH=80,tabH=44,avail=sec.clientHeight-toolH-tabH-8;
+    const csz=Math.min(sec.clientWidth-8,avail,520);
+    const colorCvs=document.getElementById('color-cvs');
+    colorCvs.width=csz;colorCvs.height=csz;colorCvs.style.width=csz+'px';colorCvs.style.height=csz+'px';
+    const cctx=colorCvs.getContext('2d');
+    cctx.fillStyle='white';cctx.fillRect(0,0,csz,csz);
+    cctx.drawImage(tmp,0,0,csz,csz);
+    setupColorCanvas(colorCvs);
+    document.getElementById('cb-loading').classList.remove('on');
+    document.getElementById('cb-canvas-wrap').classList.add('on');
+    speak("Here is your coloring page from your photo! Tap a color then tap any area to fill it in.");
+  };
+  img.src='data:image/jpeg;base64,'+b64;
+}
+
+function sobelEdge(imageData,W,H){
+  const src=imageData.data;
+  const gray=new Float32Array(W*H);
+  for(let i=0;i<W*H;i++){const p=i*4;gray[i]=0.299*src[p]+0.587*src[p+1]+0.114*src[p+2];}
+  const Gx=[-1,0,1,-2,0,2,-1,0,1],Gy=[-1,-2,-1,0,0,0,1,2,1];
+  const out=new Uint8ClampedArray(W*H*4);
+  for(let y=1;y<H-1;y++){for(let x=1;x<W-1;x++){
+    let gx=0,gy=0;
+    for(let ky=-1;ky<=1;ky++)for(let kx=-1;kx<=1;kx++){const g=gray[(y+ky)*W+(x+kx)];const ki=(ky+1)*3+(kx+1);gx+=g*Gx[ki];gy+=g*Gy[ki];}
+    const mag=Math.min(255,Math.sqrt(gx*gx+gy*gy));
+    const v=mag>45?0:255;const i=(y*W+x)*4;
+    out[i]=v;out[i+1]=v;out[i+2]=v;out[i+3]=255;
+  }}
+  for(let x=0;x<W;x++){const i=x*4;out[i]=out[i+1]=out[i+2]=255;out[i+3]=255;const j=((H-1)*W+x)*4;out[j]=out[j+1]=out[j+2]=255;out[j+3]=255;}
+  for(let y=0;y<H;y++){const i=y*W*4;out[i]=out[i+1]=out[i+2]=255;out[i+3]=255;const j=(y*W+W-1)*4;out[j]=out[j+1]=out[j+2]=255;out[j+3]=255;}
+  return new ImageData(out,W,H);
+}
+
+// ══════════════════════════════════════════════════
+// FREE DRAWING
 // ══════════════════════════════════════════════════
 let ctx,painting=false,bSize=7,bColor='#C4745A',erasing=false;
 const DCOLS=['#C4745A','#C49A3C','#7A5C3E','#27AE60','#2980B9','#8E44AD','#E74C3C','#E67E22','#1ABC9C','#2C3E50','#BDC3C7','#FFFFFF'];
@@ -1293,10 +1653,10 @@ function initDraw(){
 }
 function resizeCvs(){
   requestAnimationFrame(()=>{
-    const sec=document.getElementById('sec-draw');
-    const tool=sec.querySelector('.dtool');
-    const w=sec.clientWidth-12;
-    const h=Math.max(sec.clientHeight-tool.offsetHeight-18,200);
+    const panel=document.getElementById('free-draw-panel');
+    const tool=panel.querySelector('.dtool');
+    const w=panel.clientWidth-12;
+    const h=Math.max(panel.clientHeight-tool.offsetHeight-18,200);
     const cvs=document.getElementById('cvs');
     let img=null; try{ img=ctx.getImageData(0,0,cvs.width,cvs.height); }catch(e){}
     cvs.width=w; cvs.height=h; cvs.style.width=w+'px'; cvs.style.height=h+'px';
