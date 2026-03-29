@@ -681,6 +681,86 @@
       </div>
     </div>
 
+    <!-- ── TV ────────────────────────────────── -->
+    <div class="sec" id="sec-tv">
+      <div class="sec-inner" id="tv-inner">
+        <div class="ptitle">📺 Classic TV</div>
+        <div class="psub">Watch your favorite shows, Diane!</div>
+
+        <div id="tv-player" style="display:none;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span style="font-weight:700;color:var(--dark);font-size:16px;" id="tv-now-playing">Now Playing</span>
+            <button class="solbtn" style="margin-left:auto;" onclick="closeTvPlayer()">✕ Close</button>
+          </div>
+          <div style="position:relative;width:100%;padding-bottom:75%;background:#000;border-radius:14px;overflow:hidden;">
+            <iframe id="tv-iframe" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <div id="tv-shows">
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:6px;">Watch Now (plays right here)</div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('beverly','The Beverly Hillbillies','https://archive.org/embed/bevhill-s01e01-36')">
+            <span style="font-size:32px;flex-shrink:0;">🏠</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Beverly Hillbillies</h3><p style="margin:0;font-size:12px;color:var(--lite);">Full episodes — Season 1</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('bonanza','Bonanza','https://archive.org/embed/Bonanza_pd')">
+            <span style="font-size:32px;flex-shrink:0;">🤠</span>
+            <div style="flex:1;"><h3 style="margin:0;">Bonanza</h3><p style="margin:0;font-size:12px;color:var(--lite);">Full episodes — Classic westerns</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('dickvan','The Dick Van Dyke Show','https://archive.org/embed/The_Dick_van_Dyke_Show')">
+            <span style="font-size:32px;flex-shrink:0;">🎭</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Dick Van Dyke Show</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic comedy episodes</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('carol','The Carol Burnett Show','https://www.youtube.com/embed/videoseries?list=UUry6nxAo2tfVyO6lEboiU3w')">
+            <span style="font-size:32px;flex-shrink:0;">😂</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Carol Burnett Show</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic sketches & comedy</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:18px;">Free Channels (opens Pluto TV)</div>
+          <div style="font-size:13px;color:var(--mid);margin-bottom:10px;line-height:1.5;">These open in a new tab with free 24/7 channels — no account needed, just tap and watch!</div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('634f3011f4fff20007431641','I Love Lucy')">
+            <span style="font-size:32px;flex-shrink:0;">❤️</span>
+            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — all episodes free</p></div>
+            <span style="font-size:16px;color:var(--lite);">↗</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('60f75178e7f8aa0007e9c259','The Andy Griffith Show')">
+            <span style="font-size:32px;flex-shrink:0;">👮</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Andy Griffith Show</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — Mayberry all day</p></div>
+            <span style="font-size:16px;color:var(--lite);">↗</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('5f7796e470510900070d4e3d','The Beverly Hillbillies')">
+            <span style="font-size:32px;flex-shrink:0;">🏠</span>
+            <div style="flex:1;"><h3 style="margin:0;">Beverly Hillbillies</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — nonstop episodes</p></div>
+            <span style="font-size:16px;color:var(--lite);">↗</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('66ba495ffe11e5000881f049','Cheers + Frasier')">
+            <span style="font-size:32px;flex-shrink:0;">🍺</span>
+            <div style="flex:1;"><h3 style="margin:0;">Cheers + Frasier</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — where everybody knows your name</p></div>
+            <span style="font-size:16px;color:var(--lite);">↗</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('68e9913c4a666b9054849832','Bonanza')">
+            <span style="font-size:32px;flex-shrink:0;">🤠</span>
+            <div style="flex:1;"><h3 style="margin:0;">Bonanza</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — the Ponderosa awaits</p></div>
+            <span style="font-size:16px;color:var(--lite);">↗</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div><!-- /secs -->
 
   <nav class="nav">
@@ -688,6 +768,7 @@
     <button class="nb" onclick="goTo('help',this)"><span class="ni">🆘</span><span class="nl">Help</span></button>
     <button class="nb" onclick="goTo('news',this)"><span class="ni">📰</span><span class="nl">News</span></button>
     <button class="nb" onclick="goTo('stories',this)"><span class="ni">📖</span><span class="nl">Stories</span></button>
+    <button class="nb" onclick="goTo('tv',this)"><span class="ni">📺</span><span class="nl">TV</span></button>
     <button class="nb" onclick="goTo('games',this)"><span class="ni">🎮</span><span class="nl">Games</span></button>
     <button class="nb" onclick="goTo('draw',this)"><span class="ni">🎨</span><span class="nl">Draw</span></button>
   </nav>
@@ -1073,11 +1154,12 @@ function saveManualMem(){
 // ══════════════════════════════════════════════════
 const SUBS={
   chat:'Your personal companion',help:'I Need Help',
-  news:"News & Music",stories:'Story Time',
+  news:"News & Music",stories:'Story Time',tv:'Classic TV',
   games:'Games',draw:'Drawing & Coloring'
 };
 function goTo(id,btn){
   stopAudio();
+  if(id!=='tv') closeTvPlayer();
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('sec-'+id).classList.add('on');
@@ -1573,6 +1655,32 @@ function hideSpotify(){
   const iframe=document.getElementById('spotify-iframe');
   iframe.src='';
   document.getElementById('spotify-player').style.display='none';
+}
+
+// ══════════════════════════════════════════════════
+// TV
+// ══════════════════════════════════════════════════
+function playTv(id,name,embedUrl){
+  stopAudio();
+  stopPodcast();
+  hideSpotify();
+  document.getElementById('tv-now-playing').textContent=name;
+  document.getElementById('tv-iframe').src=embedUrl;
+  document.getElementById('tv-player').style.display='block';
+  document.getElementById('tv-inner').scrollTop=0;
+  speak('Playing '+name+' for you, Diane. Enjoy the show!');
+}
+
+function closeTvPlayer(){
+  document.getElementById('tv-iframe').src='';
+  document.getElementById('tv-player').style.display='none';
+}
+
+function openPlutoChannel(channelId,showName){
+  speak(showName+' is opening now, Diane. It is a free channel that plays all day!');
+  setTimeout(()=>{
+    window.open('https://pluto.tv/us/live-tv/'+channelId,'_blank');
+  },1500);
 }
 
 // ══════════════════════════════════════════════════
