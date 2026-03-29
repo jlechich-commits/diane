@@ -142,8 +142,27 @@
     .sab.p{background:var(--gold);color:white;}
     .sab.s{background:var(--warm);color:var(--brown);border:2px solid var(--gold-pale);}
 
+    /* ─── GAMES HUB ─────────────────────────────── */
+    #sec-games{padding:0;overflow:hidden;}
+    .game-screen{display:none;flex-direction:column;height:100%;overflow-y:auto;}
+    .game-screen.on{display:flex;}
+    .game-hub-title{font-family:'Playfair Display';font-size:22px;color:var(--gold);text-align:center;margin:18px 0 12px;}
+    .game-grid{display:flex;flex-direction:column;gap:12px;padding:0 14px 20px;}
+    .game-card{background:white;border:2px solid var(--gold-pale);border-radius:20px;padding:22px 18px;cursor:pointer;display:flex;align-items:center;gap:16px;text-align:left;box-shadow:0 2px 10px var(--shad);}
+    .game-card:active{background:var(--warm);transform:scale(.98);}
+    .game-card-icon{font-size:40px;flex-shrink:0;}
+    .game-card-info{display:flex;flex-direction:column;}
+    .game-card-name{font-size:19px;font-weight:700;color:var(--dark);}
+    .game-card-desc{font-size:13px;color:var(--lite);margin-top:2px;}
+    .game-back-btn{align-self:flex-start;background:var(--warm);border:2px solid var(--gold-pale);border-radius:10px;padding:8px 14px;font-size:14px;font-family:'Nunito';color:var(--brown);cursor:pointer;margin:6px 0 6px 5px;font-weight:600;}
+    .game-back-btn:active{background:var(--gold-pale);}
+    .game-help-box{margin:8px 5px;background:var(--warm);border-radius:14px;overflow:hidden;border:2px solid var(--gold-pale);}
+    .game-help-toggle{width:100%;padding:12px 16px;background:none;border:none;font-size:15px;font-family:'Nunito';font-weight:700;color:var(--brown);cursor:pointer;text-align:left;}
+    .game-help-content{display:none;padding:0 16px 14px;font-size:15px;color:var(--mid);line-height:1.7;}
+    .game-help-content.on{display:block;}
+    .game-help-content p{margin-bottom:8px;}
     /* ─── SOLITAIRE ──────────────────────────────── */
-    #sec-sol{padding:8px 5px;overflow-y:auto;}
+    #game-solitaire .sol-area{padding:8px 5px;overflow-y:auto;flex:1;}
     .sol-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:4px;flex-wrap:wrap;}
     .sol-btns{display:flex;gap:4px;flex-wrap:wrap;}
     .solbtn{padding:6px 10px;background:var(--warm);border:2px solid var(--gold-pale);border-radius:9px;font-size:11px;font-family:'Nunito';color:var(--brown);cursor:pointer;font-weight:600;white-space:nowrap;}
@@ -173,6 +192,44 @@
     .win-msg{display:none;background:var(--gold);color:white;text-align:center;padding:16px;border-radius:12px;margin-bottom:10px;font-family:'Playfair Display';font-size:22px;}
     .win-msg.on{display:block;}
 
+    /* ─── BRIDGE ─────────────────────────────────── */
+    .bridge-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:4px;}
+    .bridge-info{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;font-size:13px;flex-shrink:0;flex-wrap:wrap;gap:4px;}
+    .bridge-trump{background:var(--gold);color:white;padding:4px 12px;border-radius:8px;font-weight:700;font-size:14px;}
+    .bridge-score{color:var(--mid);font-weight:600;}
+    .bridge-table{flex:1;display:flex;flex-direction:column;min-height:0;position:relative;}
+    .bridge-top{display:flex;justify-content:center;gap:3px;padding:4px 0;flex-wrap:wrap;flex-shrink:0;}
+    .bridge-middle{flex:1;display:flex;align-items:center;min-height:80px;}
+    .bridge-side{width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+    .bridge-side-label{font-size:11px;color:var(--lite);font-weight:700;margin-bottom:4px;}
+    .bridge-side-count{font-size:16px;color:var(--brown);font-weight:700;}
+    .bridge-trick-area{flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;background:rgba(196,154,60,.06);border-radius:14px;margin:4px;min-height:70px;padding:8px;}
+    .bridge-trick-card{position:relative;text-align:center;}
+    .bridge-trick-label{font-size:10px;color:var(--lite);margin-bottom:2px;}
+    .bridge-trick-card .card{position:relative;width:52px;height:75px;}
+    .bridge-trick-card .card .crank{font-size:13px;}.bridge-trick-card .card .csm{font-size:12px;}.bridge-trick-card .card .cctr{font-size:20px;}
+    .bridge-bottom{display:flex;justify-content:center;gap:2px;padding:4px 0;flex-wrap:wrap;flex-shrink:0;}
+    .bridge-bottom .card{position:relative;width:var(--cw);height:var(--ch);flex-shrink:0;cursor:pointer;transition:transform .15s;}
+    .bridge-bottom .card:hover,.bridge-bottom .card:active{transform:translateY(-8px);}
+    .bridge-bottom .card.disabled{opacity:.5;pointer-events:none;}
+    .bridge-top .card{position:relative;width:44px;height:64px;}
+    .bridge-top .card .crank{font-size:11px;}.bridge-top .card .csm{font-size:10px;}.bridge-top .card .cctr{font-size:16px;}
+    .bridge-msg{text-align:center;padding:8px;color:var(--mid);font-style:italic;font-size:14px;flex-shrink:0;}
+
+    /* ─── MEMORY MATCH ───────────────────────────── */
+    .mem-wrap{flex:1;display:flex;flex-direction:column;padding:8px;overflow-y:auto;}
+    .mem-info{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;font-size:14px;flex-shrink:0;margin-bottom:8px;}
+    .mem-grid{display:grid;gap:8px;justify-content:center;margin:0 auto;}
+    .mem-card{border-radius:10px;cursor:pointer;user-select:none;box-shadow:0 2px 6px rgba(0,0,0,.15);transition:transform .3s;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;}
+    .mem-card.face-down{background:repeating-linear-gradient(45deg,#7A5C3E,#7A5C3E 3px,#9E7A56 3px,#9E7A56 6px);}
+    .mem-card.face-up{background:white;}
+    .mem-card.matched{background:#EFF8F2;border:2px solid var(--green);opacity:.7;}
+    .mem-card.face-up .mem-rank{font-size:28px;font-weight:700;}
+    .mem-card.face-up .mem-suit{font-size:22px;}
+    .mem-card.red{color:#C0392B;}.mem-card.blk{color:#1a252f;}
+    .mem-card:active{transform:scale(.95);}
+    .mem-win{display:none;background:var(--gold);color:white;text-align:center;padding:16px;border-radius:12px;margin-bottom:10px;font-family:'Playfair Display';font-size:20px;}
+    .mem-win.on{display:block;}
 
     /* ─── DRAW TABS ──────────────────────────────── */
     #sec-draw{padding:0;overflow:hidden;}
@@ -357,8 +414,72 @@
     <!-- ── NEWS ──────────────────────────────── -->
     <div class="sec" id="sec-news">
       <div class="sec-inner">
-        <div class="ptitle">📰 Today's News</div>
-        <div class="psub">Tap any story and I'll read it to you</div>
+        <div class="ptitle">📰 News & Music</div>
+        <div class="psub">Listen to music, a podcast, or tap a headline</div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Music</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('classic-rock')">
+              <span style="font-size:28px;flex-shrink:0;">🎸</span>
+              <div><h3 style="margin:0;">Classic Rock Hits</h3><p style="margin:0;font-size:12px;color:var(--lite);">Eagles, Fleetwood Mac, CCR & more</p></div>
+              <span style="margin-left:auto;font-size:22px;">▶</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('eagles')">
+              <span style="font-size:28px;flex-shrink:0;">🦅</span>
+              <div><h3 style="margin:0;">The Eagles</h3><p style="margin:0;font-size:12px;color:var(--lite);">Hotel California, Desperado & more</p></div>
+              <span style="margin-left:auto;font-size:22px;">▶</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('soft-hits')">
+              <span style="font-size:28px;flex-shrink:0;">🎵</span>
+              <div><h3 style="margin:0;">Feel-Good Classics</h3><p style="margin:0;font-size:12px;color:var(--lite);">Elton John, Billy Joel, Stevie Wonder</p></div>
+              <span style="margin-left:auto;font-size:22px;">▶</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('italian')">
+              <span style="font-size:28px;flex-shrink:0;">🇮🇹</span>
+              <div><h3 style="margin:0;">Italian Classics</h3><p style="margin:0;font-size:12px;color:var(--lite);">Dean Martin, Frank Sinatra, Andrea Bocelli</p></div>
+              <span style="margin-left:auto;font-size:22px;">▶</span>
+            </button>
+          </div>
+          <div id="spotify-player" style="display:none;margin-bottom:14px;background:white;border-radius:14px;padding:10px;box-shadow:0 2px 10px var(--shad);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-weight:700;color:var(--dark);font-size:15px;" id="spotify-name">Now Playing</span>
+              <button class="solbtn" style="margin-left:auto;" onclick="hideSpotify()">✕ Close</button>
+            </div>
+            <iframe id="spotify-iframe" style="border-radius:12px;width:100%;height:152px;border:none;" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">News Podcasts</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('npr')">
+              <span style="font-size:28px;flex-shrink:0;">🎙</span>
+              <div><h3 style="margin:0;">NPR News Now</h3><p style="margin:0;font-size:12px;color:var(--lite);">5-minute news update, every hour</p></div>
+              <span style="margin-left:auto;font-size:22px;">▶</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('upfirst')">
+              <span style="font-size:28px;flex-shrink:0;">🌅</span>
+              <div><h3 style="margin:0;">NPR Up First</h3><p style="margin:0;font-size:12px;color:var(--lite);">Today's top stories, 10 minutes</p></div>
+              <span style="margin-left:auto;font-size:22px;">▶</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('nydaily')">
+              <span style="font-size:28px;flex-shrink:0;">🗽</span>
+              <div><h3 style="margin:0;">The Daily (NY Times)</h3><p style="margin:0;font-size:12px;color:var(--lite);">Deep dive into one big story, ~25 min</p></div>
+              <span style="margin-left:auto;font-size:22px;">▶</span>
+            </button>
+          </div>
+          <div id="podcast-player" style="display:none;margin-top:10px;background:white;border-radius:14px;padding:14px;box-shadow:0 2px 10px var(--shad);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:22px;" id="podcast-icon">🎙</span>
+              <span style="font-weight:700;color:var(--dark);font-size:15px;" id="podcast-name">Now Playing</span>
+              <button class="solbtn" style="margin-left:auto;" onclick="stopPodcast()">⏹ Stop</button>
+            </div>
+            <audio id="podcast-audio" controls style="width:100%;border-radius:8px;" preload="none"></audio>
+          </div>
+        </div>
+
+        <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Headlines</div>
         <button class="rfbtn" onclick="loadNews()">🔄 Refresh</button>
         <div id="newslist"></div>
       </div>
@@ -389,20 +510,113 @@
       </div>
     </div>
 
-    <!-- ── SOLITAIRE ──────────────────────────── -->
-    <div class="sec" id="sec-sol">
-      <div class="sol-bar">
-        <div class="sol-btns">
-          <button class="solbtn" onclick="newGame()">New Game</button>
-          <button class="solbtn" onclick="undoMove()">↩ Undo</button>
-          <button class="solbtn" onclick="autoFnd()">Auto ↑</button>
-          <button class="solbtn" onclick="hintMove()">💡 Hint</button>
+    <!-- ── GAMES HUB ──────────────────────────── -->
+    <div class="sec" id="sec-games">
+
+      <!-- Game Picker -->
+      <div class="game-screen on" id="game-picker">
+        <div class="game-hub-title">Choose a Game</div>
+        <div class="game-grid">
+          <button class="game-card" onclick="showGame('solitaire')">
+            <span class="game-card-icon">🃏</span>
+            <span class="game-card-info"><span class="game-card-name">Solitaire</span><span class="game-card-desc">Classic card patience</span></span>
+          </button>
+          <button class="game-card" onclick="showGame('bridge')">
+            <span class="game-card-icon">🂡</span>
+            <span class="game-card-info"><span class="game-card-name">Bridge</span><span class="game-card-desc">Play tricks with a partner</span></span>
+          </button>
+          <button class="game-card" onclick="showGame('memory')">
+            <span class="game-card-icon">🧠</span>
+            <span class="game-card-info"><span class="game-card-name">Memory Match</span><span class="game-card-desc">Find the matching pairs</span></span>
+          </button>
         </div>
-        <div class="sol-stat" id="solstat">Good luck, Diane!</div>
       </div>
-      <div class="win-msg" id="winmsg">🎉 You won! Wonderful, Diane!</div>
-      <div class="prow" id="prow"></div>
-      <div class="tab" id="tab"></div>
+
+      <!-- Solitaire -->
+      <div class="game-screen" id="game-solitaire">
+        <button class="game-back-btn" onclick="showGame('picker')">← Back to Games</button>
+        <div class="sol-area">
+          <div class="sol-bar">
+            <div class="sol-btns">
+              <button class="solbtn" onclick="newGame()">New Game</button>
+              <button class="solbtn" onclick="undoMove()">↩ Undo</button>
+              <button class="solbtn" onclick="autoFnd()">Auto ↑</button>
+              <button class="solbtn" onclick="hintMove()">💡 Hint</button>
+            </div>
+            <div class="sol-stat" id="solstat">Good luck, Diane!</div>
+          </div>
+          <div class="win-msg" id="winmsg">🎉 You won! Wonderful, Diane!</div>
+          <div class="prow" id="prow"></div>
+          <div class="tab" id="tab"></div>
+        </div>
+        <div class="game-help-box">
+          <button class="game-help-toggle" onclick="toggleGameHelp(this)">❓ How to Play Solitaire</button>
+          <div class="game-help-content">
+            <p><strong>Goal:</strong> Move all cards to the four piles at the top right, sorted by suit from Ace to King.</p>
+            <p><strong>How:</strong> Tap a card to select it, then tap where you want it to go. Cards stack in columns by alternating colors (red on black, black on red) going down (Queen on King, Jack on Queen, etc.).</p>
+            <p><strong>Stock pile:</strong> Tap the deck at the top left to flip new cards.</p>
+            <p><strong>Tips:</strong> Use the <strong>Hint</strong> button if you get stuck. <strong>Auto</strong> moves cards to the top piles automatically. <strong>Undo</strong> takes back your last move.</p>
+            <button class="solbtn" onclick="speak('The goal is to move all cards to the four piles at the top, sorted by suit from Ace to King. Tap a card to pick it up, then tap where to put it. Stack cards by alternating colors going down. Tap the deck at top left to flip new cards. Use the hint button if you get stuck!')" style="margin-top:8px;">🔊 Read Instructions</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bridge -->
+      <div class="game-screen" id="game-bridge">
+        <button class="game-back-btn" onclick="showGame('picker')">← Back to Games</button>
+        <div class="bridge-wrap">
+          <div class="bridge-info">
+            <span class="bridge-trump" id="br-trump">Trump: ♠</span>
+            <span class="bridge-score" id="br-score">You: 0 | Them: 0</span>
+            <button class="solbtn" onclick="newBridgeGame()">New Game</button>
+          </div>
+          <div class="bridge-table" id="br-table">
+            <div class="bridge-top" id="br-north"></div>
+            <div class="bridge-middle">
+              <div class="bridge-side" id="br-west"><span class="bridge-side-label">West</span><span class="bridge-side-count" id="br-west-n">13</span></div>
+              <div class="bridge-trick-area" id="br-trick"></div>
+              <div class="bridge-side" id="br-east"><span class="bridge-side-label">East</span><span class="bridge-side-count" id="br-east-n">13</span></div>
+            </div>
+            <div class="bridge-msg" id="br-msg">Tap a card to play it</div>
+            <div class="bridge-bottom" id="br-south"></div>
+          </div>
+        </div>
+        <div class="game-help-box">
+          <button class="game-help-toggle" onclick="toggleGameHelp(this)">❓ How to Play Bridge</button>
+          <div class="game-help-content">
+            <p><strong>You are South.</strong> North is your partner (cards shown face up). East and West are opponents.</p>
+            <p><strong>Goal:</strong> Win more tricks than the other team. Win 7 or more out of 13 to win the game!</p>
+            <p><strong>How:</strong> Tap one of your cards to play it. Everyone plays one card per round (a "trick"). The highest card of the suit that was led wins the trick.</p>
+            <p><strong>Trump:</strong> The trump suit beats all other suits. If you cannot follow the suit that was led, you can play a trump card to win.</p>
+            <p><strong>Must follow suit:</strong> If a heart is led and you have hearts, you must play a heart.</p>
+            <button class="solbtn" onclick="speak('You are South, and North is your partner. The goal is to win more tricks than the other team. Each round, everyone plays one card. The highest card of the led suit wins. But the trump suit beats everything! You must follow suit if you can. Win 7 or more tricks out of 13 to win!')" style="margin-top:8px;">🔊 Read Instructions</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory Match -->
+      <div class="game-screen" id="game-memory">
+        <button class="game-back-btn" onclick="showGame('picker')">← Back to Games</button>
+        <div class="mem-wrap">
+          <div class="mem-info">
+            <span id="mem-pairs">Pairs: 0 / 8</span>
+            <span id="mem-tries">Tries: 0</span>
+            <button class="solbtn" onclick="newMemoryGame()">New Game</button>
+          </div>
+          <div class="mem-win" id="mem-win">🎉 You found them all! Wonderful, Diane!</div>
+          <div class="mem-grid" id="mem-grid"></div>
+        </div>
+        <div class="game-help-box">
+          <button class="game-help-toggle" onclick="toggleGameHelp(this)">❓ How to Play Memory Match</button>
+          <div class="game-help-content">
+            <p><strong>Goal:</strong> Find all the matching pairs of cards.</p>
+            <p><strong>How:</strong> Tap a card to flip it over. Then tap another card. If the two cards match (same number and same color), they stay face up! If not, they flip back over.</p>
+            <p><strong>Tips:</strong> Try to remember where each card is. Take your time — there is no rush!</p>
+            <button class="solbtn" onclick="speak('Tap a card to flip it over. Then tap another card. If they match, same number and same color, they stay face up. If not, they flip back. Try to remember where each card is. Take your time, there is no rush!')" style="margin-top:8px;">🔊 Read Instructions</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- ── DRAW + COLORING BOOK ───────────────────── -->
@@ -431,20 +645,27 @@
           <div class="cb-inner">
             <div class="cb-section-title">Choose a coloring page</div>
             <div class="cb-themes">
-              <button class="cb-theme" onclick="makeColorPage('A beautiful bouquet of large flowers with big petals and leaves in a vase')"><span class="cb-theme-icon">🌸</span><span class="cb-theme-name">Flowers</span></button>
-              <button class="cb-theme" onclick="makeColorPage('A cute cat sitting and looking happy with big eyes and a collar')"><span class="cb-theme-icon">🐱</span><span class="cb-theme-name">Animals</span></button>
-              <button class="cb-theme" onclick="makeColorPage('A large tropical hibiscus flower with palm tree and bright sun')"><span class="cb-theme-icon">🌺</span><span class="cb-theme-name">Hawaii</span></button>
-              <button class="cb-theme" onclick="makeColorPage('A bowl of pasta with sauce and a wine glass, Italian style')"><span class="cb-theme-icon">🍝</span><span class="cb-theme-name">Italy</span></button>
-              <button class="cb-theme" onclick="makeColorPage('A large butterfly with beautiful symmetrical patterned wings')"><span class="cb-theme-icon">🦋</span><span class="cb-theme-name">Butterfly</span></button>
-              <button class="cb-theme" onclick="makeColorPage('A cozy garden with flowers, a birdhouse, a bee and watering can')"><span class="cb-theme-icon">🌻</span><span class="cb-theme-name">Garden</span></button>
-              <button class="cb-theme" onclick="makeColorPage('A friendly bird on a flowering branch with leaves and berries')"><span class="cb-theme-icon">🐦</span><span class="cb-theme-name">Birds</span></button>
-              <button class="cb-theme" onclick="makeColorPage('Ocean scene with waves, a sailboat, lighthouse and seagulls')"><span class="cb-theme-icon">⛵</span><span class="cb-theme-name">Ocean</span></button>
-              <button class="cb-theme" onclick="makeColorPage('A Christmas tree with ornaments star on top and presents underneath')"><span class="cb-theme-icon">🎄</span><span class="cb-theme-name">Holiday</span></button>
+              <button class="cb-theme" onclick="showCbCategory('flowers')"><span class="cb-theme-icon">🌸</span><span class="cb-theme-name">Flowers</span></button>
+              <button class="cb-theme" onclick="showCbCategory('animals')"><span class="cb-theme-icon">🐱</span><span class="cb-theme-name">Animals</span></button>
+              <button class="cb-theme" onclick="showCbCategory('hawaii')"><span class="cb-theme-icon">🌺</span><span class="cb-theme-name">Hawaii</span></button>
+              <button class="cb-theme" onclick="showCbCategory('italy')"><span class="cb-theme-icon">🍝</span><span class="cb-theme-name">Italy</span></button>
+              <button class="cb-theme" onclick="showCbCategory('butterfly')"><span class="cb-theme-icon">🦋</span><span class="cb-theme-name">Butterfly</span></button>
+              <button class="cb-theme" onclick="showCbCategory('garden')"><span class="cb-theme-icon">🌻</span><span class="cb-theme-name">Garden</span></button>
+              <button class="cb-theme" onclick="showCbCategory('birds')"><span class="cb-theme-icon">🐦</span><span class="cb-theme-name">Birds</span></button>
+              <button class="cb-theme" onclick="showCbCategory('ocean')"><span class="cb-theme-icon">⛵</span><span class="cb-theme-name">Ocean</span></button>
+              <button class="cb-theme" onclick="showCbCategory('holiday')"><span class="cb-theme-icon">🎄</span><span class="cb-theme-name">Holiday</span></button>
             </div>
             <button class="cb-photo-btn" onclick="openCamera('color')">📷 Turn a Photo Into a Coloring Page</button>
           </div>
         </div>
-        <div class="cb-loading" id="cb-loading"><div style="font-size:40px;margin-bottom:12px">🎨</div>Creating your coloring page…</div>
+        <div id="cb-sub-picker" style="display:none;overflow-y:auto;flex:1;">
+          <div class="cb-inner">
+            <button style="background:var(--warm);border:2px solid var(--gold-pale);border-radius:10px;padding:8px 16px;font-size:14px;font-family:'Nunito';font-weight:600;color:var(--brown);cursor:pointer;margin-bottom:12px;" onclick="backToCbCategories()">🔙 Back</button>
+            <div class="cb-section-title" id="cb-sub-title">Pick a picture</div>
+            <div class="cb-themes" id="cb-sub-grid" style="grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+          </div>
+        </div>
+        <div class="cb-loading" id="cb-loading"><div style="font-size:40px;margin-bottom:12px">🎨</div>Loading your coloring page…</div>
         <div class="cb-canvas-wrap" id="cb-canvas-wrap">
           <canvas id="color-cvs"></canvas>
           <div class="cb-tools">
@@ -467,7 +688,7 @@
     <button class="nb" onclick="goTo('help',this)"><span class="ni">🆘</span><span class="nl">Help</span></button>
     <button class="nb" onclick="goTo('news',this)"><span class="ni">📰</span><span class="nl">News</span></button>
     <button class="nb" onclick="goTo('stories',this)"><span class="ni">📖</span><span class="nl">Stories</span></button>
-    <button class="nb" onclick="goTo('sol',this)"><span class="ni">🃏</span><span class="nl">Cards</span></button>
+    <button class="nb" onclick="goTo('games',this)"><span class="ni">🎮</span><span class="nl">Games</span></button>
     <button class="nb" onclick="goTo('draw',this)"><span class="ni">🎨</span><span class="nl">Draw</span></button>
   </nav>
 </div>
@@ -852,8 +1073,8 @@ function saveManualMem(){
 // ══════════════════════════════════════════════════
 const SUBS={
   chat:'Your personal companion',help:'I Need Help',
-  news:"Today's News",stories:'Story Time',
-  sol:'Solitaire',draw:'Drawing & Coloring'
+  news:"News & Music",stories:'Story Time',
+  games:'Games',draw:'Drawing & Coloring'
 };
 function goTo(id,btn){
   stopAudio();
@@ -864,7 +1085,6 @@ function goTo(id,btn){
   document.getElementById('hsub').textContent=SUBS[id]||'';
   if(id==='news'&&!newsItems.length) loadNews();
   if(id==='draw') resizeCvs();
-  if(id==='sol'&&!G.tab) newGame();
 }
 
 // ══════════════════════════════════════════════════
@@ -1242,6 +1462,120 @@ function renderNews(){
 }
 
 // ══════════════════════════════════════════════════
+// PODCASTS — NPR, CBS, etc.
+// ══════════════════════════════════════════════════
+const PODCAST_FEEDS={
+  npr:{name:'NPR News Now',icon:'🎙',rss:'https://feeds.npr.org/500005/podcast.xml'},
+  upfirst:{name:'NPR Up First',icon:'🌅',rss:'https://feeds.npr.org/510318/podcast.xml'},
+  nydaily:{name:'The Daily',icon:'🗽',rss:'https://feeds.simplecast.com/54nAGcIl'}
+};
+let podcastAudio=null;
+
+async function playPodcast(key){
+  const feed=PODCAST_FEEDS[key];
+  if(!feed) return;
+  stopPodcast();
+  stopAudio();
+  speak('Playing '+feed.name+' for you, Diane.');
+
+  const player=document.getElementById('podcast-player');
+  const audio=document.getElementById('podcast-audio');
+  document.getElementById('podcast-name').textContent=feed.name;
+  document.getElementById('podcast-icon').textContent=feed.icon;
+  player.style.display='block';
+
+  try{
+    // Fetch RSS feed to get latest episode audio URL
+    const r=await fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feed.rss)+'&count=1');
+    const d=await r.json();
+    const ep=d.items?.[0];
+    if(!ep) throw new Error('No episodes');
+    const audioUrl=ep.enclosure?.link||ep.enclosure?.url||'';
+    if(!audioUrl) throw new Error('No audio URL');
+
+    audio.src=audioUrl;
+    audio.load();
+    podcastAudio=audio;
+
+    // Small delay to let speak finish, then play
+    setTimeout(()=>{
+      audio.play().catch(e=>console.warn('Podcast play failed:',e));
+    },2500);
+
+    // Switch to news tab if not already there
+    const newsTab=document.getElementById('sec-news');
+    if(!newsTab.classList.contains('on')){
+      document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+      document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+      newsTab.classList.add('on');
+      document.querySelectorAll('.nb')[2].classList.add('on');
+      document.getElementById('hsub').textContent="Today's News";
+    }
+  } catch(e){
+    console.warn('Podcast load failed:',e);
+    player.style.display='none';
+    speak('I could not load the podcast right now, Diane. Please try again later.');
+  }
+}
+
+function stopPodcast(){
+  const audio=document.getElementById('podcast-audio');
+  if(audio){audio.pause();audio.src='';}
+  podcastAudio=null;
+  const player=document.getElementById('podcast-player');
+  if(player) player.style.display='none';
+}
+
+// Midday auto-play: after morning shows (around 12pm-1pm), proactively suggest/play news
+let middayNewsPlayed=false;
+function checkMiddayNews(){
+  const h=new Date().getHours();
+  const today=todayStr();
+  const lastPlayed=localStorage.getItem('diane_midday_news');
+  if(lastPlayed===today) return;
+  if(h>=12&&h<=13&&!middayNewsPlayed){
+    middayNewsPlayed=true;
+    localStorage.setItem('diane_midday_news',today);
+    // Gently announce and switch to news
+    setTimeout(()=>{
+      bubble('c','Diane, your morning shows are wrapping up. I have some news ready for you — want to listen to NPR?');
+      speak('Diane, your morning shows are wrapping up. I have some news ready for you. Want to listen to NPR?');
+      // Auto-play after a moment so she hears the suggestion first
+      setTimeout(()=>playPodcast('npr'),8000);
+    },2000);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// SPOTIFY EMBEDS
+// ══════════════════════════════════════════════════
+const SPOTIFY_PLAYLISTS={
+  'classic-rock':{name:'Classic Rock Hits',uri:'37i9dQZF1DWXRqgorJj26U'},
+  'eagles':{name:'The Eagles',uri:'37i9dQZF1DZ06evO0VE84I'},
+  'soft-hits':{name:'Feel-Good Classics',uri:'37i9dQZF1DWTwnEBqMaIbL'},
+  'italian':{name:'Italian Classics',uri:'37i9dQZF1DWVkMEZAPIEbp'}
+};
+
+function showSpotify(key){
+  const pl=SPOTIFY_PLAYLISTS[key];
+  if(!pl) return;
+  stopPodcast();
+  stopAudio();
+  const player=document.getElementById('spotify-player');
+  const iframe=document.getElementById('spotify-iframe');
+  document.getElementById('spotify-name').textContent=pl.name;
+  iframe.src='https://open.spotify.com/embed/playlist/'+pl.uri+'?utm_source=generator&theme=0';
+  player.style.display='block';
+  speak('Playing '+pl.name+' for you, Diane. Enjoy the music!');
+}
+
+function hideSpotify(){
+  const iframe=document.getElementById('spotify-iframe');
+  iframe.src='';
+  document.getElementById('spotify-player').style.display='none';
+}
+
+// ══════════════════════════════════════════════════
 // STORIES
 // ══════════════════════════════════════════════════
 const STORY_PROMPTS={
@@ -1504,6 +1838,382 @@ function renderTab(){
     colDiv.onclick=()=>clickEmptyTab(ci);
     tabEl.appendChild(colDiv);
   });
+}
+
+
+// ══════════════════════════════════════════════════
+// GAMES HUB
+// ══════════════════════════════════════════════════
+let currentGame=null;
+
+function showGame(name){
+  document.querySelectorAll('.game-screen').forEach(s=>s.classList.remove('on'));
+  if(name==='picker'){
+    document.getElementById('game-picker').classList.add('on');
+    document.getElementById('hsub').textContent='Games';
+    currentGame=null;
+    return;
+  }
+  document.getElementById('game-'+name).classList.add('on');
+  if(name==='solitaire'){
+    document.getElementById('hsub').textContent='Solitaire';
+    if(!G.tab) newGame();
+    setCardDims();
+  } else if(name==='bridge'){
+    document.getElementById('hsub').textContent='Bridge';
+    if(!BR.started) newBridgeGame();
+  } else if(name==='memory'){
+    document.getElementById('hsub').textContent='Memory Match';
+    if(!MEM.started) newMemoryGame();
+  }
+  currentGame=name;
+}
+
+function toggleGameHelp(btn){
+  const content=btn.parentElement.querySelector('.game-help-content');
+  content.classList.toggle('on');
+  btn.textContent=content.classList.contains('on')?'✕ Close Help':btn.textContent.replace('✕ Close Help',btn.dataset.orig||btn.textContent);
+  if(!btn.dataset.orig) btn.dataset.orig=btn.textContent;
+  if(content.classList.contains('on')) btn.textContent='✕ Close Help';
+  else btn.textContent=btn.dataset.orig;
+}
+
+// ══════════════════════════════════════════════════
+// BRIDGE (simplified trick-taking)
+// ══════════════════════════════════════════════════
+const PLAYERS=['South','West','North','East'];
+const PLAYER_LABELS={0:'You',1:'West',2:'Partner',3:'East'};
+let BR={started:false,hands:[[],[],[],[]],trump:null,trick:[],lead:0,tricksNS:0,tricksEW:0,trickNum:0,turn:0,busy:false};
+
+function valRank(v){ return VALS.indexOf(v); }
+function sortHand(h){
+  const so={'♠':0,'♥':1,'♦':2,'♣':3};
+  h.sort((a,b)=>so[a.suit]-so[b.suit]||valRank(b.val)-valRank(a.val));
+}
+
+function newBridgeGame(){
+  const deck=shuffle(mkDeck());
+  BR={started:true,hands:[[],[],[],[]],trump:null,trick:[],lead:0,tricksNS:0,tricksEW:0,trickNum:0,turn:0,busy:false};
+  for(let i=0;i<52;i++){
+    deck[i].faceUp=true;
+    BR.hands[i%4].push(deck[i]);
+  }
+  for(let i=0;i<4;i++) sortHand(BR.hands[i]);
+  BR.trump=SUITS[Math.floor(Math.random()*4)];
+  BR.lead=0; BR.turn=0;
+  renderBridge();
+  speak('New bridge game! Trump is '+suitName(BR.trump)+'. You lead first, Diane. Pick a card to play!');
+}
+
+function suitName(s){ return{'♠':'spades','♥':'hearts','♦':'diamonds','♣':'clubs'}[s]||s; }
+
+function renderBridge(){
+  // Trump & score
+  const ts=document.getElementById('br-trump');
+  const sc=document.getElementById('br-score');
+  ts.textContent='Trump: '+BR.trump;
+  ts.style.color=REDS.includes(BR.trump)?'#C0392B':'#1a252f';
+  sc.textContent='You: '+BR.tricksNS+' | Them: '+BR.tricksEW;
+
+  // North (partner) — face up, small
+  const north=document.getElementById('br-north');
+  north.innerHTML='';
+  BR.hands[2].forEach((c,i)=>{
+    const el=mkBridgeCard(c,true,true);
+    el.style.cursor='default';
+    north.appendChild(el);
+  });
+
+  // Side counts
+  document.getElementById('br-west-n').textContent=BR.hands[1].length;
+  document.getElementById('br-east-n').textContent=BR.hands[3].length;
+
+  // Trick area
+  const trickEl=document.getElementById('br-trick');
+  trickEl.innerHTML='';
+  BR.trick.forEach(t=>{
+    const wrap=document.createElement('div');wrap.className='bridge-trick-card';
+    const lbl=document.createElement('div');lbl.className='bridge-trick-label';lbl.textContent=PLAYER_LABELS[t.player];
+    const cardEl=mkBridgeCard(t.card,true,true);
+    wrap.appendChild(lbl);wrap.appendChild(cardEl);
+    trickEl.appendChild(wrap);
+  });
+
+  // South (Diane) — full size, playable
+  const south=document.getElementById('br-south');
+  south.innerHTML='';
+  const ledSuit=BR.trick.length?BR.trick[0].card.suit:null;
+  const hasLed=ledSuit?BR.hands[0].some(c=>c.suit===ledSuit):false;
+
+  BR.hands[0].forEach((c,i)=>{
+    const el=mkBridgeCard(c,true,false);
+    const canPlay=BR.turn===0&&!BR.busy;
+    const mustFollow=ledSuit&&hasLed&&c.suit!==ledSuit;
+    if(!canPlay||mustFollow) el.classList.add('disabled');
+    el.addEventListener('click',()=>{
+      if(BR.turn!==0||BR.busy) return;
+      if(mustFollow){
+        speak('You need to play a '+suitName(ledSuit)+' if you have one, Diane.');
+        return;
+      }
+      playBridgeCard(0,i);
+    });
+    south.appendChild(el);
+  });
+
+  // Message
+  const msg=document.getElementById('br-msg');
+  if(BR.trickNum>=13) msg.textContent='Game over!';
+  else if(BR.turn===0) msg.textContent='Your turn — tap a card to play';
+  else msg.textContent=PLAYERS[BR.turn]+' is thinking...';
+}
+
+function mkBridgeCard(card,faceUp,small){
+  const el=document.createElement('div');
+  let clz=['card'];
+  if(!faceUp) clz.push('fd');
+  else{ clz.push('fu'); clz.push(REDS.includes(card.suit)?'red':'blk'); }
+  el.className=clz.join(' ');
+  if(faceUp){
+    const top=document.createElement('div');top.className='ctop';
+    const rk=document.createElement('div');rk.className='crank';rk.textContent=card.val;
+    const sm=document.createElement('div');sm.className='csm';sm.textContent=card.suit;
+    top.appendChild(rk);top.appendChild(sm);el.appendChild(top);
+    const ctr=document.createElement('div');ctr.className='cctr';ctr.textContent=card.suit;
+    el.appendChild(ctr);
+  }
+  return el;
+}
+
+function playBridgeCard(player,cardIdx){
+  if(BR.busy) return;
+  const card=BR.hands[player].splice(cardIdx,1)[0];
+  BR.trick.push({player,card});
+  BR.turn=(BR.turn+1)%4;
+  renderBridge();
+
+  if(BR.trick.length===4){
+    BR.busy=true;
+    setTimeout(resolveBridgeTrick,1200);
+  } else if(BR.turn!==0){
+    BR.busy=true;
+    setTimeout(aiPlayBridge,700);
+  }
+}
+
+function aiPlayBridge(){
+  const p=BR.turn;
+  const hand=BR.hands[p];
+  if(!hand.length){BR.busy=false;return;}
+
+  let pick=0;
+  if(BR.trick.length===0){
+    // Leading: play highest non-trump, or lowest trump
+    const nonTrump=hand.filter(c=>c.suit!==BR.trump);
+    if(nonTrump.length) pick=hand.indexOf(nonTrump[0]);
+    else pick=hand.length-1;
+  } else {
+    const ledSuit=BR.trick[0].card.suit;
+    const hasSuit=hand.filter(c=>c.suit===ledSuit);
+    if(hasSuit.length){
+      // Must follow suit — try to win with lowest winning card
+      const currentBest=getBridgeBest();
+      const winners=hasSuit.filter(c=>valRank(c.val)>valRank(currentBest.val)&&c.suit===currentBest.suit);
+      if(winners.length) pick=hand.indexOf(winners[winners.length-1]); // lowest winner
+      else pick=hand.indexOf(hasSuit[hasSuit.length-1]); // dump lowest
+    } else {
+      // Void in led suit — trump if opponent winning, else dump
+      const currentWinner=getBridgeWinner();
+      const isPartnerWinning=(p%2)===(currentWinner%2);
+      if(!isPartnerWinning){
+        const trumpCards=hand.filter(c=>c.suit===BR.trump);
+        if(trumpCards.length) pick=hand.indexOf(trumpCards[trumpCards.length-1]); // lowest trump
+        else pick=hand.length-1;
+      } else {
+        // Partner winning, dump lowest
+        const nonTrump=hand.filter(c=>c.suit!==BR.trump);
+        if(nonTrump.length) pick=hand.indexOf(nonTrump[nonTrump.length-1]);
+        else pick=hand.length-1;
+      }
+    }
+  }
+
+  const card=hand.splice(pick,1)[0];
+  BR.trick.push({player:p,card});
+  BR.turn=(BR.turn+1)%4;
+  renderBridge();
+
+  if(BR.trick.length===4){
+    setTimeout(resolveBridgeTrick,1000);
+  } else if(BR.turn!==0){
+    setTimeout(aiPlayBridge,600);
+  } else {
+    BR.busy=false;
+    renderBridge();
+  }
+}
+
+function getBridgeBest(){
+  // Highest card currently winning the trick
+  const led=BR.trick[0].card.suit;
+  let best=BR.trick[0];
+  for(let i=1;i<BR.trick.length;i++){
+    const t=BR.trick[i];
+    if(t.card.suit===BR.trump&&best.card.suit!==BR.trump) best=t;
+    else if(t.card.suit===best.card.suit&&valRank(t.card.val)>valRank(best.card.val)) best=t;
+  }
+  return best.card;
+}
+
+function getBridgeWinner(){
+  const led=BR.trick[0].card.suit;
+  let best=0;
+  for(let i=1;i<BR.trick.length;i++){
+    const bc=BR.trick[best].card, tc=BR.trick[i].card;
+    if(tc.suit===BR.trump&&bc.suit!==BR.trump) best=i;
+    else if(tc.suit===bc.suit&&valRank(tc.val)>valRank(bc.val)) best=i;
+  }
+  return BR.trick[best].player;
+}
+
+function resolveBridgeTrick(){
+  const winner=getBridgeWinner();
+  if(winner%2===0) BR.tricksNS++;
+  else BR.tricksEW++;
+  BR.trickNum++;
+
+  const winLabel=PLAYER_LABELS[winner];
+  if(winner===0) speak('Nice trick, Diane! You won that one!');
+  else if(winner===2) speak('Your partner won that trick!');
+  else speak(winLabel+' won that trick.');
+
+  BR.trick=[];
+  BR.lead=winner;
+  BR.turn=winner;
+
+  if(BR.trickNum>=13){
+    renderBridge();
+    if(BR.tricksNS>=7){
+      speak('Wonderful, Diane! You and your partner won '+BR.tricksNS+' tricks! That is a great game!');
+      document.getElementById('br-msg').textContent='🎉 You won '+BR.tricksNS+' to '+BR.tricksEW+'! Great game!';
+    } else {
+      speak('The other team won this time with '+BR.tricksEW+' tricks. But you played so well! Want to try again?');
+      document.getElementById('br-msg').textContent='They won '+BR.tricksEW+' to '+BR.tricksNS+'. Tap New Game to try again!';
+    }
+    BR.busy=false;
+    return;
+  }
+
+  renderBridge();
+
+  if(BR.turn!==0){
+    setTimeout(aiPlayBridge,800);
+  } else {
+    BR.busy=false;
+    renderBridge();
+  }
+}
+
+// ══════════════════════════════════════════════════
+// MEMORY MATCH
+// ══════════════════════════════════════════════════
+let MEM={started:false,cards:[],flipped:[],pairs:0,tries:0,total:8,busy:false};
+
+function newMemoryGame(){
+  MEM={started:true,cards:[],flipped:[],pairs:0,tries:0,total:8,busy:false};
+  document.getElementById('mem-win').classList.remove('on');
+  // Create 8 pairs (16 cards) — use pairs of same rank+color
+  const pairDefs=[
+    {val:'A',suit:'♥'},{val:'A',suit:'♦'},
+    {val:'K',suit:'♠'},{val:'K',suit:'♣'},
+    {val:'Q',suit:'♥'},{val:'Q',suit:'♦'},
+    {val:'J',suit:'♠'},{val:'J',suit:'♣'},
+    {val:'10',suit:'♥'},{val:'10',suit:'♦'},
+    {val:'9',suit:'♠'},{val:'9',suit:'♣'},
+    {val:'8',suit:'♥'},{val:'8',suit:'♦'},
+    {val:'7',suit:'♠'},{val:'7',suit:'♣'}
+  ];
+  // Each pair: same rank, same color family
+  const cards=[];
+  for(let i=0;i<pairDefs.length;i++){
+    const d=pairDefs[i];
+    cards.push({val:d.val,suit:d.suit,faceUp:false,matched:false,pairId:Math.floor(i/2)});
+  }
+  // Shuffle
+  for(let i=cards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]];}
+  MEM.cards=cards;
+  renderMemory();
+  speak('Memory Match! Tap two cards to find matching pairs. Take your time, Diane!');
+}
+
+function renderMemory(){
+  const grid=document.getElementById('mem-grid');
+  grid.innerHTML='';
+  // 4 columns
+  const cols=4;
+  const w=Math.min(Math.floor((window.innerWidth-60)/cols),90);
+  grid.style.gridTemplateColumns='repeat('+cols+','+w+'px)';
+
+  MEM.cards.forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.style.width=w+'px';
+    if(c.matched){
+      el.className='mem-card matched';
+      el.innerHTML='<div class="mem-rank" style="color:var(--green)">'+c.val+'</div><div class="mem-suit" style="color:var(--green)">'+c.suit+'</div>';
+    } else if(c.faceUp){
+      el.className='mem-card face-up '+(REDS.includes(c.suit)?'red':'blk');
+      el.innerHTML='<div class="mem-rank">'+c.val+'</div><div class="mem-suit">'+c.suit+'</div>';
+    } else {
+      el.className='mem-card face-down';
+    }
+    el.addEventListener('click',()=>flipMemCard(i));
+    grid.appendChild(el);
+  });
+
+  document.getElementById('mem-pairs').textContent='Pairs: '+MEM.pairs+' / '+MEM.total;
+  document.getElementById('mem-tries').textContent='Tries: '+MEM.tries;
+}
+
+function flipMemCard(i){
+  if(MEM.busy) return;
+  const c=MEM.cards[i];
+  if(c.faceUp||c.matched) return;
+  if(MEM.flipped.length>=2) return;
+
+  c.faceUp=true;
+  MEM.flipped.push(i);
+  renderMemory();
+
+  if(MEM.flipped.length===2){
+    MEM.tries++;
+    MEM.busy=true;
+    const a=MEM.cards[MEM.flipped[0]], b=MEM.cards[MEM.flipped[1]];
+    if(a.pairId===b.pairId){
+      // Match!
+      setTimeout(()=>{
+        a.matched=true; b.matched=true;
+        MEM.pairs++;
+        MEM.flipped=[];
+        MEM.busy=false;
+        renderMemory();
+        if(MEM.pairs>=MEM.total){
+          document.getElementById('mem-win').classList.add('on');
+          speak('You found them all! Wonderful job, Diane! You did it in '+MEM.tries+' tries!');
+        } else {
+          const cheers=['Great memory, Diane!','You found a match!','Wonderful!','That is a pair!','Nice one, Diane!'];
+          speak(cheers[Math.floor(Math.random()*cheers.length)]);
+        }
+      },500);
+    } else {
+      // No match — flip back
+      setTimeout(()=>{
+        a.faceUp=false; b.faceUp=false;
+        MEM.flipped=[];
+        MEM.busy=false;
+        renderMemory();
+      },1500);
+    }
+  }
 }
 
 
@@ -1907,6 +2617,9 @@ function scheduleHourly(){
 
   // Also check every 5 minutes for idle
   setInterval(checkIdle, 5 * 60 * 1000);
+
+  // Check for midday news every 15 minutes
+  setInterval(checkMiddayNews, 15 * 60 * 1000);
 }
 
 // On first load during waking hours, send a greeting after a short delay
@@ -1965,7 +2678,7 @@ const COG_QUESTIONS = [
   {
     id: 'family_grandkids',
     ask: "Diane, I've been thinking about your grandchildren — can you tell me about Willy and Isabella? What are they up to these days?",
-    assess: 'Mentions Willy (3, Brian's son), Isabella (turning 1), recognizes family members',
+    assess: "Mentions Willy (3, Brian's son), Isabella (turning 1), recognizes family members",
     category: 'family_memory'
   },
   {
