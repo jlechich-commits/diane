@@ -343,6 +343,14 @@
 <body>
 
 <!-- ═══════════════════════════ SETUP ════════════════════════════ -->
+<div id="welcome" class="gone" style="position:fixed;inset:0;background:linear-gradient(135deg,#faf6ef,#f5ede0);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;cursor:pointer;" onclick="dismissWelcome()">
+  <span style="font-size:80px;margin-bottom:16px;">💛</span>
+  <div style="font-size:36px;font-weight:800;color:#5a3e28;font-family:'Nunito',sans-serif;">Hello, Diane!</div>
+  <div style="font-size:20px;color:#8b7355;margin-top:8px;font-family:'Nunito',sans-serif;">Tap anywhere to start</div>
+  <div style="margin-top:40px;font-size:60px;animation:pulse-welcome 2s ease-in-out infinite;">👆</div>
+</div>
+<style>.gone{display:none!important;}@keyframes pulse-welcome{0%,100%{transform:scale(1);opacity:0.7;}50%{transform:scale(1.2);opacity:1;}}</style>
+
 <div id="setup">
   <span class="si">💛</span>
   <div class="st">Diane</div>
@@ -1115,7 +1123,12 @@ window.addEventListener('load',()=>{
   setInterval(()=>{ if(synth.speaking&&!synth.paused){synth.pause();synth.resume();} },8000);
   updateClock();
   setInterval(updateClock, 30000);
-  if(apiKey) launch();
+  if(apiKey){
+    // Show welcome tap screen instead of launching directly
+    // This ensures user taps first, unlocking audio on iPad Safari
+    document.getElementById('setup').classList.add('gone');
+    document.getElementById('welcome').classList.remove('gone');
+  }
 });
 
 function updateClock(){
@@ -1124,6 +1137,12 @@ function updateClock(){
     now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   document.getElementById('hdate').textContent=
     now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+}
+
+function dismissWelcome(){
+  unlockAudio();
+  document.getElementById('welcome').classList.add('gone');
+  launch();
 }
 
 function doSetup(){
