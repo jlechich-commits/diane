@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Diane</title>
-  <!-- v2 -->
+  <!-- v3 - Single Companion View -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -20,7 +20,7 @@
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;width:100%;overflow:hidden;background:var(--cream);font-family:'Nunito',sans-serif;color:var(--dark);}
 
-    /* ─── SETUP ─────────────────────────────────── */
+    /* SETUP */
     #setup{position:fixed;inset:0;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;z-index:999;}
     #setup.gone{display:none;}
     .si{font-size:52px;margin-bottom:10px;display:block;}
@@ -35,28 +35,17 @@
     .sb:active{background:var(--brown-lt);}
     .sn{margin-top:18px;font-size:12px;color:var(--lite);text-align:center;line-height:1.7;max-width:380px;}
 
-    /* ─── APP SHELL ──────────────────────────────── */
+    /* APP SHELL - single companion view */
     #app{position:fixed;inset:0;display:flex;flex-direction:column;}
     #app.gone{display:none;}
-    .hdr{background:var(--cream);padding:10px 16px 8px;border-bottom:1px solid var(--gold-pale);flex-shrink:0;position:relative;text-align:center;}
+    .companion-header{background:var(--cream);padding:10px 16px 8px;border-bottom:1px solid var(--gold-pale);flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;gap:12px;}
     .ht{font-family:'Playfair Display';font-size:24px;color:var(--gold);letter-spacing:2px;line-height:1;}
-    .hrow{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:2px;}
-    .hs{font-size:11px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;}
     .hclock{font-size:13px;color:var(--brown);font-weight:700;}
-    .hdate{font-size:11px;color:var(--lite);margin-top:1px;}
+    .hdate{font-size:11px;color:var(--lite);}
     .gear{position:absolute;top:10px;right:14px;background:none;border:none;font-size:18px;color:var(--gold-pale);cursor:pointer;padding:6px;}
-    .secs{flex:1;overflow:hidden;position:relative;}
-    .sec{position:absolute;inset:0;overflow-y:auto;display:none;flex-direction:column;-webkit-overflow-scrolling:touch;}
-    .sec.on{display:flex;}
-    .nav{flex-shrink:0;background:white;border-top:1px solid var(--gold-pale);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);}
-    .nb{flex:1;padding:6px 1px 8px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
-    .nb .ni{font-size:32px;line-height:1;}
-    .nb .nl{font-size:13px;color:var(--lite);font-family:'Nunito';font-weight:600;}
-    .nb.on .nl{color:var(--gold);font-weight:700;}
-    .nb.on .ni{filter:drop-shadow(0 0 4px rgba(196,154,60,.5));}
 
-    /* ─── CHAT ───────────────────────────────────── */
-    #sec-chat{padding:0;}
+    /* CHAT - always visible */
+    #companion-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
     #chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
     .msg{max-width:88%;padding:13px 17px;border-radius:20px;font-size:18px;line-height:1.65;animation:fup .3s ease;}
     @keyframes fup{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
@@ -69,7 +58,17 @@
     .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);animation:db 1.3s infinite;}
     .dot:nth-child(2){animation-delay:.2s;}.dot:nth-child(3){animation-delay:.4s;}
     @keyframes db{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-8px);opacity:1;}}
-    .cia{flex-shrink:0;padding:8px 14px 14px;background:var(--cream);border-top:1px solid var(--gold-pale);}
+
+    /* ACTIVITY CARDS in chat */
+    .msg.activity-card{background:white;border:2px solid var(--gold-pale);align-self:flex-start;max-width:96%;padding:16px;border-radius:18px;box-shadow:0 2px 12px var(--shad);}
+    .activity-icon{font-size:32px;margin-bottom:6px;}
+    .activity-text{font-size:17px;color:var(--dark);line-height:1.5;margin-bottom:12px;font-weight:600;}
+    .activity-buttons{display:flex;flex-wrap:wrap;gap:8px;}
+    .activity-btn{padding:10px 16px;border:2px solid var(--gold-pale);border-radius:12px;background:var(--warm);font-size:15px;font-family:'Nunito';font-weight:700;color:var(--brown);cursor:pointer;}
+    .activity-btn:active{background:var(--gold-pale);border-color:var(--gold);}
+
+    /* COMPANION INPUT */
+    .companion-input{flex-shrink:0;padding:8px 14px 14px;background:var(--cream);border-top:1px solid var(--gold-pale);}
     .stat{text-align:center;font-size:13px;color:var(--lite);font-style:italic;height:16px;margin-bottom:7px;}
     .trow{display:flex;gap:8px;align-items:flex-end;margin-bottom:9px;}
     #txtin{flex:1;padding:11px 14px;border:2px solid var(--gold-pale);border-radius:13px;font-size:17px;font-family:'Nunito';background:var(--warm);color:var(--dark);outline:none;resize:none;min-height:46px;max-height:100px;line-height:1.4;}
@@ -83,14 +82,20 @@
     @keyframes pulse-mic{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
     @keyframes glow{0%,100%{box-shadow:0 6px 20px rgba(122,92,62,.3);}50%{box-shadow:0 6px 36px rgba(122,92,62,.7),0 0 0 14px rgba(122,92,62,.08);}}
 
-    /* ─── HELP ───────────────────────────────────── */
-    #sec-help{padding:0;}
+    /* OVERLAYS */
+    .overlay{position:fixed;inset:0;z-index:500;background:var(--cream);transform:translateY(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;overflow:hidden;}
+    .overlay.open{transform:translateY(0);}
+    .overlay-header{display:flex;align-items:center;padding:12px 16px;background:var(--cream);border-bottom:1px solid var(--gold-pale);flex-shrink:0;gap:12px;}
+    .overlay-back{padding:10px 18px;background:var(--rose);color:white;border:none;border-radius:12px;font-size:16px;font-family:'Nunito';font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+    .overlay-back:active{filter:brightness(.9);}
+    .overlay-title{font-family:'Playfair Display';font-size:20px;color:var(--gold);flex:1;}
+    .overlay-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+    /* HELP */
     .help-inner{padding:20px 16px;flex:1;}
     .help-big-btn{width:100%;padding:24px 20px;margin-bottom:14px;border:none;border-radius:20px;font-size:19px;font-family:'Nunito';font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;}
     .help-big-btn.photo{background:var(--gold);color:white;box-shadow:0 6px 20px rgba(196,154,60,.35);}
-    .help-big-btn.voice{background:var(--rose);color:white;box-shadow:0 6px 20px rgba(196,116,90,.35);}
     .help-big-btn:active{filter:brightness(.92);}
-    .help-div{text-align:center;color:var(--lite);font-size:14px;font-style:italic;margin:2px 0 14px;}
     #help-result{display:none;}
     .help-photo-preview{width:100%;max-height:200px;object-fit:contain;border-radius:14px;margin-bottom:14px;box-shadow:0 4px 16px var(--shad);}
     .help-response{background:white;border-radius:16px;padding:20px;font-size:18px;line-height:1.7;color:var(--dark);box-shadow:0 2px 12px var(--shad);margin-bottom:14px;}
@@ -100,10 +105,8 @@
     .hab.again{background:var(--warm);color:var(--brown);border:2px solid var(--gold-pale);}
     .help-loading{text-align:center;padding:50px 20px;color:var(--lite);font-style:italic;font-size:16px;display:none;}
     .help-loading.on{display:block;}
-    .help-listen-ind{display:none;text-align:center;padding:18px;color:var(--rose);font-weight:700;font-size:16px;background:#FEF0EC;border-radius:14px;margin-bottom:14px;}
-    .help-listen-ind.on{display:block;}
 
-    /* ─── CAMERA MODAL ───────────────────────────── */
+    /* CAMERA MODAL */
     #cam-modal{display:none;position:fixed;inset:0;background:#000;z-index:700;flex-direction:column;}
     #camvid{flex:1;width:100%;object-fit:cover;}
     .cam-bar{background:#111;padding:16px 16px 34px;display:flex;align-items:center;justify-content:center;gap:16px;}
@@ -111,10 +114,8 @@
     .cam-snap{background:#4CAF50;color:white;border:none;border-radius:20px;padding:18px 40px;font-size:22px;font-family:'Nunito';font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(76,175,80,.5);animation:pulse-snap 1.5s ease-in-out infinite;}
     @keyframes pulse-snap{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
     .cam-countdown{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:80px;color:white;font-weight:900;text-shadow:0 4px 20px rgba(0,0,0,.8);pointer-events:none;z-index:10;}
-    .cam-tip{color:#999;font-size:13px;font-family:'Nunito';}
 
-    /* ─── NEWS ───────────────────────────────────── */
-    #sec-news{padding:0;}
+    /* NEWS */
     .sec-inner{padding:14px;}
     .ptitle{font-family:'Playfair Display';font-size:24px;color:var(--gold);margin-bottom:3px;}
     .psub{font-size:13px;color:var(--lite);margin-bottom:14px;}
@@ -125,8 +126,7 @@
     .rbtn{background:var(--gold-pale);border:none;border-radius:8px;padding:6px 13px;font-size:13px;font-family:'Nunito';color:var(--brown);cursor:pointer;font-weight:600;}
     .rbtn:active{background:var(--gold-lt);}
 
-    /* ─── STORIES ────────────────────────────────── */
-    #sec-stories{padding:0;}
+    /* STORIES */
     .scats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
     .ccat{padding:18px 10px;background:white;border:2px solid var(--gold-pale);border-radius:16px;cursor:pointer;text-align:center;box-shadow:0 2px 10px var(--shad);}
     .ccat:active{border-color:var(--gold);transform:scale(.97);}
@@ -144,8 +144,7 @@
     .sab.p{background:var(--gold);color:white;}
     .sab.s{background:var(--warm);color:var(--brown);border:2px solid var(--gold-pale);}
 
-    /* ─── GAMES HUB ─────────────────────────────── */
-    #sec-games{padding:0;overflow:hidden;}
+    /* GAMES */
     .game-screen{display:none;flex-direction:column;height:100%;overflow-y:auto;}
     .game-screen.on{display:flex;}
     .game-hub-title{font-family:'Playfair Display';font-size:22px;color:var(--gold);text-align:center;margin:18px 0 12px;}
@@ -163,7 +162,8 @@
     .game-help-content{display:none;padding:0 16px 14px;font-size:15px;color:var(--mid);line-height:1.7;}
     .game-help-content.on{display:block;}
     .game-help-content p{margin-bottom:8px;}
-    /* ─── SOLITAIRE ──────────────────────────────── */
+
+    /* SOLITAIRE */
     #game-solitaire .sol-area{padding:8px 5px;overflow-y:auto;flex:1;}
     .sol-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:4px;flex-wrap:wrap;}
     .sol-btns{display:flex;gap:4px;flex-wrap:wrap;}
@@ -194,7 +194,7 @@
     .win-msg{display:none;background:var(--gold);color:white;text-align:center;padding:16px;border-radius:12px;margin-bottom:10px;font-family:'Playfair Display';font-size:22px;}
     .win-msg.on{display:block;}
 
-    /* ─── BRIDGE ─────────────────────────────────── */
+    /* BRIDGE */
     .bridge-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:4px;}
     .bridge-info{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;font-size:16px;flex-shrink:0;flex-wrap:wrap;gap:6px;}
     .bridge-trump{background:var(--gold);color:white;padding:6px 16px;border-radius:10px;font-weight:700;font-size:18px;}
@@ -226,11 +226,10 @@
     .bridge-chat-text{font-size:16px;color:var(--dark);line-height:1.5;font-style:italic;text-align:center;}
     .bridge-mic-btn{display:block;margin:6px auto;padding:12px 24px;font-size:18px;font-weight:700;border:none;border-radius:16px;background:var(--gold);color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);}
     .bridge-mic-btn.hot{background:#e74c3c;animation:pulse-mic 1.5s ease-in-out infinite;}
-    @keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.4);}50%{box-shadow:0 0 0 12px rgba(231,76,60,0);}}
     .bridge-bottom .card.suggested{border-color:var(--gold)!important;box-shadow:0 0 0 4px var(--gold),0 0 30px rgba(255,215,0,0.6)!important;animation:pulse-hint 1.2s ease-in-out infinite;}
     @keyframes pulse-hint{0%,100%{box-shadow:0 0 0 3px var(--green),0 0 20px rgba(46,125,82,0.4);}50%{box-shadow:0 0 0 5px var(--green),0 0 30px rgba(46,125,82,0.6);}}
 
-    /* ─── MEMORY MATCH ───────────────────────────── */
+    /* MEMORY MATCH */
     .mem-wrap{flex:1;display:flex;flex-direction:column;padding:8px;overflow-y:auto;}
     .mem-info{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;font-size:14px;flex-shrink:0;margin-bottom:8px;}
     .mem-grid{display:grid;gap:8px;justify-content:center;margin:0 auto;}
@@ -245,15 +244,13 @@
     .mem-win{display:none;background:var(--gold);color:white;text-align:center;padding:16px;border-radius:12px;margin-bottom:10px;font-family:'Playfair Display';font-size:20px;}
     .mem-win.on{display:block;}
 
-    /* ─── DRAW TABS ──────────────────────────────── */
-    #sec-draw{padding:0;overflow:hidden;}
+    /* DRAW TABS */
     .draw-tabs{display:flex;border-bottom:2px solid var(--gold-pale);flex-shrink:0;background:var(--cream);}
     .draw-tab{flex:1;padding:10px;border:none;background:none;font-size:14px;font-family:'Nunito';font-weight:600;color:var(--lite);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;}
     .draw-tab.on{color:var(--gold);border-bottom-color:var(--gold);}
     .draw-panel{display:none;flex:1;flex-direction:column;overflow:hidden;}
     .draw-panel.on{display:flex;}
     #free-draw-panel{padding:6px;gap:6px;}
-    /* ─── COLORING BOOK ──────────────────────────── */
     #color-book-panel{overflow-y:auto;}
     .cb-inner{padding:12px;}
     .cb-section-title{font-size:13px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:14px;}
@@ -280,12 +277,8 @@
     .cb-btn.brush.on{background:var(--gold-pale);border-color:var(--gold);}
     .cb-btn.back{background:var(--warm);color:var(--brown);border:2px solid var(--gold-pale);}
     .cb-btn.savepng{background:var(--green-lt);color:white;}
-    .set-hint{font-size:12px;color:var(--lite);margin-top:4px;line-height:1.5;}
-    .set-badge{display:inline-block;padding:2px 8px;background:#EFF8F2;color:var(--green);border-radius:6px;font-size:11px;font-weight:700;margin-left:6px;}
-    .set-badge.warn{background:#FFF3CD;color:#856404;}
 
-    /* ─── FREE DRAWING (original) ───────────────── */
-    #sec-draw{padding:6px;gap:6px;overflow:hidden;}
+    /* FREE DRAWING */
     #cvs{border-radius:14px;background:white;touch-action:none;box-shadow:0 2px 12px var(--shad);cursor:crosshair;flex-shrink:0;display:block;}
     .dtool{flex-shrink:0;}
     .dcolors{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;}
@@ -298,21 +291,7 @@
     .dact.erase{background:var(--warm);color:var(--brown);border:2px solid var(--gold-pale);}
     .dact.clr{background:var(--rose);color:white;}
 
-    /* ─── PIN MODAL ──────────────────────────────── */
-    #pin-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:650;align-items:center;justify-content:center;padding:20px;}
-    #pin-modal.on{display:flex;}
-    .pin-box{background:var(--cream);border-radius:24px;padding:32px 28px;width:100%;max-width:360px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.3);}
-    .pin-title{font-family:'Playfair Display';font-size:20px;color:var(--dark);margin-bottom:6px;}
-    .pin-sub{font-size:13px;color:var(--lite);margin-bottom:20px;}
-    .pin-in{width:100%;padding:14px;border:2px solid var(--gold-pale);border-radius:12px;font-size:24px;letter-spacing:8px;text-align:center;background:var(--warm);color:var(--dark);outline:none;font-family:monospace;margin-bottom:8px;}
-    .pin-in:focus{border-color:var(--gold);}
-    .pin-err{color:#E74C3C;font-size:13px;height:18px;margin-bottom:10px;}
-    .pin-btns{display:flex;gap:10px;}
-    .pin-btn{flex:1;padding:14px;border:none;border-radius:12px;font-size:16px;font-family:'Nunito';font-weight:700;cursor:pointer;}
-    .pin-btn.ok{background:var(--gold);color:white;}
-    .pin-btn.cancel{background:var(--warm);color:var(--brown);border:2px solid var(--gold-pale);}
-
-    /* ─── SETTINGS MODAL ─────────────────────────── */
+    /* SETTINGS */
     #set-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;align-items:center;justify-content:center;padding:20px;}
     #set-modal.on{display:flex;}
     .set-box{background:var(--cream);border-radius:24px;padding:28px 24px;width:100%;max-width:420px;max-height:82vh;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,.3);}
@@ -328,6 +307,9 @@
     .set-btn.red{background:#E74C3C;color:white;}
     .set-btn.full{width:100%;padding:12px;margin-top:6px;}
     .set-close{margin-top:4px;width:100%;padding:14px;background:var(--warm);border:2px solid var(--gold-pale);border-radius:13px;font-size:16px;font-family:'Nunito';font-weight:700;cursor:pointer;color:var(--brown);}
+    .set-hint{font-size:12px;color:var(--lite);margin-top:4px;line-height:1.5;}
+    .set-badge{display:inline-block;padding:2px 8px;background:#EFF8F2;color:var(--green);border-radius:6px;font-size:11px;font-weight:700;margin-left:6px;}
+    .set-badge.warn{background:#FFF3CD;color:#856404;}
     .mem-item{background:white;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 2px 8px var(--shad);}
     .mem-content{flex:1;}
     .mem-topic{font-size:13px;font-weight:700;color:var(--brown);margin-bottom:2px;}
@@ -340,214 +322,160 @@
     .add-mem-in{width:100%;padding:10px 12px;border:2px solid var(--gold-pale);border-radius:10px;font-size:15px;font-family:'Nunito';background:var(--warm);color:var(--dark);outline:none;margin-bottom:8px;resize:vertical;}
     .add-mem-in:focus{border-color:var(--gold);}
     .add-mem-row{display:flex;gap:8px;}
+    .gone{display:none!important;}
+    @keyframes pulse-welcome{0%,100%{transform:scale(1);opacity:0.7;}50%{transform:scale(1.2);opacity:1;}}
+
+    /* LANDSCAPE ORIENTATION */
+    @media (orientation: landscape) {
+      .companion-header{padding:6px 16px 4px;}
+      .ht{font-size:20px;}
+      .companion-input{padding:4px 14px 6px;}
+      .trow{margin-bottom:4px;}
+      #txtin{min-height:38px;padding:8px 12px;font-size:15px;}
+      #sendb{width:38px;height:38px;}
+      #micb{min-height:48px;padding:10px 14px;font-size:18px;border-radius:14px;}
+      #micb .mic-icon{font-size:24px;}
+      .stat{height:14px;font-size:11px;margin-bottom:4px;}
+      .msg{font-size:16px;padding:10px 14px;max-width:80%;}
+      .msg.activity-card{padding:12px;}
+      .activity-icon{font-size:26px;margin-bottom:4px;}
+      .activity-text{font-size:15px;margin-bottom:8px;}
+      .activity-btn{padding:8px 12px;font-size:13px;}
+
+      /* Overlay headers compact */
+      .overlay-header{padding:8px 14px;}
+      .overlay-back{padding:8px 14px;font-size:14px;}
+      .overlay-title{font-size:18px;}
+
+      /* Games in landscape */
+      .bridge-wrap{padding:2px;}
+      .bridge-info{padding:4px 8px;font-size:14px;}
+      .bridge-trump{padding:4px 12px;font-size:15px;}
+      .bridge-score{font-size:14px;}
+      .bridge-msg{padding:6px 10px;font-size:15px;min-height:32px;}
+      .bridge-your-label{font-size:16px;padding:6px 0 2px;}
+      .bridge-your-section{padding:4px 6px 8px;margin:2px 4px 0;border-radius:14px;}
+      .bridge-bottom{gap:5px;padding:6px 6px;}
+      .bridge-bottom .card{width:60px;height:86px;border-width:2px;border-radius:8px;}
+      .bridge-bottom .card .crank{font-size:18px;}.bridge-bottom .card .csm{font-size:16px;}.bridge-bottom .card .cctr{font-size:28px;}
+      .bridge-top .card{width:24px;height:36px;}
+      .bridge-top .card .crank{font-size:7px;}.bridge-top .card .csm{font-size:7px;}.bridge-top .card .cctr{font-size:10px;}
+      .bridge-trick-area{min-height:60px;padding:6px;gap:6px;}
+      .bridge-trick-card .card{width:46px;height:66px;}
+      .bridge-trick-card .card .crank{font-size:12px;}.bridge-trick-card .card .csm{font-size:11px;}.bridge-trick-card .card .cctr{font-size:18px;}
+      .bridge-side{width:36px;}
+      .bridge-mic-btn{padding:8px 16px;font-size:15px;}
+      .bridge-chat{padding:6px 10px;margin:2px 8px;}
+
+      /* Solitaire in landscape */
+      .sol-bar{margin-bottom:4px;}
+      .game-hub-title{margin:10px 0 8px;font-size:20px;}
+      .game-card{padding:14px 14px;}
+      .game-help-box{margin:4px 5px;}
+
+      /* Memory match in landscape */
+      .mem-wrap{padding:4px;}
+
+      /* Drawing in landscape */
+      .cb-tools{padding:4px 8px;}
+      .cb-colors{gap:4px;margin-bottom:4px;}
+      .cb-col{width:30px;height:30px;}
+      .cb-btns{gap:4px;}
+      .dcolors{gap:4px;margin-bottom:4px;}
+      .dcol{width:32px;height:32px;}
+      .dbtms{gap:4px;}
+
+      /* News/stories in landscape */
+      .sec-inner{padding:10px;}
+      .ptitle{font-size:20px;}
+      .scats{grid-template-columns:repeat(3,1fr);}
+      .cb-themes{grid-template-columns:repeat(4,1fr);}
+
+      /* Settings in landscape */
+      .set-box{max-height:90vh;}
+    }
+
+    /* Very short screens (landscape phone or split view) */
+    @media (max-height: 500px) {
+      .companion-header{padding:4px 14px 2px;}
+      .ht{font-size:18px;}
+      #micb{min-height:40px;padding:8px 12px;font-size:16px;}
+      #micb .mic-icon{font-size:20px;}
+      .companion-input{padding:3px 10px 4px;}
+      .stat{display:none;}
+    }
+
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════ SETUP ════════════════════════════ -->
+<!-- WELCOME TAP SCREEN -->
 <div id="welcome" class="gone" style="position:fixed;inset:0;background:linear-gradient(135deg,#faf6ef,#f5ede0);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;cursor:pointer;" onclick="dismissWelcome()">
-  <span style="font-size:80px;margin-bottom:16px;">💛</span>
+  <span style="font-size:80px;margin-bottom:16px;">&#x1F49B;</span>
   <div style="font-size:36px;font-weight:800;color:#5a3e28;font-family:'Nunito',sans-serif;">Hello, Diane!</div>
   <div style="font-size:20px;color:#8b7355;margin-top:8px;font-family:'Nunito',sans-serif;">Tap anywhere to start</div>
-  <div style="margin-top:40px;font-size:60px;animation:pulse-welcome 2s ease-in-out infinite;">👆</div>
+  <div style="margin-top:40px;font-size:60px;animation:pulse-welcome 2s ease-in-out infinite;">&#x1F446;</div>
 </div>
-<style>.gone{display:none!important;}@keyframes pulse-welcome{0%,100%{transform:scale(1);opacity:0.7;}50%{transform:scale(1.2);opacity:1;}}</style>
 
+<!-- SETUP SCREEN -->
 <div id="setup">
-  <span class="si">💛</span>
+  <span class="si">&#x1F49B;</span>
   <div class="st">Diane</div>
   <div class="ss">Your personal companion</div>
   <div class="sc">
     <div class="sl">One-time setup</div>
-    <input type="password" id="keyin" class="sk" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false">
-    <div class="sh">Your Anthropic API key — starts with sk-ant-</div>
-    <button class="sb" onclick="doSetup()">Open Diane 💛</button>
+    <input type="password" id="keyin" class="sk" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+    <div class="sh">Your Anthropic API key - starts with sk-ant-</div>
+    <button class="sb" onclick="doSetup()">Open Diane &#x1F49B;</button>
   </div>
-  <p class="sn">🔒 Your key is saved only on this iPad. It is never stored anywhere else.</p>
+  <p class="sn">&#x1F512; Your key is saved only on this iPad. It is never stored anywhere else.</p>
 </div>
 
-<!-- ═══════════════════════════ APP ══════════════════════════════ -->
+<!-- APP (single companion view) -->
 <div id="app" class="gone">
 
-  <div class="hdr">
-    <div class="ht">💛 Diane</div>
-    <div class="hrow">
-      <div class="hs" id="hsub">Your personal companion</div>
-      <div class="hclock" id="hclock"></div>
-    </div>
+  <!-- Companion Header -->
+  <div class="companion-header">
+    <div class="ht">&#x1F49B; Diane</div>
+    <div class="hclock" id="hclock"></div>
     <div class="hdate" id="hdate"></div>
-    <button class="gear" onclick="openSettings()">⚙</button>
+    <button class="gear" onclick="openSettings()">&#x2699;</button>
   </div>
 
-  <div class="secs">
-
-    <!-- ── CHAT ─────────────────────────────────── -->
-    <div class="sec on" id="sec-chat">
-      <div id="chat-msgs"></div>
-      <div class="cia">
-        <div class="stat" id="stat"></div>
-        <div class="trow">
-          <textarea id="txtin" rows="1" placeholder="Type a message…" onkeydown="ck(event)" oninput="grow(this)"></textarea>
-          <button id="sendb" onclick="sendTxt()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
-        </div>
-        <button id="micb" onclick="toggleMic()"><span class="mic-icon">🎙</span><span id="miclbl">Starting…</span></button>
+  <!-- Chat - always visible -->
+  <div id="companion-main">
+    <div id="chat-msgs"></div>
+    <div class="companion-input">
+      <div class="stat" id="stat"></div>
+      <div class="trow">
+        <textarea id="txtin" rows="1" placeholder="Type a message..." onkeydown="ck(event)" oninput="grow(this)"></textarea>
+        <button id="sendb" onclick="sendTxt()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
       </div>
+      <button id="micb" onclick="toggleMic()"><span class="mic-icon">&#x1F399;</span><span id="miclbl">Starting...</span></button>
     </div>
+  </div>
 
-    <!-- ── HELP / CAMERA ──────────────────────── -->
-    <div class="sec" id="sec-help">
-      <div class="help-inner">
-        <div class="ptitle">🆘 I Need Help</div>
-        <div class="psub">Take a photo or ask a question — I'll explain anything</div>
-
-        <div class="help-loading" id="help-loading">
-          <div style="font-size:36px;margin-bottom:12px">👀</div>
-          Looking at your photo, Diane. One moment…
-        </div>
-
-        <div id="help-result">
-          <img id="help-rimg" class="help-photo-preview" src="" alt="Your photo">
-          <div class="help-response" id="help-rtxt"></div>
-          <div class="help-acts">
-            <button class="hab read" onclick="readHelpResp()">🔊 Read to Me</button>
-            <button class="hab again" onclick="resetHelp()">📷 Try Again</button>
-          </div>
-        </div>
-
-        <div id="help-main">
-          <button class="help-big-btn photo" onclick="openCamera()" style="font-size:24px;padding:30px 20px;min-height:100px;">
-            📷 Take a Photo — I'll Help!
-          </button>
-          <div style="text-align:center;padding:16px 0;font-size:18px;color:var(--mid);font-weight:600;">
-            Point your iPad at anything confusing.<br>I'll tell you what it is and how to use it!
-          </div>
-          <div style="margin-top:12px;padding:16px;background:var(--warm);border-radius:14px;font-size:16px;color:var(--mid);line-height:1.8;">
-            <strong style="color:var(--brown)">Or just say:</strong><br>
-            📺 "I can't figure out my remote"<br>
-            💡 "How do I turn on the lights"<br>
-            📱 "How do I call Jon"<br>
-            <span style="font-size:14px;color:var(--lite);">I'm always listening — just speak!</span>
-          </div>
-        </div>
-      </div>
+  <!-- ======= OVERLAY: GAMES ======= -->
+  <div id="overlay-games" class="overlay">
+    <div class="overlay-header">
+      <button class="overlay-back" onclick="closeOverlay('games')">&#x2190; Back to Chat</button>
+      <div class="overlay-title">&#x1F3AE; Games</div>
     </div>
-
-    <!-- ── NEWS ──────────────────────────────── -->
-    <div class="sec" id="sec-news">
-      <div class="sec-inner">
-        <div class="ptitle">📰 News & Music</div>
-        <div class="psub">Listen to music, a podcast, or tap a headline</div>
-
-        <div style="margin-bottom:16px;">
-          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Music</div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('classic-rock')">
-              <span style="font-size:28px;flex-shrink:0;">🎸</span>
-              <div><h3 style="margin:0;">Classic Rock Hits</h3><p style="margin:0;font-size:12px;color:var(--lite);">Eagles, Fleetwood Mac, CCR & more</p></div>
-              <span style="margin-left:auto;font-size:22px;">▶</span>
-            </button>
-            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('eagles')">
-              <span style="font-size:28px;flex-shrink:0;">🦅</span>
-              <div><h3 style="margin:0;">The Eagles</h3><p style="margin:0;font-size:12px;color:var(--lite);">Hotel California, Desperado & more</p></div>
-              <span style="margin-left:auto;font-size:22px;">▶</span>
-            </button>
-            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('soft-hits')">
-              <span style="font-size:28px;flex-shrink:0;">🎵</span>
-              <div><h3 style="margin:0;">Feel-Good Classics</h3><p style="margin:0;font-size:12px;color:var(--lite);">Elton John, Billy Joel, Stevie Wonder</p></div>
-              <span style="margin-left:auto;font-size:22px;">▶</span>
-            </button>
-            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('italian')">
-              <span style="font-size:28px;flex-shrink:0;">🇮🇹</span>
-              <div><h3 style="margin:0;">Italian Classics</h3><p style="margin:0;font-size:12px;color:var(--lite);">Dean Martin, Frank Sinatra, Andrea Bocelli</p></div>
-              <span style="margin-left:auto;font-size:22px;">▶</span>
-            </button>
-          </div>
-          <div id="spotify-player" style="display:none;margin-bottom:14px;background:white;border-radius:14px;padding:10px;box-shadow:0 2px 10px var(--shad);">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-              <span style="font-weight:700;color:var(--dark);font-size:15px;" id="spotify-name">Now Playing</span>
-              <button class="solbtn" style="margin-left:auto;" onclick="hideSpotify()">✕ Close</button>
-            </div>
-            <iframe id="spotify-iframe" style="border-radius:12px;width:100%;height:152px;border:none;" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-          </div>
-        </div>
-
-        <div style="margin-bottom:16px;">
-          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">News Podcasts</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('npr')">
-              <span style="font-size:28px;flex-shrink:0;">🎙</span>
-              <div><h3 style="margin:0;">NPR News Now</h3><p style="margin:0;font-size:12px;color:var(--lite);">5-minute news update, every hour</p></div>
-              <span style="margin-left:auto;font-size:22px;">▶</span>
-            </button>
-            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('upfirst')">
-              <span style="font-size:28px;flex-shrink:0;">🌅</span>
-              <div><h3 style="margin:0;">NPR Up First</h3><p style="margin:0;font-size:12px;color:var(--lite);">Today's top stories, 10 minutes</p></div>
-              <span style="margin-left:auto;font-size:22px;">▶</span>
-            </button>
-            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('nydaily')">
-              <span style="font-size:28px;flex-shrink:0;">🗽</span>
-              <div><h3 style="margin:0;">The Daily (NY Times)</h3><p style="margin:0;font-size:12px;color:var(--lite);">Deep dive into one big story, ~25 min</p></div>
-              <span style="margin-left:auto;font-size:22px;">▶</span>
-            </button>
-          </div>
-          <div id="podcast-player" style="display:none;margin-top:10px;background:white;border-radius:14px;padding:14px;box-shadow:0 2px 10px var(--shad);">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-              <span style="font-size:22px;" id="podcast-icon">🎙</span>
-              <span style="font-weight:700;color:var(--dark);font-size:15px;" id="podcast-name">Now Playing</span>
-              <button class="solbtn" style="margin-left:auto;" onclick="stopPodcast()">⏹ Stop</button>
-            </div>
-            <audio id="podcast-audio" controls style="width:100%;border-radius:8px;" preload="none"></audio>
-          </div>
-        </div>
-
-        <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Headlines</div>
-        <button class="rfbtn" onclick="loadNews()">🔄 Refresh</button>
-        <div id="newslist"></div>
-      </div>
-    </div>
-
-    <!-- ── STORIES ────────────────────────────── -->
-    <div class="sec" id="sec-stories">
-      <div class="sec-inner">
-        <div class="ptitle">📖 Story Time</div>
-        <div class="psub">Pick a kind of story — I'll tell it just for you</div>
-        <div class="scats">
-          <button class="ccat" onclick="getStory('funny')"><span class="ce">😄</span><span class="cn">Funny Stories</span></button>
-          <button class="ccat" onclick="getStory('animal')"><span class="ce">🐾</span><span class="cn">Animal Tales</span></button>
-          <button class="ccat" onclick="getStory('love')"><span class="ce">💝</span><span class="cn">Love &amp; Family</span></button>
-          <button class="ccat" onclick="getStory('travel')"><span class="ce">✈️</span><span class="cn">Travel Adventure</span></button>
-          <button class="ccat" onclick="getStory('italy')"><span class="ce">🇮🇹</span><span class="cn">Italy &amp; Food</span></button>
-          <button class="ccat" onclick="getStory('hawaii')"><span class="ce">🌺</span><span class="cn">Hawaii Dreams</span></button>
-        </div>
-        <div class="sload" id="sload">✦ Thinking of a lovely story just for you…</div>
-        <div class="sbox" id="sbox">
-          <div class="stitl" id="stitl"></div>
-          <div class="stxt" id="stxt"></div>
-          <div class="sacts">
-            <button class="sab p" onclick="readStory()">🔊 Read to Me</button>
-            <button class="sab s" onclick="newStory()">✦ New Story</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── GAMES HUB ──────────────────────────── -->
-    <div class="sec" id="sec-games">
-
+    <div class="overlay-body" id="sec-games" style="display:flex;flex-direction:column;overflow:hidden;">
       <!-- Game Picker -->
       <div class="game-screen on" id="game-picker">
         <div class="game-hub-title">Choose a Game</div>
         <div class="game-grid">
           <button class="game-card" onclick="showGame('solitaire')">
-            <span class="game-card-icon">🃏</span>
+            <span class="game-card-icon">&#x1F0CF;</span>
             <span class="game-card-info"><span class="game-card-name">Solitaire</span><span class="game-card-desc">Classic card patience</span></span>
           </button>
           <button class="game-card" onclick="showGame('bridge')">
-            <span class="game-card-icon">🂡</span>
+            <span class="game-card-icon">&#x1F0A1;</span>
             <span class="game-card-info"><span class="game-card-name">Bridge</span><span class="game-card-desc">Play tricks with a partner</span></span>
           </button>
           <button class="game-card" onclick="showGame('memory')">
-            <span class="game-card-icon">🧠</span>
+            <span class="game-card-icon">&#x1F9E0;</span>
             <span class="game-card-info"><span class="game-card-name">Memory Match</span><span class="game-card-desc">Find the matching pairs</span></span>
           </button>
         </div>
@@ -555,53 +483,52 @@
 
       <!-- Solitaire -->
       <div class="game-screen" id="game-solitaire">
-        <button class="game-back-btn" onclick="showGame('picker')">← Back to Games</button>
+        <button class="game-back-btn" onclick="showGame('picker')">&#x2190; Back to Games</button>
         <div class="sol-area">
           <div class="sol-bar">
             <div class="sol-btns">
               <button class="solbtn" onclick="newGame()">New Game</button>
-              <button class="solbtn" onclick="undoMove()">↩ Undo</button>
-              <button class="solbtn" onclick="autoFnd()">Auto ↑</button>
-              <button class="solbtn" onclick="hintMove()">💡 Hint</button>
+              <button class="solbtn" onclick="undoMove()">&#x21A9; Undo</button>
+              <button class="solbtn" onclick="autoFnd()">Auto &#x2191;</button>
+              <button class="solbtn" onclick="hintMove()">&#x1F4A1; Hint</button>
             </div>
             <div class="sol-stat" id="solstat">Good luck, Diane!</div>
           </div>
-          <div class="win-msg" id="winmsg">🎉 You won! Wonderful, Diane!</div>
+          <div class="win-msg" id="winmsg">&#x1F389; You won! Wonderful, Diane!</div>
           <div class="prow" id="prow"></div>
           <div class="tab" id="tab"></div>
         </div>
         <div class="game-help-box">
-          <button class="game-help-toggle" onclick="toggleGameHelp(this)">❓ How to Play Solitaire</button>
+          <button class="game-help-toggle" onclick="toggleGameHelp(this)">&#x2753; How to Play Solitaire</button>
           <div class="game-help-content">
             <p><strong>Goal:</strong> Move all cards to the four piles at the top right, sorted by suit from Ace to King.</p>
-            <p><strong>How:</strong> Tap a card to select it, then tap where you want it to go. Cards stack in columns by alternating colors (red on black, black on red) going down (Queen on King, Jack on Queen, etc.).</p>
+            <p><strong>How:</strong> Tap a card to select it, then tap where you want it to go. Cards stack in columns by alternating colors (red on black, black on red) going down.</p>
             <p><strong>Stock pile:</strong> Tap the deck at the top left to flip new cards.</p>
-            <p><strong>Tips:</strong> Use the <strong>Hint</strong> button if you get stuck. <strong>Auto</strong> moves cards to the top piles automatically. <strong>Undo</strong> takes back your last move.</p>
-            <button class="solbtn" onclick="speak('The goal is to move all cards to the four piles at the top, sorted by suit from Ace to King. Tap a card to pick it up, then tap where to put it. Stack cards by alternating colors going down. Tap the deck at top left to flip new cards. Use the hint button if you get stuck!')" style="margin-top:8px;">🔊 Read Instructions</button>
+            <p><strong>Tips:</strong> Use the <strong>Hint</strong> button if stuck. <strong>Auto</strong> moves cards up. <strong>Undo</strong> takes back your last move.</p>
+            <button class="solbtn" onclick="speak('The goal is to move all cards to the four piles at the top, sorted by suit from Ace to King. Tap a card to pick it up, then tap where to put it. Stack cards by alternating colors going down. Tap the deck at top left to flip new cards. Use the hint button if you get stuck!')" style="margin-top:8px;">&#x1F50A; Read Instructions</button>
           </div>
         </div>
       </div>
 
       <!-- Bridge -->
       <div class="game-screen" id="game-bridge">
-        <button class="game-back-btn" onclick="showGame('picker')">← Back to Games</button>
+        <button class="game-back-btn" onclick="showGame('picker')">&#x2190; Back to Games</button>
         <div class="game-help-box" style="margin-bottom:6px;">
-          <button class="game-help-toggle" onclick="toggleGameHelp(this)">❓ How to Play Bridge</button>
+          <button class="game-help-toggle" onclick="toggleGameHelp(this)">&#x2753; How to Play Bridge</button>
           <div class="game-help-content">
-            <p><strong>You are South.</strong> North is your partner (cards shown face up). East and West are opponents.</p>
-            <p><strong>Goal:</strong> Win more tricks than the other team. Win 7 or more out of 13 to win the game!</p>
-            <p><strong>How:</strong> Tap one of your cards to play it. Everyone plays one card per round (a "trick"). The highest card of the suit that was led wins the trick.</p>
-            <p><strong>Trump:</strong> The trump suit beats all other suits. If you cannot follow the suit that was led, you can play a trump card to win.</p>
-            <p><strong>Must follow suit:</strong> If a heart is led and you have hearts, you must play a heart.</p>
-            <button class="solbtn" onclick="speak('You are South, and North is your partner. The goal is to win more tricks than the other team. Each round, everyone plays one card. The highest card of the led suit wins. But the trump suit beats everything! You must follow suit if you can. Win 7 or more tricks out of 13 to win!')" style="margin-top:8px;">🔊 Read Instructions</button>
+            <p><strong>You are South.</strong> North is your partner. East and West are opponents.</p>
+            <p><strong>Goal:</strong> Win more tricks than the other team. Win 7 or more out of 13!</p>
+            <p><strong>How:</strong> Tap one of your cards to play it. The highest card of the led suit wins.</p>
+            <p><strong>Trump:</strong> The trump suit beats all other suits.</p>
+            <button class="solbtn" onclick="speak('You are South, and North is your partner. The goal is to win more tricks than the other team. Each round, everyone plays one card. The highest card of the led suit wins. But the trump suit beats everything! You must follow suit if you can. Win 7 or more tricks out of 13 to win!')" style="margin-top:8px;">&#x1F50A; Read Instructions</button>
           </div>
         </div>
         <div class="bridge-wrap">
           <div class="bridge-info">
-            <span class="bridge-trump" id="br-trump">Trump: ♠</span>
+            <span class="bridge-trump" id="br-trump">Trump: &#x2660;</span>
             <span class="bridge-score" id="br-score">You: 0 | Them: 0</span>
             <button class="solbtn" onclick="newBridgeGame()">New Game</button>
-            <button class="solbtn" style="background:var(--green);color:white;" onclick="bridgeHint()">💡 Hint</button>
+            <button class="solbtn" style="background:var(--green);color:white;" onclick="bridgeHint()">&#x1F4A1; Hint</button>
           </div>
           <div class="bridge-table" id="br-table">
             <div class="bridge-top" id="br-north"></div>
@@ -614,9 +541,12 @@
             <div class="bridge-chat" id="br-chat" style="display:none;">
               <div class="bridge-chat-text" id="br-chat-text"></div>
             </div>
-            <button class="bridge-mic-btn" id="br-mic" onclick="toggleBridgeMic()">🎙 Talk to Me</button>
+            <div style="display:flex;gap:8px;justify-content:center;margin:6px auto;">
+              <button class="bridge-mic-btn" id="br-talk" onclick="bridgeTalkToMe()" style="flex:1;">💬 Talk to Me</button>
+              <button class="bridge-mic-btn" id="br-mic" onclick="toggleBridgeMic()" style="flex:1;background:var(--rose);">🎙 Chat</button>
+            </div>
             <div class="bridge-your-section">
-              <div class="bridge-your-label">⬇ Your Cards, Diane — Tap One! ⬇</div>
+              <div class="bridge-your-label">&#x2B07; Your Cards, Diane - Tap One! &#x2B07;</div>
               <div class="bridge-bottom" id="br-south"></div>
             </div>
           </div>
@@ -625,140 +555,72 @@
 
       <!-- Memory Match -->
       <div class="game-screen" id="game-memory">
-        <button class="game-back-btn" onclick="showGame('picker')">← Back to Games</button>
+        <button class="game-back-btn" onclick="showGame('picker')">&#x2190; Back to Games</button>
         <div class="mem-wrap">
           <div class="mem-info">
             <span id="mem-pairs">Pairs: 0 / 8</span>
             <span id="mem-tries">Tries: 0</span>
             <button class="solbtn" onclick="newMemoryGame()">New Game</button>
           </div>
-          <div class="mem-win" id="mem-win">🎉 You found them all! Wonderful, Diane!</div>
+          <div class="mem-win" id="mem-win">&#x1F389; You found them all! Wonderful, Diane!</div>
           <div class="mem-grid" id="mem-grid"></div>
         </div>
         <div class="game-help-box">
-          <button class="game-help-toggle" onclick="toggleGameHelp(this)">❓ How to Play Memory Match</button>
+          <button class="game-help-toggle" onclick="toggleGameHelp(this)">&#x2753; How to Play Memory Match</button>
           <div class="game-help-content">
             <p><strong>Goal:</strong> Find all the matching pairs of cards.</p>
-            <p><strong>How:</strong> Tap a card to flip it over. Then tap another card. If the two cards match (same number and same color), they stay face up! If not, they flip back over.</p>
-            <p><strong>Tips:</strong> Try to remember where each card is. Take your time — there is no rush!</p>
-            <button class="solbtn" onclick="speak('Tap a card to flip it over. Then tap another card. If they match, same number and same color, they stay face up. If not, they flip back. Try to remember where each card is. Take your time, there is no rush!')" style="margin-top:8px;">🔊 Read Instructions</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ── DRAW + COLORING BOOK ───────────────────── -->
-    <div class="sec" id="sec-draw">
-      <div class="draw-tabs">
-        <button class="draw-tab on" onclick="switchDrawTab('free',this)">✏️ Free Draw</button>
-        <button class="draw-tab" onclick="switchDrawTab('color',this)">🎨 Coloring Book</button>
-      </div>
-      <!-- Free draw panel -->
-      <div class="draw-panel on" id="free-draw-panel">
-        <canvas id="cvs" style="margin:6px;"></canvas>
-        <div class="dtool" style="padding:0 6px 6px;">
-          <div class="dcolors" id="dcols"></div>
-          <div class="dbtms">
-            <button class="dszbtn on" onclick="setBS(7,this)">Small ●</button>
-            <button class="dszbtn" onclick="setBS(17,this)">Med ●</button>
-            <button class="dszbtn" onclick="setBS(34,this)">Big ●</button>
-            <button class="dact erase" id="erasebtn" onclick="togErase()">Eraser</button>
-            <button class="dact clr" onclick="clearCvs()">🗑 Clear</button>
-          </div>
-        </div>
-      </div>
-      <!-- Coloring book panel -->
-      <div class="draw-panel" id="color-book-panel">
-        <div id="cb-picker" style="overflow-y:auto;flex:1;">
-          <div class="cb-inner">
-            <div class="cb-section-title">Choose a coloring page</div>
-            <div class="cb-themes">
-              <button class="cb-theme" onclick="showCbCategory('flowers')"><span class="cb-theme-icon">🌸</span><span class="cb-theme-name">Flowers</span></button>
-              <button class="cb-theme" onclick="showCbCategory('animals')"><span class="cb-theme-icon">🐱</span><span class="cb-theme-name">Animals</span></button>
-              <button class="cb-theme" onclick="showCbCategory('hawaii')"><span class="cb-theme-icon">🌺</span><span class="cb-theme-name">Hawaii</span></button>
-              <button class="cb-theme" onclick="showCbCategory('italy')"><span class="cb-theme-icon">🍝</span><span class="cb-theme-name">Italy</span></button>
-              <button class="cb-theme" onclick="showCbCategory('butterfly')"><span class="cb-theme-icon">🦋</span><span class="cb-theme-name">Butterfly</span></button>
-              <button class="cb-theme" onclick="showCbCategory('garden')"><span class="cb-theme-icon">🌻</span><span class="cb-theme-name">Garden</span></button>
-              <button class="cb-theme" onclick="showCbCategory('birds')"><span class="cb-theme-icon">🐦</span><span class="cb-theme-name">Birds</span></button>
-              <button class="cb-theme" onclick="showCbCategory('ocean')"><span class="cb-theme-icon">⛵</span><span class="cb-theme-name">Ocean</span></button>
-              <button class="cb-theme" onclick="showCbCategory('holiday')"><span class="cb-theme-icon">🎄</span><span class="cb-theme-name">Holiday</span></button>
-            </div>
-            <div class="cb-section-title" style="margin-top:16px;">Family Photos</div>
-            <div class="cb-themes" id="cb-family-grid"></div>
-            <button class="cb-photo-btn" onclick="openCamera('color')">📷 Turn a Photo Into a Coloring Page</button>
-          </div>
-        </div>
-        <div id="cb-sub-picker" style="display:none;overflow-y:auto;flex:1;">
-          <div class="cb-inner">
-            <button style="background:var(--warm);border:2px solid var(--gold-pale);border-radius:10px;padding:8px 16px;font-size:14px;font-family:'Nunito';font-weight:600;color:var(--brown);cursor:pointer;margin-bottom:12px;" onclick="backToCbCategories()">🔙 Back</button>
-            <div class="cb-section-title" id="cb-sub-title">Pick a picture</div>
-            <div class="cb-themes" id="cb-sub-grid" style="grid-template-columns:repeat(2,1fr);gap:10px;"></div>
-          </div>
-        </div>
-        <div class="cb-loading" id="cb-loading"><div style="font-size:40px;margin-bottom:12px">🎨</div>Loading your coloring page…</div>
-        <div class="cb-canvas-wrap" id="cb-canvas-wrap">
-          <canvas id="color-cvs"></canvas>
-          <div class="cb-tools">
-            <div class="cb-colors" id="cb-cols"></div>
-            <div class="cb-btns">
-              <button class="cb-btn bucket on" id="cb-bucket-btn" onclick="setCbTool('bucket')">🪣 Fill</button>
-              <button class="cb-btn brush" id="cb-brush-btn" onclick="setCbTool('brush')">✏️ Draw</button>
-              <button class="cb-btn back" onclick="resetColorPage()">🔙 New Page</button>
-              <button class="cb-btn savepng" onclick="saveColorPage()">💾 Save</button>
-            </div>
+            <p><strong>How:</strong> Tap a card to flip it over. Then tap another card. If they match, they stay face up!</p>
+            <button class="solbtn" onclick="speak('Tap a card to flip it over. Then tap another card. If they match, same number and same color, they stay face up. If not, they flip back. Try to remember where each card is. Take your time, there is no rush!')" style="margin-top:8px;">&#x1F50A; Read Instructions</button>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ── TV ────────────────────────────────── -->
-    <div class="sec" id="sec-tv">
+  <!-- ======= OVERLAY: TV ======= -->
+  <div id="overlay-tv" class="overlay">
+    <div class="overlay-header">
+      <button class="overlay-back" onclick="closeOverlay('tv')">&#x2190; Back to Chat</button>
+      <div class="overlay-title">&#x1F4FA; TV &amp; Shows</div>
+    </div>
+    <div class="overlay-body">
       <div class="sec-inner" id="tv-inner">
-        <div class="ptitle">📺 TV &amp; Streaming</div>
-        <div class="psub">Watch shows, get recommendations, or say "help me find something to watch"</div>
-
         <!-- TV Companion Tools -->
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
           <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);" onclick="tvRecommend()">
-            <span style="font-size:32px;flex-shrink:0;">🎬</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3AC;</span>
             <div><h3 style="margin:0;color:#2e7d32;">What Should I Watch?</h3><p style="margin:0;font-size:13px;color:#558b2f;">Get a personalized recommendation</p></div>
           </button>
           <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#e3f2fd,#bbdefb);" onclick="tvRemoteHelp()">
-            <span style="font-size:32px;flex-shrink:0;">🎮</span>
-            <div><h3 style="margin:0;color:#1565c0;">Help With My Remote</h3><p style="margin:0;font-size:13px;color:#1976d2;">Take a photo — I'll show you what to press</p></div>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3AE;</span>
+            <div><h3 style="margin:0;color:#1565c0;">Help With My Remote</h3><p style="margin:0;font-size:13px;color:#1976d2;">Take a photo - I'll show you what to press</p></div>
           </button>
           <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#fce4ec,#f8bbd0);" onclick="tvCompanion()">
-            <span style="font-size:32px;flex-shrink:0;">💬</span>
-            <div><h3 style="margin:0;color:#c62828;">TV Buddy</h3><p style="margin:0;font-size:13px;color:#d32f2f;">Tell me what you're watching — let's chat about it!</p></div>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F4AC;</span>
+            <div><h3 style="margin:0;color:#c62828;">TV Buddy</h3><p style="margin:0;font-size:13px;color:#d32f2f;">Tell me what you're watching - let's chat!</p></div>
           </button>
         </div>
 
-        <!-- Diane's Streaming Picks -->
-        <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Diane's Picks — Your Streaming Services</div>
+        <!-- Streaming Picks -->
+        <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Diane's Picks - Your Streaming Services</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
           <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="tvShowPicks('netflix')">
-            <span style="font-size:28px;flex-shrink:0;">🔴</span>
+            <span style="font-size:28px;flex-shrink:0;">&#x1F534;</span>
             <div><h3 style="margin:0;">Netflix Picks for You</h3><p style="margin:0;font-size:12px;color:var(--lite);">Shows and movies you'll love</p></div>
-            <span style="margin-left:auto;font-size:18px;">→</span>
           </button>
           <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="tvShowPicks('prime')">
-            <span style="font-size:28px;flex-shrink:0;">🔵</span>
+            <span style="font-size:28px;flex-shrink:0;">&#x1F535;</span>
             <div><h3 style="margin:0;">Amazon Prime Picks</h3><p style="margin:0;font-size:12px;color:var(--lite);">Great classics and comedies</p></div>
-            <span style="margin-left:auto;font-size:18px;">→</span>
           </button>
           <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="tvShowPicks('appletv')">
-            <span style="font-size:28px;flex-shrink:0;">⚫</span>
+            <span style="font-size:28px;flex-shrink:0;">&#x26AB;</span>
             <div><h3 style="margin:0;">Apple TV+ Picks</h3><p style="margin:0;font-size:12px;color:var(--lite);">Heartwarming shows and movies</p></div>
-            <span style="margin-left:auto;font-size:18px;">→</span>
           </button>
         </div>
         <div id="tv-picks-result" style="display:none;margin-bottom:16px;padding:16px;background:var(--warm);border-radius:14px;">
           <div id="tv-picks-text" style="font-size:16px;line-height:1.6;color:var(--dark);"></div>
           <button class="solbtn" style="margin-top:10px;" onclick="document.getElementById('tv-picks-result').style.display='none'">Close</button>
         </div>
-
-        <!-- TV Companion Chat Result -->
         <div id="tv-companion-result" style="display:none;margin-bottom:16px;padding:16px;background:linear-gradient(135deg,#fce4ec,#fff);border-radius:14px;">
           <div id="tv-companion-text" style="font-size:16px;line-height:1.6;color:var(--dark);"></div>
           <button class="solbtn" style="margin-top:10px;" onclick="document.getElementById('tv-companion-result').style.display='none'">Close</button>
@@ -767,7 +629,7 @@
         <div id="tv-player" style="display:none;margin-bottom:14px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
             <span style="font-weight:700;color:var(--dark);font-size:16px;" id="tv-now-playing">Now Playing</span>
-            <button class="solbtn" style="margin-left:auto;" onclick="closeTvPlayer()">✕ Close</button>
+            <button class="solbtn" style="margin-left:auto;" onclick="closeTvPlayer()">&#x2715; Close</button>
           </div>
           <div style="position:relative;width:100%;padding-bottom:75%;background:#000;border-radius:14px;overflow:hidden;">
             <iframe id="tv-iframe" style="position:absolute;inset:0;width:100%;height:100%;border:none;" allowfullscreen></iframe>
@@ -775,247 +637,363 @@
         </div>
 
         <div id="tv-shows">
-          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:6px;">Free Classic Shows — Plays Right Here!</div>
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:6px;">Free Classic Shows</div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucy1','I Love Lucy','https://archive.org/embed/vts-01-1_20220124_0030')">
-            <span style="font-size:32px;flex-shrink:0;">❤️</span>
-            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy — Disc 1</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic Lucy & Ricky episodes</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x2764;&#xFE0F;</span>
+            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy - Disc 1</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic Lucy &amp; Ricky episodes</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucy3','I Love Lucy — Disc 3','https://archive.org/embed/vts-01-1_20220124_0109')">
-            <span style="font-size:32px;flex-shrink:0;">❤️</span>
-            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy — Disc 3</h3><p style="margin:0;font-size:12px;color:var(--lite);">More classic episodes</p></div>
-            <span style="font-size:20px;">▶</span>
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucy3','I Love Lucy - Disc 3','https://archive.org/embed/vts-01-1_20220124_0109')">
+            <span style="font-size:32px;flex-shrink:0;">&#x2764;&#xFE0F;</span>
+            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy - Disc 3</h3><p style="margin:0;font-size:12px;color:var(--lite);">More classic episodes</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucy13','I Love Lucy — Disc 13','https://archive.org/embed/vts-01-1_20220124_2321')">
-            <span style="font-size:32px;flex-shrink:0;">❤️</span>
-            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy — Disc 13</h3><p style="margin:0;font-size:12px;color:var(--lite);">Later season favorites</p></div>
-            <span style="font-size:20px;">▶</span>
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucy13','I Love Lucy - Disc 13','https://archive.org/embed/vts-01-1_20220124_2321')">
+            <span style="font-size:32px;flex-shrink:0;">&#x2764;&#xFE0F;</span>
+            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy - Disc 13</h3><p style="margin:0;font-size:12px;color:var(--lite);">Later season favorites</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('beverly','The Beverly Hillbillies','https://archive.org/embed/bevhill-s01e01-36')">
-            <span style="font-size:32px;flex-shrink:0;">🏠</span>
-            <div style="flex:1;"><h3 style="margin:0;">The Beverly Hillbillies</h3><p style="margin:0;font-size:12px;color:var(--lite);">Full episodes — Season 1</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3E0;</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Beverly Hillbillies</h3><p style="margin:0;font-size:12px;color:var(--lite);">Full episodes - Season 1</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('beverly2','Beverly Hillbillies Collection','https://archive.org/embed/TheBeverlyHillbillies')">
-            <span style="font-size:32px;flex-shrink:0;">🏠</span>
-            <div style="flex:1;"><h3 style="margin:0;">Beverly Hillbillies — More</h3><p style="margin:0;font-size:12px;color:var(--lite);">Extended collection of episodes</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3E0;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Beverly Hillbillies - More</h3><p style="margin:0;font-size:12px;color:var(--lite);">Extended collection</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('andy1','The Andy Griffith Show','https://archive.org/embed/Andy-Griffith-Show_Andy-Discovers-America')">
-            <span style="font-size:32px;flex-shrink:0;">👮</span>
-            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith — Andy Discovers America</h3><p style="margin:0;font-size:12px;color:var(--lite);">Season 3 classic episode</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F46E;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith - Andy Discovers America</h3><p style="margin:0;font-size:12px;color:var(--lite);">Season 3 classic</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('andy2','The Andy Griffith Show','https://archive.org/embed/Andy_Griffith_The_Bighouse')">
-            <span style="font-size:32px;flex-shrink:0;">👮</span>
-            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith — The Big House</h3><p style="margin:0;font-size:12px;color:var(--lite);">Barney runs the jail</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F46E;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith - The Big House</h3><p style="margin:0;font-size:12px;color:var(--lite);">Barney runs the jail</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('andy3','The Andy Griffith Show','https://archive.org/embed/theandygriffithshowconvictsatlarge')">
-            <span style="font-size:32px;flex-shrink:0;">👮</span>
-            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith — Convicts at Large</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic Mayberry adventure</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F46E;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith - Convicts at Large</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic Mayberry</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('bonanza','Bonanza','https://archive.org/embed/Bonanza_pd')">
-            <span style="font-size:32px;flex-shrink:0;">🤠</span>
-            <div style="flex:1;"><h3 style="margin:0;">Bonanza</h3><p style="margin:0;font-size:12px;color:var(--lite);">Full episodes — Classic westerns</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F920;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Bonanza</h3><p style="margin:0;font-size:12px;color:var(--lite);">Full episodes - Classic westerns</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('dickvan','The Dick Van Dyke Show','https://archive.org/embed/The_Dick_van_Dyke_Show')">
-            <span style="font-size:32px;flex-shrink:0;">🎭</span>
-            <div style="flex:1;"><h3 style="margin:0;">The Dick Van Dyke Show</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic comedy episodes</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3AD;</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Dick Van Dyke Show</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic comedy</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('carol','The Carol Burnett Show','https://www.youtube.com/embed/videoseries?list=UUry6nxAo2tfVyO6lEboiU3w')">
-            <span style="font-size:32px;flex-shrink:0;">😂</span>
-            <div style="flex:1;"><h3 style="margin:0;">The Carol Burnett Show</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic sketches & comedy</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F602;</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Carol Burnett Show</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic sketches</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucylost','Lucy&#39;s Lost Episodes','https://archive.org/embed/lucys-lost-episodes-1989')">
-            <span style="font-size:32px;flex-shrink:0;">🌟</span>
-            <div style="flex:1;"><h3 style="margin:0;">Lucy's Lost Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Rare sketches, bloopers & more</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F31F;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Lucy's Lost Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Rare sketches &amp; bloopers</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('cheers','Cheers Finale','https://archive.org/embed/cheers-finale-complete')">
-            <span style="font-size:32px;flex-shrink:0;">🍺</span>
-            <div style="flex:1;"><h3 style="margin:0;">Cheers — The Finale</h3><p style="margin:0;font-size:12px;color:var(--lite);">The legendary last episode</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F37A;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Cheers - The Finale</h3><p style="margin:0;font-size:12px;color:var(--lite);">The legendary last episode</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
-          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin:16px 0 10px;">YouTube — Full Episode Collections</div>
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin:16px 0 10px;">YouTube Collections</div>
 
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('dvd-yt','Dick Van Dyke — All Seasons','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mvfaoOh5OUqrOYotNcONk6q')">
-            <span style="font-size:32px;flex-shrink:0;">🎭</span>
-            <div style="flex:1;"><h3 style="margin:0;">Dick Van Dyke — Full Series</h3><p style="margin:0;font-size:12px;color:var(--lite);">All 5 seasons on YouTube (FilmRise)</p></div>
-            <span style="font-size:20px;">▶</span>
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('dvd-yt','Dick Van Dyke - All Seasons','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mvfaoOh5OUqrOYotNcONk6q')">
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3AD;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Dick Van Dyke - Full Series</h3><p style="margin:0;font-size:12px;color:var(--lite);">All 5 seasons (FilmRise)</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('bonanza-yt','Bonanza — Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2muuAC1cbho4Ons-Y0YrfnHm')">
-            <span style="font-size:32px;flex-shrink:0;">🤠</span>
-            <div style="flex:1;"><h3 style="margin:0;">Bonanza — Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic western on YouTube (FilmRise)</p></div>
-            <span style="font-size:20px;">▶</span>
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('bonanza-yt','Bonanza - Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2muuAC1cbho4Ons-Y0YrfnHm')">
+            <span style="font-size:32px;flex-shrink:0;">&#x1F920;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Bonanza - Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic western (FilmRise)</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('dragnet-yt','Dragnet — Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mtJdEkXzqobcvASSBByF_FR')">
-            <span style="font-size:32px;flex-shrink:0;">🔍</span>
-            <div style="flex:1;"><h3 style="margin:0;">Dragnet — Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Just the facts, ma'am (FilmRise)</p></div>
-            <span style="font-size:20px;">▶</span>
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('dragnet-yt','Dragnet - Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mtJdEkXzqobcvASSBByF_FR')">
+            <span style="font-size:32px;flex-shrink:0;">&#x1F50D;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Dragnet - Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Just the facts (FilmRise)</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('loneranger-yt','The Lone Ranger','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2ms-tkik56_ELYJYip6w8p-D')">
-            <span style="font-size:32px;flex-shrink:0;">🐴</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F40E;</span>
             <div style="flex:1;"><h3 style="margin:0;">The Lone Ranger</h3><p style="margin:0;font-size:12px;color:var(--lite);">Hi-yo, Silver! (FilmRise)</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('thatgirl-yt','That Girl — Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mu6ryxL1Tsj_e-0voHI1mcJ')">
-            <span style="font-size:32px;flex-shrink:0;">👩</span>
-            <div style="flex:1;"><h3 style="margin:0;">That Girl — Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Marlo Thomas classic (FilmRise)</p></div>
-            <span style="font-size:20px;">▶</span>
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('thatgirl-yt','That Girl - Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mu6ryxL1Tsj_e-0voHI1mcJ')">
+            <span style="font-size:32px;flex-shrink:0;">&#x1F469;</span>
+            <div style="flex:1;"><h3 style="margin:0;">That Girl - Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Marlo Thomas (FilmRise)</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('classictv-yt','Classic TV Rewind','https://www.youtube.com/embed/videoseries?list=PLLd8OpOlwVZsMfROpPbeqVb7sYgBGzGIx')">
-            <span style="font-size:32px;flex-shrink:0;">📺</span>
-            <div style="flex:1;"><h3 style="margin:0;">Classic TV Rewind (Sony)</h3><p style="margin:0;font-size:12px;color:var(--lite);">Bewitched, All in the Family, Diff'rent Strokes & more</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F4FA;</span>
+            <div style="flex:1;"><h3 style="margin:0;">Classic TV Rewind (Sony)</h3><p style="margin:0;font-size:12px;color:var(--lite);">Bewitched, All in the Family &amp; more</p></div>
+            <span style="font-size:20px;">&#x25B6;</span>
           </div>
 
           <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin:16px 0 10px;">Classic Movies</div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('hisgirl','His Girl Friday (1940)','https://archive.org/embed/his_girl_friday')">
-            <span style="font-size:32px;flex-shrink:0;">🎬</span>
-            <div style="flex:1;"><h3 style="margin:0;">His Girl Friday</h3><p style="margin:0;font-size:12px;color:var(--lite);">Cary Grant & Rosalind Russell — screwball comedy classic</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3AC;</span><div style="flex:1;"><h3 style="margin:0;">His Girl Friday</h3><p style="margin:0;font-size:12px;color:var(--lite);">Cary Grant &amp; Rosalind Russell</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('godfrey','My Man Godfrey (1936)','https://archive.org/embed/MyManGodfrey1936')">
-            <span style="font-size:32px;flex-shrink:0;">🎬</span>
-            <div style="flex:1;"><h3 style="margin:0;">My Man Godfrey</h3><p style="margin:0;font-size:12px;color:var(--lite);">William Powell & Carole Lombard — romantic comedy</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3AC;</span><div style="flex:1;"><h3 style="margin:0;">My Man Godfrey</h3><p style="margin:0;font-size:12px;color:var(--lite);">William Powell &amp; Carole Lombard</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('charade','Charade (1963)','https://archive.org/embed/ecatma-Old_Time_Movie_Show_-_Charade_1963')">
-            <span style="font-size:32px;flex-shrink:0;">🎬</span>
-            <div style="flex:1;"><h3 style="margin:0;">Charade</h3><p style="margin:0;font-size:12px;color:var(--lite);">Cary Grant & Audrey Hepburn — romantic mystery</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F3AC;</span><div style="flex:1;"><h3 style="margin:0;">Charade</h3><p style="margin:0;font-size:12px;color:var(--lite);">Cary Grant &amp; Audrey Hepburn</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('royalwed','Royal Wedding (1951)','https://archive.org/embed/royal_wedding')">
-            <span style="font-size:32px;flex-shrink:0;">💃</span>
-            <div style="flex:1;"><h3 style="margin:0;">Royal Wedding</h3><p style="margin:0;font-size:12px;color:var(--lite);">Fred Astaire & Jane Powell — musical comedy</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F483;</span><div style="flex:1;"><h3 style="margin:0;">Royal Wedding</h3><p style="margin:0;font-size:12px;color:var(--lite);">Fred Astaire &amp; Jane Powell</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('starisborn','A Star is Born (1937)','https://archive.org/embed/a-star-is-born-1937')">
-            <span style="font-size:32px;flex-shrink:0;">⭐</span>
-            <div style="flex:1;"><h3 style="margin:0;">A Star is Born</h3><p style="margin:0;font-size:12px;color:var(--lite);">Janet Gaynor & Fredric March — original classic</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x2B50;</span><div style="flex:1;"><h3 style="margin:0;">A Star is Born</h3><p style="margin:0;font-size:12px;color:var(--lite);">Janet Gaynor &amp; Fredric March</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('angel','Angel and the Badman (1947)','https://archive.org/embed/angel-and-the-badman-1947')">
-            <span style="font-size:32px;flex-shrink:0;">🤠</span>
-            <div style="flex:1;"><h3 style="margin:0;">Angel and the Badman</h3><p style="margin:0;font-size:12px;color:var(--lite);">John Wayne western — a gunslinger meets a Quaker woman</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F920;</span><div style="flex:1;"><h3 style="margin:0;">Angel and the Badman</h3><p style="margin:0;font-size:12px;color:var(--lite);">John Wayne western</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('general','The General (1926)','https://archive.org/embed/The_General_Buster_Keaton')">
-            <span style="font-size:32px;flex-shrink:0;">🚂</span>
-            <div style="flex:1;"><h3 style="margin:0;">The General</h3><p style="margin:0;font-size:12px;color:var(--lite);">Buster Keaton — legendary silent comedy</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F682;</span><div style="flex:1;"><h3 style="margin:0;">The General</h3><p style="margin:0;font-size:12px;color:var(--lite);">Buster Keaton silent comedy</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('temple1','Rebecca of Sunnybrook Farm','https://archive.org/embed/shirley-temple-.-rebecca-of-sunnybrook-farm-1938-classic-color-well-done-classic-film-channel')">
-            <span style="font-size:32px;flex-shrink:0;">👧</span>
-            <div style="flex:1;"><h3 style="margin:0;">Rebecca of Sunnybrook Farm</h3><p style="margin:0;font-size:12px;color:var(--lite);">Shirley Temple (1938) — colorized</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F467;</span><div style="flex:1;"><h3 style="margin:0;">Rebecca of Sunnybrook Farm</h3><p style="margin:0;font-size:12px;color:var(--lite);">Shirley Temple (1938)</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('temple2','The Little Princess','https://archive.org/embed/the-little-princess-shirley-temple-1939-hd-quality-musical-comedy')">
-            <span style="font-size:32px;flex-shrink:0;">👧</span>
-            <div style="flex:1;"><h3 style="margin:0;">The Little Princess</h3><p style="margin:0;font-size:12px;color:var(--lite);">Shirley Temple (1939) — musical comedy</p></div>
-            <span style="font-size:20px;">▶</span>
+            <span style="font-size:32px;flex-shrink:0;">&#x1F467;</span><div style="flex:1;"><h3 style="margin:0;">The Little Princess</h3><p style="margin:0;font-size:12px;color:var(--lite);">Shirley Temple (1939)</p></div><span style="font-size:20px;">&#x25B6;</span>
           </div>
-
         </div>
       </div>
     </div>
+  </div>
 
-  </div><!-- /secs -->
+  <!-- ======= OVERLAY: NEWS & MUSIC ======= -->
+  <div id="overlay-news" class="overlay">
+    <div class="overlay-header">
+      <button class="overlay-back" onclick="closeOverlay('news')">&#x2190; Back to Chat</button>
+      <div class="overlay-title">&#x1F4F0; News &amp; Music</div>
+    </div>
+    <div class="overlay-body" id="sec-news">
+      <div class="sec-inner">
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Music</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('classic-rock')">
+              <span style="font-size:28px;flex-shrink:0;">&#x1F3B8;</span><div><h3 style="margin:0;">Classic Rock Hits</h3><p style="margin:0;font-size:12px;color:var(--lite);">Eagles, Fleetwood Mac, CCR &amp; more</p></div><span style="margin-left:auto;font-size:22px;">&#x25B6;</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('eagles')">
+              <span style="font-size:28px;flex-shrink:0;">&#x1F985;</span><div><h3 style="margin:0;">The Eagles</h3><p style="margin:0;font-size:12px;color:var(--lite);">Hotel California, Desperado &amp; more</p></div><span style="margin-left:auto;font-size:22px;">&#x25B6;</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('soft-hits')">
+              <span style="font-size:28px;flex-shrink:0;">&#x1F3B5;</span><div><h3 style="margin:0;">Feel-Good Classics</h3><p style="margin:0;font-size:12px;color:var(--lite);">Elton John, Billy Joel, Stevie Wonder</p></div><span style="margin-left:auto;font-size:22px;">&#x25B6;</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="showSpotify('italian')">
+              <span style="font-size:28px;flex-shrink:0;">&#x1F1EE;&#x1F1F9;</span><div><h3 style="margin:0;">Italian Classics</h3><p style="margin:0;font-size:12px;color:var(--lite);">Dean Martin, Frank Sinatra, Andrea Bocelli</p></div><span style="margin-left:auto;font-size:22px;">&#x25B6;</span>
+            </button>
+          </div>
+          <div id="spotify-player" style="display:none;margin-bottom:14px;background:white;border-radius:14px;padding:10px;box-shadow:0 2px 10px var(--shad);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-weight:700;color:var(--dark);font-size:15px;" id="spotify-name">Now Playing</span>
+              <button class="solbtn" style="margin-left:auto;" onclick="hideSpotify()">&#x2715; Close</button>
+            </div>
+            <iframe id="spotify-iframe" style="border-radius:12px;width:100%;height:152px;border:none;" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          </div>
+        </div>
 
-  <nav class="nav">
-    <button class="nb on" onclick="goTo('chat',this)"><span class="ni">💬</span><span class="nl">Chat</span></button>
-    <button class="nb" onclick="goTo('help',this)"><span class="ni">🆘</span><span class="nl">Help</span></button>
-    <button class="nb" onclick="goTo('news',this)"><span class="ni">📰</span><span class="nl">News</span></button>
-    <button class="nb" onclick="goTo('stories',this)"><span class="ni">📖</span><span class="nl">Stories</span></button>
-    <button class="nb" onclick="goTo('tv',this)"><span class="ni">📺</span><span class="nl">TV</span></button>
-    <button class="nb" onclick="goTo('games',this)"><span class="ni">🎮</span><span class="nl">Games</span></button>
-    <button class="nb" onclick="goTo('draw',this)"><span class="ni">🎨</span><span class="nl">Draw</span></button>
-  </nav>
-</div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">News Podcasts</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('npr')">
+              <span style="font-size:28px;flex-shrink:0;">&#x1F399;</span><div><h3 style="margin:0;">NPR News Now</h3><p style="margin:0;font-size:12px;color:var(--lite);">5-minute news update, every hour</p></div><span style="margin-left:auto;font-size:22px;">&#x25B6;</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('upfirst')">
+              <span style="font-size:28px;flex-shrink:0;">&#x1F305;</span><div><h3 style="margin:0;">NPR Up First</h3><p style="margin:0;font-size:12px;color:var(--lite);">Today's top stories, 10 minutes</p></div><span style="margin-left:auto;font-size:22px;">&#x25B6;</span>
+            </button>
+            <button class="ni-card" style="cursor:pointer;border:none;text-align:left;display:flex;align-items:center;gap:12px;" onclick="playPodcast('nydaily')">
+              <span style="font-size:28px;flex-shrink:0;">&#x1F5FD;</span><div><h3 style="margin:0;">The Daily (NY Times)</h3><p style="margin:0;font-size:12px;color:var(--lite);">Deep dive, ~25 min</p></div><span style="margin-left:auto;font-size:22px;">&#x25B6;</span>
+            </button>
+          </div>
+          <div id="podcast-player" style="display:none;margin-top:10px;background:white;border-radius:14px;padding:14px;box-shadow:0 2px 10px var(--shad);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:22px;" id="podcast-icon">&#x1F399;</span>
+              <span style="font-weight:700;color:var(--dark);font-size:15px;" id="podcast-name">Now Playing</span>
+              <button class="solbtn" style="margin-left:auto;" onclick="stopPodcast()">&#x23F9; Stop</button>
+            </div>
+            <audio id="podcast-audio" controls style="width:100%;border-radius:8px;" preload="none"></audio>
+          </div>
+        </div>
 
-<!-- ═══════════════════════════ CAMERA MODAL ═════════════════════ -->
+        <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Headlines</div>
+        <button class="rfbtn" onclick="loadNews()">&#x1F504; Refresh</button>
+        <div id="newslist"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= OVERLAY: STORIES ======= -->
+  <div id="overlay-stories" class="overlay">
+    <div class="overlay-header">
+      <button class="overlay-back" onclick="closeOverlay('stories')">&#x2190; Back to Chat</button>
+      <div class="overlay-title">&#x1F4D6; Story Time</div>
+    </div>
+    <div class="overlay-body" id="sec-stories">
+      <div class="sec-inner">
+        <div class="psub">Pick a kind of story - I'll tell it just for you</div>
+        <div class="scats">
+          <button class="ccat" onclick="getStory('funny')"><span class="ce">&#x1F604;</span><span class="cn">Funny Stories</span></button>
+          <button class="ccat" onclick="getStory('animal')"><span class="ce">&#x1F43E;</span><span class="cn">Animal Tales</span></button>
+          <button class="ccat" onclick="getStory('love')"><span class="ce">&#x1F49D;</span><span class="cn">Love &amp; Family</span></button>
+          <button class="ccat" onclick="getStory('travel')"><span class="ce">&#x2708;&#xFE0F;</span><span class="cn">Travel Adventure</span></button>
+          <button class="ccat" onclick="getStory('italy')"><span class="ce">&#x1F1EE;&#x1F1F9;</span><span class="cn">Italy &amp; Food</span></button>
+          <button class="ccat" onclick="getStory('hawaii')"><span class="ce">&#x1F33A;</span><span class="cn">Hawaii Dreams</span></button>
+        </div>
+        <div class="sload" id="sload">&#x2726; Thinking of a lovely story just for you...</div>
+        <div class="sbox" id="sbox">
+          <div class="stitl" id="stitl"></div>
+          <div class="stxt" id="stxt"></div>
+          <div class="sacts">
+            <button class="sab p" onclick="readStory()">&#x1F50A; Read to Me</button>
+            <button class="sab s" onclick="newStory()">&#x2726; New Story</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= OVERLAY: DRAW ======= -->
+  <div id="overlay-draw" class="overlay">
+    <div class="overlay-header">
+      <button class="overlay-back" onclick="closeOverlay('draw')">&#x2190; Back to Chat</button>
+      <div class="overlay-title">&#x1F3A8; Drawing &amp; Coloring</div>
+    </div>
+    <div class="overlay-body" id="sec-draw" style="display:flex;flex-direction:column;overflow:hidden;">
+      <div class="draw-tabs">
+        <button class="draw-tab on" onclick="switchDrawTab('free',this)">&#x270F;&#xFE0F; Free Draw</button>
+        <button class="draw-tab" onclick="switchDrawTab('color',this)">&#x1F3A8; Coloring Book</button>
+      </div>
+      <div class="draw-panel on" id="free-draw-panel">
+        <canvas id="cvs" style="margin:6px;"></canvas>
+        <div class="dtool" style="padding:0 6px 6px;">
+          <div class="dcolors" id="dcols"></div>
+          <div class="dbtms">
+            <button class="dszbtn on" onclick="setBS(7,this)">Small &#x25CF;</button>
+            <button class="dszbtn" onclick="setBS(17,this)">Med &#x25CF;</button>
+            <button class="dszbtn" onclick="setBS(34,this)">Big &#x25CF;</button>
+            <button class="dact erase" id="erasebtn" onclick="togErase()">Eraser</button>
+            <button class="dact clr" onclick="clearCvs()">&#x1F5D1; Clear</button>
+          </div>
+        </div>
+      </div>
+      <div class="draw-panel" id="color-book-panel">
+        <div id="cb-picker" style="overflow-y:auto;flex:1;">
+          <div class="cb-inner">
+            <div class="cb-section-title">Choose a coloring page</div>
+            <div class="cb-themes">
+              <button class="cb-theme" onclick="showCbCategory('flowers')"><span class="cb-theme-icon">&#x1F338;</span><span class="cb-theme-name">Flowers</span></button>
+              <button class="cb-theme" onclick="showCbCategory('animals')"><span class="cb-theme-icon">&#x1F431;</span><span class="cb-theme-name">Animals</span></button>
+              <button class="cb-theme" onclick="showCbCategory('hawaii')"><span class="cb-theme-icon">&#x1F33A;</span><span class="cb-theme-name">Hawaii</span></button>
+              <button class="cb-theme" onclick="showCbCategory('italy')"><span class="cb-theme-icon">&#x1F35D;</span><span class="cb-theme-name">Italy</span></button>
+              <button class="cb-theme" onclick="showCbCategory('butterfly')"><span class="cb-theme-icon">&#x1F98B;</span><span class="cb-theme-name">Butterfly</span></button>
+              <button class="cb-theme" onclick="showCbCategory('garden')"><span class="cb-theme-icon">&#x1F33B;</span><span class="cb-theme-name">Garden</span></button>
+              <button class="cb-theme" onclick="showCbCategory('birds')"><span class="cb-theme-icon">&#x1F426;</span><span class="cb-theme-name">Birds</span></button>
+              <button class="cb-theme" onclick="showCbCategory('ocean')"><span class="cb-theme-icon">&#x26F5;</span><span class="cb-theme-name">Ocean</span></button>
+              <button class="cb-theme" onclick="showCbCategory('holiday')"><span class="cb-theme-icon">&#x1F384;</span><span class="cb-theme-name">Holiday</span></button>
+            </div>
+            <div class="cb-section-title" style="margin-top:16px;">Family Photos</div>
+            <div class="cb-themes" id="cb-family-grid"></div>
+            <button class="cb-photo-btn" onclick="openCamera('color')">&#x1F4F7; Turn a Photo Into a Coloring Page</button>
+          </div>
+        </div>
+        <div id="cb-sub-picker" style="display:none;overflow-y:auto;flex:1;">
+          <div class="cb-inner">
+            <button style="background:var(--warm);border:2px solid var(--gold-pale);border-radius:10px;padding:8px 16px;font-size:14px;font-family:'Nunito';font-weight:600;color:var(--brown);cursor:pointer;margin-bottom:12px;" onclick="backToCbCategories()">&#x1F519; Back</button>
+            <div class="cb-section-title" id="cb-sub-title">Pick a picture</div>
+            <div class="cb-themes" id="cb-sub-grid" style="grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+          </div>
+        </div>
+        <div class="cb-loading" id="cb-loading"><div style="font-size:40px;margin-bottom:12px">&#x1F3A8;</div>Loading your coloring page...</div>
+        <div class="cb-canvas-wrap" id="cb-canvas-wrap">
+          <canvas id="color-cvs"></canvas>
+          <div class="cb-tools">
+            <div class="cb-colors" id="cb-cols"></div>
+            <div class="cb-btns">
+              <button class="cb-btn bucket on" id="cb-bucket-btn" onclick="setCbTool('bucket')">&#x1FAA3; Fill</button>
+              <button class="cb-btn brush" id="cb-brush-btn" onclick="setCbTool('brush')">&#x270F;&#xFE0F; Draw</button>
+              <button class="cb-btn back" onclick="resetColorPage()">&#x1F519; New Page</button>
+              <button class="cb-btn savepng" onclick="saveColorPage()">&#x1F4BE; Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- CAMERA MODAL -->
 <div id="cam-modal">
   <video id="camvid" autoplay playsinline muted></video>
   <div class="cam-countdown" id="cam-countdown" style="display:none;"></div>
   <div class="cam-bar">
     <button class="cam-cancel" onclick="cancelCamera()">Cancel</button>
-    <button class="cam-snap" onclick="snapPhoto()">📸 TAP TO TAKE PHOTO</button>
+    <button class="cam-snap" onclick="snapPhoto()">&#x1F4F8; TAP TO TAKE PHOTO</button>
   </div>
 </div>
 
-<!-- PIN modal removed - using prompt() instead -->
 
-<!-- ═══════════════════════════ SETTINGS MODAL ═══════════════════ -->
+<!-- SETTINGS MODAL -->
 <div id="set-modal">
   <div class="set-box">
-    <div class="set-title">⚙ Caregiver Settings</div>
-
+    <div class="set-title">&#x2699; Caregiver Settings</div>
     <div class="set-sec">
       <div class="set-lbl">API Key</div>
       <div class="set-row">
-        <input type="password" id="set-key" class="set-inp" placeholder="sk-ant-…">
+        <input type="password" id="set-key" class="set-inp" placeholder="sk-ant-...">
         <button class="set-btn pri" onclick="updateKey()">Save</button>
       </div>
     </div>
-
-
     <div class="set-sec">
-      <div class="set-lbl">
-        Google Voice Key
-        <span class="set-badge warn" id="gcp-badge">Not set</span>
-      </div>
+      <div class="set-lbl">Google Voice Key <span class="set-badge warn" id="gcp-badge">Not set</span></div>
       <div class="set-row">
-        <input type="password" id="set-gcp-key" class="set-inp" placeholder="Paste Google Cloud API key…">
+        <input type="password" id="set-gcp-key" class="set-inp" placeholder="Paste Google Cloud API key...">
         <button class="set-btn pri" onclick="updateGcpKey()">Save &amp; Test</button>
       </div>
-      <div class="set-hint">For a natural-sounding voice. Free 1M characters/month from Google Cloud Console → enable Text-to-Speech API → create API key.</div>
-      <button class="set-btn" style="margin-top:8px;background:#e67e22;color:#fff;" onclick="gcpDebug()">🔍 Debug Google Connection</button>
+      <div class="set-hint">For a natural-sounding voice. Free 1M characters/month from Google Cloud Console.</div>
+      <button class="set-btn" style="margin-top:8px;background:#e67e22;color:#fff;" onclick="gcpDebug()">&#x1F50D; Debug Google Connection</button>
       <div id="gcp-debug" style="display:none;margin-top:8px;padding:10px;background:#f5f0e8;border-radius:10px;font-size:12px;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-family:monospace;word-break:break-all;"></div>
       <div style="margin-top:8px;">
         <select id="set-gcp-voice" class="set-inp" style="width:100%;" onchange="saveGcpVoice()">
-          <option value="en-US-Neural2-F">Neural2-F — warm &amp; friendly (recommended)</option>
-          <option value="en-US-Neural2-C">Neural2-C — professional &amp; clear</option>
-          <option value="en-US-Neural2-E">Neural2-E — gentle &amp; calm</option>
-          <option value="en-US-Neural2-H">Neural2-H — bright &amp; upbeat</option>
-          <option value="en-US-Wavenet-F">Wavenet-F — warm classic</option>
-          <option value="en-US-Wavenet-C">Wavenet-C — soft &amp; natural</option>
+          <option value="en-US-Neural2-F">Neural2-F - warm &amp; friendly (recommended)</option>
+          <option value="en-US-Neural2-C">Neural2-C - professional &amp; clear</option>
+          <option value="en-US-Neural2-E">Neural2-E - gentle &amp; calm</option>
+          <option value="en-US-Neural2-H">Neural2-H - bright &amp; upbeat</option>
+          <option value="en-US-Wavenet-F">Wavenet-F - warm classic</option>
+          <option value="en-US-Wavenet-C">Wavenet-C - soft &amp; natural</option>
         </select>
       </div>
     </div>
-
     <div class="set-sec">
       <div class="set-lbl">Caregiver PIN</div>
       <div class="set-row">
@@ -1023,40 +1001,35 @@
         <button class="set-btn sec" onclick="updatePIN()">Change</button>
       </div>
     </div>
-
     <div class="set-sec">
-      <div class="set-lbl">Diane's Memories <span style="font-size:11px;color:var(--lite);font-style:italic;margin-left:4px;">— things she's mentioned or needs help with</span></div>
+      <div class="set-lbl">Diane's Memories</div>
       <div id="mem-list"></div>
-      <div class="mem-empty" id="mem-empty" style="display:none">No memories yet. They'll build up over time as Diane chats!</div>
+      <div class="mem-empty" id="mem-empty" style="display:none">No memories yet.</div>
       <button class="set-btn sec full" onclick="toggleAddMem()">+ Add a Memory</button>
       <div class="add-mem-form" id="add-mem-form">
         <input type="text" id="add-mem-topic" class="add-mem-in" placeholder="Topic (e.g., TV Remote)" style="min-height:0;">
-        <textarea id="add-mem-text" class="add-mem-in" rows="3" placeholder="What to remember (e.g., Volume buttons are on the right side of the remote. The + sign is louder, the - sign is quieter)"></textarea>
+        <textarea id="add-mem-text" class="add-mem-in" rows="3" placeholder="What to remember"></textarea>
         <div class="add-mem-row">
           <button class="set-btn sec" onclick="toggleAddMem()">Cancel</button>
           <button class="set-btn pri" onclick="saveManualMem()">Save Memory</button>
         </div>
       </div>
     </div>
-
-
     <div class="set-sec">
       <div class="set-lbl">Daily Cognitive Check Log</div>
-      <div id="cog-log-summary" style="font-size:13px;color:var(--mid);line-height:1.7;background:white;border-radius:12px;padding:14px;box-shadow:0 2px 8px var(--shad);margin-bottom:8px;">Loading…</div>
+      <div id="cog-log-summary" style="font-size:13px;color:var(--mid);line-height:1.7;background:white;border-radius:12px;padding:14px;box-shadow:0 2px 8px var(--shad);margin-bottom:8px;">Loading...</div>
       <button class="set-btn sec full" onclick="showFullCogLog()">View Full Log</button>
     </div>
-
     <div class="set-sec">
       <div class="set-lbl">Chat History</div>
-      <button class="set-btn red" onclick="clearChat()">🗑 Clear All Chat</button>
+      <button class="set-btn red" onclick="clearChat()">&#x1F5D1; Clear All Chat</button>
     </div>
-
     <button class="set-close" onclick="closeSettings()">Done</button>
   </div>
 </div>
 
-<!-- ═══════════════════════════ JAVASCRIPT ═══════════════════════ -->
 <script>
+
 
 // ══════════════════════════════════════════════════
 // SYSTEM PROMPT
@@ -1067,7 +1040,7 @@ CRITICAL FORMAT: Keep every reply to 2-4 short sentences. No lists, no bullet po
 
 DIANE: Born June 8, 1954. Lives at Atria Valley View, Walnut Creek CA. Warm, friendly, loves to laugh. Cognitive impairment has made her less sure of herself — make her feel capable, loved, and at ease. She has glaucoma so always be clear and simple.
 
-FAMILY: Husband Mark passed 2021 (speak of him warmly, never bring up his death first). Son Brian, 42, Miami, SEC lawyer, wife Jenny. Son Jon, 40, Bay Area, primary caregiver, runs his own business, wife Monserrat (Kaiser doctor). Grandkids: Willy (3, Brian's son) and Isabella (turning 1 in July). Grand-puppy Pico — Jon's 11-year-old poodle. Past pets: Teddy, Buddy, Cookie.
+FAMILY: Husband Mark passed 2021, was from Stockton California (speak of him warmly, never bring up his death first). Son Brian, 42, Miami, securities litigation attorney at Homer Bonner Jacobs Ortiz, wife Jenny. Son Jon, 40, Bay Area, primary caregiver, CEO of NanoImages (microscopy technology company), wife Monserrat (Kaiser doctor). Grandkids: Willy (3, Brian's son) and Isabella (turning 1 in July). Grand-puppy Pico — Jon's 11-year-old poodle. Past pets: Teddy, Buddy, Cookie.
 
 CAREER: Hair salon owner, soda & candy business from scratch, insurance business, HR manager. Self-made woman — affirm her accomplishments warmly and often.
 
@@ -1080,7 +1053,9 @@ COMFORT PHRASE (use when she seems distressed): "You are home and you are safe, 
 
 If she repeats a question: answer warmly every single time as if it is the first time. NEVER say "you already asked that."
 If she seems confused: say "Diane, you're doing great." Redirect gently.
-If she asks about the app: tell her it is her very own special companion, made just for her by Jon.`;
+If she asks about the app: tell her it is her very own special companion, made just for her by Jon.
+
+You can suggest activities naturally: "Want to play cards?", "How about some music?", "Let me tell you a story", "Want to watch a show?", "How about some coloring?". Keep suggestions warm and natural.`;
 
 // ══════════════════════════════════════════════════
 // MEMORY SYSTEM
@@ -1180,10 +1155,10 @@ window.addEventListener('load',()=>{
 
 function updateClock(){
   const now=new Date();
-  document.getElementById('hclock').textContent=
-    now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  document.getElementById('hdate').textContent=
-    now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const hclock=document.getElementById('hclock');
+  const hdate=document.getElementById('hdate');
+  if(hclock) hclock.textContent=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  if(hdate) hdate.textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 }
 
 function dismissWelcome(){
@@ -1204,7 +1179,7 @@ function doSetup(){
 function launch(){
   document.getElementById('setup').classList.add('gone');
   document.getElementById('app').classList.remove('gone');
-  initDraw(); setCardDims(); initCbColors(); initFamilyPhotos();
+  initDraw(); setCardDims(); initCbColors(); initFamilyPhotos(); newGame();
   window.addEventListener('resize',setCardDims);
   setTimeout(()=>{
     unlockAudio(); const g="Hi Diane! It's so wonderful to talk with you today. How are you feeling?";
@@ -1491,32 +1466,138 @@ function saveManualMem(){
 // ══════════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════════
-const SUBS={
-  chat:'Your personal companion',help:'I Need Help',
-  news:"News & Music",stories:'Story Time',tv:'Classic TV',
-  games:'Games',draw:'Drawing & Coloring'
-};
-function goTo(id,btn){
-  stopAudio();
-  clearTimeout(tvIdleTimer);
-  if(id!=='tv') closeTvPlayer();
-  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
-  document.getElementById('sec-'+id).classList.add('on');
-  btn.classList.add('on');
-  document.getElementById('hsub').textContent=SUBS[id]||'';
-  if(id==='news'&&!newsItems.length) loadNews();
-  if(id==='draw') resizeCvs();
-  if(id==='tv') announceTvShows();
+// OVERLAY SYSTEM
+function openOverlay(name){
+  document.getElementById('overlay-'+name).classList.add('open');
+  if(name==='draw') setTimeout(resizeCvs,100);
+  if(name==='tv') announceTvShows();
+  if(name==='news'&&!newsItems.length) loadNews();
 }
+function closeOverlay(name){
+  document.getElementById('overlay-'+name).classList.remove('open');
+  if(name==='tv') closeTvPlayer();
+  stopAudio();
+}
+function closeAllOverlays(){
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
+  stopAudio();
+}
+
+// COMMAND ROUTING - intercept voice/text before sending to API
+function routeCommand(text){
+  const t=text.toLowerCase();
+  if(/\b(bridge|card game)\b/.test(t)){ openOverlay('games'); showGame('bridge'); speak("Let's play bridge, Diane!"); return true; }
+  if(/\bsolitaire\b/.test(t)){ openOverlay('games'); showGame('solitaire'); speak("Here's your solitaire game!"); return true; }
+  if(/\b(memory|matching)\b/.test(t)&&!/\bmemor(y|ies)\b.*\b(mark|husband|family|kid|son|brian|jon)\b/.test(t)){ openOverlay('games'); showGame('memory'); speak("Let's play memory match!"); return true; }
+  if(/\b(play|game)\b/.test(t)&&!/\b(play.*music|play.*song|play.*show|play.*movie)\b/.test(t)&&!/\bplay(ed|ing|ful)\b/.test(t)){ suggestGames(); return true; }
+  if(/\b(music|song|rock|eagles|sinatra|dean martin|bocelli)\b/.test(t)){ openOverlay('news'); speak("Here's your music, Diane!"); return true; }
+  if(/\b(news|headline|newspaper|what.*happening)\b/.test(t)){ openOverlay('news'); loadNews(); speak("Let me get today's news for you!"); return true; }
+  if(/\b(podcast|npr)\b/.test(t)){ openOverlay('news'); speak("Here are your podcasts!"); return true; }
+  if(/\b(story|tell.*me.*story|read.*me.*story)\b/.test(t)){ openOverlay('stories'); speak("What kind of story would you like?"); return true; }
+  if(/\b(draw|color|paint|coloring)\b/.test(t)){ openOverlay('draw'); speak("Here's your drawing area!"); return true; }
+  if(/\b(tv|watch|show|movie|lucy|cheers|beverly|andy griffith|bonanza)\b/.test(t)&&!/\bwatch(ed|ing)?\s+(out|over|it)\b/.test(t)){ openOverlay('tv'); speak("Here are your shows, Diane!"); return true; }
+  if(/\b(help|camera|photo|picture|remote)\b/.test(t)&&/\b(help|camera|photo|picture|can.t figure|how do)\b/.test(t)){ openCamera(); return true; }
+  return false;
+}
+
+function suggestGames(){
+  suggestActivity('\u1F3AE', "Want to play some cards, Diane?", [
+    {label:'Bridge', icon:'\u1F0A1', action:"openOverlay('games');showGame('bridge')"},
+    {label:'Solitaire', icon:'\u1F0CF', action:"openOverlay('games');showGame('solitaire')"},
+    {label:'Memory Match', icon:'\u1F9E0', action:"openOverlay('games');showGame('memory')"}
+  ]);
+  speak("Want to play some cards, Diane? You can pick bridge, solitaire, or memory match!");
+}
+
+// ACTIVITY SUGGESTION CARDS
+function suggestActivity(icon, message, buttons){
+  const div=document.createElement('div');
+  div.className='msg activity-card';
+  let html='<div class="activity-icon">'+icon+'</div>';
+  html+='<div class="activity-text">'+message+'</div>';
+  html+='<div class="activity-buttons">';
+  buttons.forEach(b=>{
+    html+='<button class="activity-btn" onclick="'+b.action.replace(/"/g,'&quot;')+'">'+(b.icon||'')+' '+b.label+'</button>';
+  });
+  html+='</div>';
+  div.innerHTML=html;
+  document.getElementById('chat-msgs').appendChild(div);
+  const msgs=document.getElementById('chat-msgs');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+const ACTIVITY_SUGGESTIONS=[
+  {
+    icon:'\u1F0CF', message:"How about a card game, Diane? It's always fun!",
+    buttons:[
+      {label:'Bridge', icon:'\u1F0A1', action:"openOverlay('games');showGame('bridge')"},
+      {label:'Solitaire', icon:'\u1F0CF', action:"openOverlay('games');showGame('solitaire')"},
+      {label:'Memory', icon:'\u1F9E0', action:"openOverlay('games');showGame('memory')"}
+    ]
+  },
+  {
+    icon:'\u1F3B5', message:"Want to listen to some music? I know you love the classics!",
+    buttons:[
+      {label:'Classic Rock', action:"openOverlay('news');showSpotify('classic-rock')"},
+      {label:'Eagles', action:"openOverlay('news');showSpotify('eagles')"},
+      {label:'Italian', action:"openOverlay('news');showSpotify('italian')"}
+    ]
+  },
+  {
+    icon:'\u1F4D6', message:"I have a lovely story for you! What sounds good?",
+    buttons:[
+      {label:'Funny', action:"openOverlay('stories');getStory('funny')"},
+      {label:'Italy', action:"openOverlay('stories');getStory('italy')"},
+      {label:'Hawaii', action:"openOverlay('stories');getStory('hawaii')"},
+      {label:'Love', action:"openOverlay('stories');getStory('love')"}
+    ]
+  },
+  {
+    icon:'\u1F4FA', message:"Want to watch something fun? I have your favorite shows!",
+    buttons:[
+      {label:'I Love Lucy', action:"openOverlay('tv');playTv('lucy1','I Love Lucy','https://archive.org/embed/vts-01-1_20220124_0030')"},
+      {label:'Andy Griffith', action:"openOverlay('tv');playTv('andy1','Andy Griffith','https://archive.org/embed/Andy-Griffith-Show_Andy-Discovers-America')"},
+      {label:'More Shows', action:"openOverlay('tv')"}
+    ]
+  },
+  {
+    icon:'\u1F3A8', message:"Want to get creative? You can draw or color a picture!",
+    buttons:[
+      {label:'Coloring Book', action:"openOverlay('draw');switchDrawTab('color',document.querySelectorAll('.draw-tab')[1])"},
+      {label:'Free Draw', action:"openOverlay('draw')"}
+    ]
+  },
+  {
+    icon:'\u1F4F0', message:"I have today's news ready for you, Diane!",
+    buttons:[
+      {label:'Read Headlines', action:"openOverlay('news');loadNews()"},
+      {label:'NPR Podcast', action:"openOverlay('news');playPodcast('npr')"}
+    ]
+  }
+];
+
+// Proactive activity suggestion (called periodically)
+let lastActivitySuggestion=0;
+function maybeActivitySuggestion(){
+  const now=Date.now();
+  if(now-lastActivitySuggestion < 30*60*1000) return; // max once per 30 min
+  if(!isWakingHours()) return;
+  lastActivitySuggestion=now;
+  const s=ACTIVITY_SUGGESTIONS[Math.floor(Math.random()*ACTIVITY_SUGGESTIONS.length)];
+  suggestActivity(s.icon, s.message, s.buttons);
+  speak(s.message);
+}
+
+// Legacy compatibility - goTo does nothing now (no tab bar)
+function goTo(id,btn){}
 
 let tvIdleTimer=null;
 function announceTvShows(){
   speak("Here are your TV shows and movies, Diane! You can watch I Love Lucy, Beverly Hillbillies, Andy Griffith, Bonanza, and Dick Van Dyke. Scroll down for more shows and classic movies like Charade with Cary Grant, musicals, and westerns! Just tap any title to start watching.");
   clearTimeout(tvIdleTimer);
   tvIdleTimer=setTimeout(()=>{
-    const sec=document.getElementById('sec-tv');
-    if(sec&&sec.classList.contains('on')){
+    const sec=document.getElementById('overlay-tv');
+    if(sec&&sec.classList.contains('open')){
       speak("Don't forget to scroll down, Diane! There are classic movies below — His Girl Friday, My Man Godfrey, Shirley Temple, Fred Astaire, and more.");
     }
   },60000);
@@ -1647,34 +1728,49 @@ function setStat(t){ document.getElementById('stat').textContent=t; }
 // ══════════════════════════════════════════════════
 // STT — ALWAYS LISTENING COMPANION
 // ══════════════════════════════════════════════════
+// DESIGN: Gentle listening — long pauses between cycles to avoid
+// constant mic chimes on iPad Safari. Waits fully for speech to finish
+// before restarting. Uses continuous mode to avoid repeated mic activations.
 let alwaysListening=false, alRecog=null, alSpeaking=false;
+let alProcessing=false; // true while waiting for API response
 
 function startAlwaysListening(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR) return;
   alwaysListening=true;
   document.getElementById('micb').classList.add('hot');
-  document.getElementById('miclbl').textContent='🎙 Listening…';
+  document.getElementById('miclbl').textContent='Listening…';
   listenCycle();
 }
 
 function listenCycle(){
   if(!alwaysListening) return;
-  // Don't listen while speaking
-  if(alSpeaking){ setTimeout(listenCycle,500); return; }
+  // Don't listen while speaking or processing a response
+  if(alSpeaking||alProcessing){ setTimeout(listenCycle,1000); return; }
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  try{ alRecog?.stop(); }catch(e){}
+  try{ alRecog?.abort(); }catch(e){}
   alRecog=new SR();
-  alRecog.lang='en-US'; alRecog.continuous=false; alRecog.interimResults=false;
+  alRecog.lang='en-US';
+  alRecog.continuous=true; // Stay open longer — fewer mic activations = fewer chimes
+  alRecog.interimResults=false;
   alRecog.onstart=()=>{
     listening=true;
-    document.getElementById('miclbl').textContent='🎙 Listening…';
+    if(!alProcessing) document.getElementById('miclbl').textContent='Listening…';
   };
   alRecog.onresult=e=>{
-    const t=e.results[0][0].transcript;
-    if(t.trim().length>1){
-      listening=false;
-      handleHeard(t);
+    // Get the latest final result
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal){
+        const t=e.results[i][0].transcript.trim();
+        const conf=e.results[i][0].confidence;
+        // Filter out very short utterances and low confidence noise
+        if(t.length>3 && conf>0.4){
+          listening=false;
+          try{ alRecog?.abort(); }catch(ex){}
+          handleHeard(t);
+          return;
+        }
+      }
     }
   };
   alRecog.onerror=e=>{
@@ -1684,26 +1780,34 @@ function listenCycle(){
       document.getElementById('miclbl').textContent='Tap to Enable Mic';
       return;
     }
-    // Other errors (no-speech, aborted) — just restart
+    // no-speech or aborted — wait before restarting to avoid chime spam
   };
   alRecog.onend=()=>{
     listening=false;
-    // Auto-restart listening after a brief pause
-    if(alwaysListening) setTimeout(listenCycle,300);
+    // Wait 2 seconds before restarting to avoid rapid chime sounds
+    if(alwaysListening && !alProcessing && !alSpeaking) setTimeout(listenCycle,2000);
   };
-  try{ alRecog.start(); }catch(e){ setTimeout(listenCycle,1000); }
+  try{ alRecog.start(); }catch(e){ setTimeout(listenCycle,3000); }
 }
 
 function handleHeard(text){
-  // Show what Diane said and respond
+  // Show what Diane said
   bubble('u',text);
+  alProcessing=true;
+  // Check for activity commands first
+  if(routeCommand(text)){
+    touchInteraction();
+    // Wait for any speech to finish before resuming listening
+    alProcessing=false;
+    setTimeout(()=>{ if(alwaysListening && !alSpeaking) listenCycle(); },4000);
+    return;
+  }
   document.getElementById('miclbl').textContent='Thinking…';
   sendMsg(text).then(()=>{
-    // Resume listening after response is done
-    // Small delay to let speech finish
-    setTimeout(()=>{
-      if(alwaysListening) listenCycle();
-    },1000);
+    // Wait extra time after response for speech to play before restarting mic
+    alProcessing=false;
+    // Don't restart immediately — speakAndPause handles alSpeaking flag
+    // listenCycle will be called when alSpeaking becomes false
   });
 }
 
@@ -1712,9 +1816,10 @@ function toggleMic(){
   unlockAudio();
   if(alwaysListening){
     alwaysListening=false;
-    try{ alRecog?.stop(); }catch(e){}
+    try{ alRecog?.abort(); }catch(e){}
     alRecog=null;
     listening=false;
+    alProcessing=false;
     document.getElementById('micb').classList.remove('hot');
     document.getElementById('miclbl').textContent='Tap to Listen';
     setStat('');
@@ -1727,11 +1832,15 @@ function toggleMic(){
 const _origSpeak=speak;
 function speakAndPause(text){
   alSpeaking=true;
-  try{ alRecog?.stop(); }catch(e){}
+  try{ alRecog?.abort(); }catch(e){}
   _origSpeak(text);
-  // Resume after estimated speech duration (rough: 80ms per character)
-  const dur=Math.max(2000, Math.min(text.length*80, 15000));
-  setTimeout(()=>{ alSpeaking=false; },dur);
+  // Resume after estimated speech duration — generous timing to avoid cutting off
+  const dur=Math.max(3000, Math.min(text.length*90, 20000));
+  setTimeout(()=>{
+    alSpeaking=false;
+    // Resume listening after speech finishes
+    if(alwaysListening && !alProcessing) setTimeout(listenCycle,1500);
+  },dur);
 }
 // Override speak to pause listening
 speak=speakAndPause;
@@ -1755,7 +1864,14 @@ function hideDots(){ document.getElementById('dots')?.remove(); }
 function sendTxt(){
   const el=document.getElementById('txtin');
   const t=el.value.trim(); if(!t) return;
-  el.value=''; el.style.height=''; sendMsg(t);
+  el.value=''; el.style.height='';
+  // Check for activity commands first
+  if(routeCommand(t)){
+    bubble('u',t);
+    touchInteraction();
+    return;
+  }
+  sendMsg(t);
 }
 function ck(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTxt();} }
 function grow(el){ el.style.height=''; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
@@ -1777,7 +1893,7 @@ async function sendMsg(text){
         'anthropic-dangerous-direct-browser-access':'true'
       },
       body:JSON.stringify({
-        model:'claude-opus-4-5',
+        model:'claude-sonnet-4-6',
         max_tokens:512,
         system:buildSys(),
         messages:conv
@@ -1861,11 +1977,10 @@ async function snapPhoto(){
 }
 
 async function analyzePhoto(b64){
-  document.getElementById('help-main').style.display='none';
-  document.getElementById('help-result').style.display='none';
-  const loading=document.getElementById('help-loading');
-  loading.classList.add('on');
+  // Show results in chat (no help tab anymore)
+  bubble('info','Looking at your photo...');
   speak('Let me take a look at that for you, Diane. One moment.');
+  showDots();
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -1899,22 +2014,14 @@ Rules: Use very simple language. Short sentences. Warm and encouraging. Start wi
   } catch(e){
     helpResponse="I couldn't connect right now. Please check your internet and try again.";
   }
-  loading.classList.remove('on');
-  const img=document.getElementById('help-rimg');
-  img.src='data:image/jpeg;base64,'+b64;
-  img.style.display='block';
-  document.getElementById('help-rtxt').textContent=helpResponse;
-  document.getElementById('help-result').style.display='block';
+  hideDots();
+  closeAllOverlays();
+  bubble('c',helpResponse);
   speak(helpResponse);
 }
 
 function readHelpResp(){ if(helpResponse) speak(helpResponse); }
-function resetHelp(){
-  helpResponse='';
-  document.getElementById('help-result').style.display='none';
-  document.getElementById('help-loading').classList.remove('on');
-  document.getElementById('help-main').style.display='block';
-}
+function resetHelp(){ helpResponse=''; }
 
 // Help mic
 function toggleHelpMic(){ helpListening?stopHelpMic():startHelpMic(); }
@@ -1926,8 +2033,8 @@ function startHelpMic(){
   helpRecog.lang='en-US'; helpRecog.continuous=false; helpRecog.interimResults=false;
   helpRecog.onstart=()=>{
     helpListening=true;
-    document.getElementById('help-listen-ind').classList.add('on');
-    document.getElementById('helpmiclbl').textContent='Listening… tap to stop';
+    const hli=document.getElementById('help-listen-ind'); if(hli) hli.classList.add('on');
+    const hml=document.getElementById('helpmiclbl'); if(hml) hml.textContent='Listening… tap to stop';
   };
   helpRecog.onresult=e=>{ const t=e.results[0][0].transcript; stopHelpMic(); askHelpQuestion(t); };
   helpRecog.onerror=e=>{ stopHelpMic(); if(e.error==='not-allowed') alert('Microphone access denied.'); };
@@ -1936,14 +2043,12 @@ function startHelpMic(){
 }
 function stopHelpMic(){
   helpListening=false; try{helpRecog?.stop();}catch(e){} helpRecog=null;
-  document.getElementById('help-listen-ind').classList.remove('on');
-  document.getElementById('helpmiclbl').textContent='Speak Your Question';
+  const hli2=document.getElementById('help-listen-ind'); if(hli2) hli2.classList.remove('on');
+  const hml2=document.getElementById('helpmiclbl'); if(hml2) hml2.textContent='Speak Your Question';
 }
 async function askHelpQuestion(text){
-  document.getElementById('help-main').style.display='none';
-  const loading=document.getElementById('help-loading');
-  loading.classList.add('on');
   speak('Let me help you with that, Diane.');
+  showDots();
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -1965,10 +2070,8 @@ async function askHelpQuestion(text){
   } catch(e){
     helpResponse="I couldn't connect right now. Please try again.";
   }
-  loading.classList.remove('on');
-  document.getElementById('help-rimg').style.display='none';
-  document.getElementById('help-rtxt').textContent=helpResponse;
-  document.getElementById('help-result').style.display='block';
+  hideDots();
+  bubble('c',helpResponse);
   speak(helpResponse);
 }
 
@@ -2124,14 +2227,9 @@ async function playPodcast(key){
       audio.play().catch(e=>console.warn('Podcast play failed:',e));
     },2500);
 
-    // Switch to news tab if not already there
-    const newsTab=document.getElementById('sec-news');
-    if(!newsTab.classList.contains('on')){
-      document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
-      document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
-      newsTab.classList.add('on');
-      document.querySelectorAll('.nb')[2].classList.add('on');
-      document.getElementById('hsub').textContent="Today's News";
+    // Open news overlay if not already open
+    if(!document.getElementById('overlay-news').classList.contains('open')){
+      openOverlay('news');
     }
   } catch(e){
     console.warn('Podcast load failed:',e);
@@ -2339,7 +2437,15 @@ let G={stock:[],waste:[],fnd:[[],[],[],[]],tab:[]}, sel=null, hist=[];
 
 function setCardDims(){
   const W=window.innerWidth;
-  const cw=Math.max(38,Math.floor((W-50)/7));
+  const H=window.innerHeight;
+  const isLandscape=W>H;
+  // In landscape, use height to constrain card size so they fit on screen
+  let cw;
+  if(isLandscape){
+    cw=Math.max(32,Math.min(Math.floor((W-50)/7), Math.floor((H-200)/2.5)));
+  } else {
+    cw=Math.max(38,Math.floor((W-50)/7));
+  }
   const ch=Math.round(cw*1.45);
   document.documentElement.style.setProperty('--cw',cw+'px');
   document.documentElement.style.setProperty('--ch',ch+'px');
@@ -2555,20 +2661,20 @@ function showGame(name){
   document.querySelectorAll('.game-screen').forEach(s=>s.classList.remove('on'));
   if(name==='picker'){
     document.getElementById('game-picker').classList.add('on');
-    document.getElementById('hsub').textContent='Games';
+    // overlay header handles title
     currentGame=null;
     return;
   }
   document.getElementById('game-'+name).classList.add('on');
   if(name==='solitaire'){
-    document.getElementById('hsub').textContent='Solitaire';
+    // overlay header handles title
     if(!G.tab) newGame();
     setCardDims();
   } else if(name==='bridge'){
-    document.getElementById('hsub').textContent='Bridge';
+    // overlay header handles title
     if(!BR.started) newBridgeGame();
   } else if(name==='memory'){
-    document.getElementById('hsub').textContent='Memory Match';
+    // overlay header handles title
     if(!MEM.started) newMemoryGame();
   }
   currentGame=name;
@@ -2907,6 +3013,43 @@ function getBridgeGameSummary(){
   return summary;
 }
 
+// "Talk to Me" — conversational game advice (not mic, just the companion talking about strategy)
+async function bridgeTalkToMe(){
+  if(!BR.started){ speak("Let's start a new game first, Diane! Tap New Game."); return; }
+  const chatEl=document.getElementById('br-chat');
+  const textEl=document.getElementById('br-chat-text');
+  chatEl.style.display='block';
+  textEl.textContent='💭 Let me think...';
+
+  const gameState=getBridgeGameSummary();
+  const analysis=BR.turn===0?getBridgeAnalysis():{hint:'',short:''};
+  const prompt=BR.turn===0
+    ? "Look at Diane's hand and the game state. Give her friendly, conversational strategy advice about what to play and why. Be specific about her actual cards. Talk like a friend helping her at the bridge table."
+    : "Comment on how the game is going. Encourage Diane and talk about the score, her strong cards, or what happened in the last trick.";
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:150,
+        system:"You are Diane's friendly bridge partner sitting across the table. Give warm, conversational game advice. Talk about her ACTUAL cards by name. Keep it to 2-3 short sentences. Be encouraging. Use simple language — Diane has cognitive impairment. Sound like a kind friend, not a textbook."+(analysis.hint?' Current hint: '+analysis.hint:''),
+        messages:[{role:'user',content:gameState+'\n\n'+prompt}]
+      })
+    });
+    const d=await r.json();
+    if(d.content?.[0]?.text){
+      const reply=d.content[0].text;
+      textEl.textContent=reply;
+      speak(reply);
+      setTimeout(()=>{ chatEl.style.display='none'; },12000);
+    } else { chatEl.style.display='none'; }
+  }catch(e){
+    chatEl.style.display='none';
+    speak("You're doing great, Diane! Just pick the card that feels right.");
+  }
+}
+
 async function maybeBridgeChat(){
   if(Math.random()>0.4) return;
   const chatEl=document.getElementById('br-chat');
@@ -3006,7 +3149,7 @@ function stopBridgeMic(){
   bridgeMicRecog=null;
   const btn=document.getElementById('br-mic');
   btn.classList.remove('hot');
-  btn.textContent='🎙 Talk to Me';
+  btn.textContent='🎙 Chat';
 }
 
 async function handleBridgeChat(text){
@@ -3461,7 +3604,7 @@ STRICT REQUIREMENTS:
 }
 
 function renderColorPage(svgText){
-  const sec=document.getElementById('sec-draw');
+  const sec=document.getElementById('sec-draw')||document.getElementById('overlay-draw');
   const toolH=80, tabH=44;
   const avail=sec.clientHeight-toolH-tabH-8;
   const sz=Math.min(sec.clientWidth-8,avail,520);
@@ -3632,7 +3775,7 @@ function initDraw(){
 }
 function resizeCvs(){
   requestAnimationFrame(()=>{
-    const panel=document.getElementById('free-draw-panel');
+    const panel=document.getElementById('free-draw-panel'); if(!panel) return;
     const tool=panel.querySelector('.dtool');
     const w=panel.clientWidth-12;
     const h=Math.max(panel.clientHeight-tool.offsetHeight-18,200);
@@ -3721,13 +3864,10 @@ async function sendProactiveMessage(reason){
   if(!isWakingHours() && reason !== 'idle_night') return;
 
   // Don't interrupt if already speaking
-  if(synth.speaking || (currentAudio && !currentAudio.paused)) return;
+  if(synth.speaking || dAudioSource) return;
 
-  // Switch to chat tab if not already there
-  const chatBtn = document.querySelector('.nb');
-  if(chatBtn && !document.getElementById('sec-chat').classList.contains('on')){
-    // Don't switch tabs - just speak and add to chat
-  }
+  // Close overlays to show chat
+  closeAllOverlays();
 
   try{
     const r = await fetch('https://api.anthropic.com/v1/messages',{
@@ -3753,15 +3893,8 @@ async function sendProactiveMessage(reason){
       if(conv.length>40) conv=conv.slice(-40);
       // Show in chat
       bubble('c', msg);
-      // Make sure chat tab is visible
-      const chatSec = document.getElementById('sec-chat');
-      if(chatSec && !chatSec.classList.contains('on')){
-        document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
-        document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
-        chatSec.classList.add('on');
-        document.querySelectorAll('.nb')[0].classList.add('on');
-        document.getElementById('hsub').textContent='Your personal companion';
-      }
+      // Close any open overlays to show chat
+      closeAllOverlays();
       // Scroll chat to bottom
       const msgs = document.getElementById('chat-msgs');
       if(msgs) msgs.scrollTop = msgs.scrollHeight;
@@ -3791,6 +3924,8 @@ function scheduleHourly(){
   hourlyTimer = setInterval(()=>{
     if(isWakingHours()){
       sendProactiveMessage('hourly');
+      // Suggest an activity every other hour
+      if(Math.random()>0.5) setTimeout(maybeActivitySuggestion,15000);
     }
   }, 60 * 60 * 1000);
 
@@ -4038,6 +4173,7 @@ function scheduleCogCheck(){
   // Also check shortly after app opens
   setTimeout(()=>{ if(shouldRunCogCheck()) runCogCheck(); }, 5 * 60 * 1000);
 }
+
 
 
 </script>
