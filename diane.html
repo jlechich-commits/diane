@@ -1534,33 +1534,44 @@ async function speakGCP(text){
         audioConfig:{audioEncoding:'MP3',speakingRate:0.92,pitch:0.5}
       })
     });
-    if(!r.ok){
-      r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+gcpKey,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          input:{text:text},
-          voice:{languageCode:'en-US'},
-          audioConfig:{audioEncoding:'MP3',speakingRate:0.92,pitch:0.5}
-        })
-      });
-    }
-    if(!r.ok){ browserSpeak(text); return; } // fall back to browser on failure
+    if(!r.ok){ browserSpeak(text); return; }
     const d=await r.json();
     if(!d.audioContent){ browserSpeak(text); return; }
     const bin=atob(d.audioContent);
     const bytes=new Uint8Array(bin.length);
     for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
-    const blob=new Blob([bytes],{type:'audio/mpeg'});
-    const url=URL.createObjectURL(blob);
-    const audio=new Audio(url);
-    currentElAudio=audio;
-    audio.onended=()=>{ URL.revokeObjectURL(url); currentElAudio=null; setStat(''); };
-    audio.onerror=()=>{ URL.revokeObjectURL(url); currentElAudio=null; browserSpeak(text); };
-    await audio.play();
+    // Try Audio element first, then AudioContext, then browser TTS
+    try{
+      const blob=new Blob([bytes],{type:'audio/mpeg'});
+      const url=URL.createObjectURL(blob);
+      const audio=new Audio(url);
+      currentElAudio=audio;
+      audio.onended=()=>{ URL.revokeObjectURL(url); currentElAudio=null; setStat(''); };
+      audio.onerror=()=>{ URL.revokeObjectURL(url); currentElAudio=null; playViaContext(bytes.buffer); };
+      await audio.play();
+    }catch(e){
+      // Audio element blocked — try AudioContext
+      playViaContext(bytes.buffer);
+    }
   }catch(e){
-    // Google failed — use browser as last resort
     browserSpeak(text);
+  }
+}
+
+async function playViaContext(arrayBuf){
+  try{
+    if(!dAudioCtx) dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
+    const decoded=await dAudioCtx.decodeAudioData(arrayBuf.slice?arrayBuf.slice(0):arrayBuf);
+    const source=dAudioCtx.createBufferSource();
+    source.buffer=decoded;
+    source.connect(dAudioCtx.destination);
+    source.onended=()=>{ dAudioSource=null; setStat(''); };
+    dAudioSource=source;
+    source.start(0);
+    setStat('🔊 Speaking…');
+  }catch(e){
+    setStat('');
   }
 }
 function setStat(t){ document.getElementById('stat').textContent=t; }
@@ -1819,23 +1830,30 @@ async function loadNews(){
   list.innerHTML='<div style="color:var(--lite);font-style:italic;text-align:center;padding:24px 0">Loading today\'s news…</div>';
   newsItems=[];
   try{
-    // Fetch from multiple sources for richer content
     const feeds=[
-      'https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/news/rss.xml&count=6',
-      'https://api.rss2json.com/v1/api.json?rss_url=https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml&count=6'
+      {url:'https://feeds.bbci.co.uk/news/rss.xml',source:'BBC News'},
+      {url:'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',source:'NY Times'}
     ];
-    const results=await Promise.allSettled(feeds.map(f=>fetch(f).then(r=>r.json())));
-    results.forEach(r=>{
-      if(r.status==='fulfilled'&&r.value.items){
-        r.value.items.forEach(item=>{
-          const tmp=document.createElement('div'); tmp.innerHTML=item.description||'';
-          const desc=tmp.textContent||'';
-          if(desc.length>20){
-            newsItems.push({title:item.title||'',desc:desc,link:item.link||'',source:r.value.feed?.title||''});
-          }
-        });
-      }
-    });
+    const results=await Promise.allSettled(feeds.map(async f=>{
+      const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(f.url));
+      if(!r.ok) return;
+      const xml=await r.text();
+      const doc=new DOMParser().parseFromString(xml,'text/xml');
+      const items=doc.querySelectorAll('item');
+      let count=0;
+      items.forEach(item=>{
+        if(count>=6) return;
+        const title=item.querySelector('title')?.textContent||'';
+        const descEl=item.querySelector('description');
+        const tmp=document.createElement('div'); tmp.innerHTML=descEl?.textContent||'';
+        const desc=tmp.textContent||'';
+        const link=item.querySelector('link')?.textContent||'';
+        if(desc.length>20){
+          newsItems.push({title,desc,link,source:f.source});
+          count++;
+        }
+      });
+    }));
     if(!newsItems.length) throw new Error('no items');
     renderNews();
   } catch(e){
@@ -1938,11 +1956,13 @@ async function playPodcast(key){
 
   try{
     // Fetch RSS feed to get latest episode audio URL
-    const r=await fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feed.rss)+'&count=1');
-    const d=await r.json();
-    const ep=d.items?.[0];
-    if(!ep) throw new Error('No episodes');
-    const audioUrl=ep.enclosure?.link||ep.enclosure?.url||'';
+    const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(feed.rss));
+    if(!r.ok) throw new Error('Feed fetch failed');
+    const xml=await r.text();
+    const doc=new DOMParser().parseFromString(xml,'text/xml');
+    const enclosure=doc.querySelector('item enclosure');
+    if(!enclosure) throw new Error('No episodes');
+    const audioUrl=enclosure.getAttribute('url')||'';
     if(!audioUrl) throw new Error('No audio URL');
 
     audio.src=audioUrl;
