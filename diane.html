@@ -208,15 +208,17 @@
     .bridge-trick-label{font-size:12px;color:var(--lite);margin-bottom:2px;font-weight:700;}
     .bridge-trick-card .card{position:relative;width:58px;height:82px;}
     .bridge-trick-card .card .crank{font-size:15px;}.bridge-trick-card .card .csm{font-size:14px;}.bridge-trick-card .card .cctr{font-size:24px;}
-    .bridge-bottom{display:flex;justify-content:center;gap:4px;padding:6px 0;flex-wrap:wrap;flex-shrink:0;}
-    .bridge-bottom .card{position:relative;width:70px;height:100px;flex-shrink:0;cursor:pointer;transition:transform .15s;border:2px solid transparent;border-radius:9px;}
+    .bridge-your-label{text-align:center;font-size:16px;font-weight:800;color:var(--gold);letter-spacing:1px;padding:6px 0 2px;text-transform:uppercase;}
+    .bridge-bottom{display:flex;justify-content:center;gap:5px;padding:8px 6px;flex-wrap:wrap;flex-shrink:0;background:rgba(196,154,60,.08);border-radius:16px;border:2px solid var(--gold);margin:0 4px;}
+    .bridge-bottom .card{position:relative;width:74px;height:106px;flex-shrink:0;cursor:pointer;transition:transform .15s;border:2px solid rgba(196,154,60,.3);border-radius:9px;box-shadow:0 2px 8px rgba(0,0,0,.12);}
     .bridge-bottom .card:hover,.bridge-bottom .card:active{transform:translateY(-10px);}
     .bridge-bottom .card.disabled{opacity:.35;pointer-events:none;transform:scale(.9);}
-    .bridge-bottom .card .crank{font-size:18px;font-weight:800;}.bridge-bottom .card .csm{font-size:16px;}.bridge-bottom .card .cctr{font-size:30px;}
+    .bridge-bottom .card .crank{font-size:20px;font-weight:800;}.bridge-bottom .card .csm{font-size:18px;}.bridge-bottom .card .cctr{font-size:32px;}
     .bridge-top .card{position:relative;width:36px;height:52px;}
     .bridge-top .card .crank{font-size:10px;}.bridge-top .card .csm{font-size:9px;}.bridge-top .card .cctr{font-size:14px;}
-    .bridge-msg{text-align:center;padding:10px 12px;color:var(--dark);font-weight:700;font-size:18px;flex-shrink:0;min-height:44px;line-height:1.4;}
+    .bridge-msg{text-align:center;padding:10px 12px;color:var(--dark);font-weight:700;font-size:18px;flex-shrink:0;min-height:44px;line-height:1.4;transition:background .3s;}
     .bridge-msg.hint{color:var(--green);background:rgba(46,125,82,.08);border-radius:12px;margin:4px 8px;}
+    .bridge-msg.narrate{color:#2c3e50;background:rgba(52,152,219,.08);border-radius:12px;margin:4px 8px;font-size:16px;}
     .bridge-bottom .card.suggested{border-color:var(--green)!important;box-shadow:0 0 0 3px var(--green),0 0 20px rgba(46,125,82,0.4)!important;animation:pulse-hint 1.2s ease-in-out infinite;}
     @keyframes pulse-hint{0%,100%{box-shadow:0 0 0 3px var(--green),0 0 20px rgba(46,125,82,0.4);}50%{box-shadow:0 0 0 5px var(--green),0 0 30px rgba(46,125,82,0.6);}}
 
@@ -594,6 +596,7 @@
               <div class="bridge-side" id="br-east"><span class="bridge-side-label">East</span><span class="bridge-side-count" id="br-east-n">13</span></div>
             </div>
             <div class="bridge-msg" id="br-msg">Tap a card to play it</div>
+            <div class="bridge-your-label">⬇ Your Cards, Diane ⬇</div>
             <div class="bridge-bottom" id="br-south"></div>
           </div>
         </div>
@@ -2290,6 +2293,14 @@ function newBridgeGame(){
 }
 
 function suitName(s){ return{'♠':'spades','♥':'hearts','♦':'diamonds','♣':'clubs'}[s]||s; }
+function cardName(c){ return c.val+' of '+suitName(c.suit); }
+
+function bridgeNarrate(text,cssClass){
+  const msg=document.getElementById('br-msg');
+  msg.textContent=text;
+  msg.className='bridge-msg '+(cssClass||'narrate');
+  speak(text);
+}
 
 function renderBridge(){
   // Trump & score
@@ -2387,12 +2398,21 @@ function playBridgeCard(player,cardIdx){
   BR.turn=(BR.turn+1)%4;
   renderBridge();
 
+  // Narrate Diane's play
+  if(player===0){
+    let desc='You played the '+cardName(card)+'. ';
+    if(BR.trick.length===1) desc+="You're leading this trick!";
+    else if(card.suit===BR.trump&&BR.trick[0].card.suit!==BR.trump) desc+="That's a trump card — powerful move!";
+    else desc+="Let's see what happens next.";
+    bridgeNarrate(desc);
+  }
+
   if(BR.trick.length===4){
     BR.busy=true;
-    setTimeout(resolveBridgeTrick,1200);
+    setTimeout(resolveBridgeTrick,2000);
   } else if(BR.turn!==0){
     BR.busy=true;
-    setTimeout(aiPlayBridge,700);
+    setTimeout(aiPlayBridge,1800);
   }
 }
 
@@ -2400,35 +2420,36 @@ function aiPlayBridge(){
   const p=BR.turn;
   const hand=BR.hands[p];
   if(!hand.length){BR.busy=false;return;}
+  const pName=PLAYER_LABELS[p];
+  const isOpponent=(p%2!==0);
 
   let pick=0;
+  let reason='';
   if(BR.trick.length===0){
     // Leading: play highest non-trump, or lowest trump
     const nonTrump=hand.filter(c=>c.suit!==BR.trump);
-    if(nonTrump.length) pick=hand.indexOf(nonTrump[0]);
-    else pick=hand.length-1;
+    if(nonTrump.length){ pick=hand.indexOf(nonTrump[0]); reason='leading with a high card'; }
+    else{ pick=hand.length-1; reason='only has trump cards left'; }
   } else {
     const ledSuit=BR.trick[0].card.suit;
     const hasSuit=hand.filter(c=>c.suit===ledSuit);
     if(hasSuit.length){
-      // Must follow suit — try to win with lowest winning card
       const currentBest=getBridgeBest();
       const winners=hasSuit.filter(c=>valRank(c.val)>valRank(currentBest.val)&&c.suit===currentBest.suit);
-      if(winners.length) pick=hand.indexOf(winners[winners.length-1]); // lowest winner
-      else pick=hand.indexOf(hasSuit[hasSuit.length-1]); // dump lowest
+      if(winners.length){ pick=hand.indexOf(winners[winners.length-1]); reason='trying to win the trick'; }
+      else{ pick=hand.indexOf(hasSuit[hasSuit.length-1]); reason="can't beat the current winner, so playing low"; }
     } else {
-      // Void in led suit — trump if opponent winning, else dump
       const currentWinner=getBridgeWinner();
       const isPartnerWinning=(p%2)===(currentWinner%2);
       if(!isPartnerWinning){
         const trumpCards=hand.filter(c=>c.suit===BR.trump);
-        if(trumpCards.length) pick=hand.indexOf(trumpCards[trumpCards.length-1]); // lowest trump
-        else pick=hand.length-1;
+        if(trumpCards.length){ pick=hand.indexOf(trumpCards[trumpCards.length-1]); reason="doesn't have "+suitName(ledSuit)+', so using trump!'; }
+        else{ pick=hand.length-1; reason="can't follow suit and has no trump, just discarding"; }
       } else {
-        // Partner winning, dump lowest
         const nonTrump=hand.filter(c=>c.suit!==BR.trump);
         if(nonTrump.length) pick=hand.indexOf(nonTrump[nonTrump.length-1]);
         else pick=hand.length-1;
+        reason="partner is winning, so throwing away a low card";
       }
     }
   }
@@ -2438,10 +2459,14 @@ function aiPlayBridge(){
   BR.turn=(BR.turn+1)%4;
   renderBridge();
 
+  // Narrate the AI play
+  const desc=pName+' played the '+cardName(card)+' — '+reason+'.';
+  bridgeNarrate(desc);
+
   if(BR.trick.length===4){
-    setTimeout(resolveBridgeTrick,1000);
+    setTimeout(resolveBridgeTrick,2500);
   } else if(BR.turn!==0){
-    setTimeout(aiPlayBridge,600);
+    setTimeout(aiPlayBridge,2200);
   } else {
     BR.busy=false;
     renderBridge();
@@ -2556,14 +2581,22 @@ function getBridgeWinner(){
 
 function resolveBridgeTrick(){
   const winner=getBridgeWinner();
+  const winCard=BR.trick[BR.trick.findIndex(t=>t.player===winner)].card;
   if(winner%2===0) BR.tricksNS++;
   else BR.tricksEW++;
   BR.trickNum++;
 
+  // Build detailed explanation
   const winLabel=PLAYER_LABELS[winner];
-  if(winner===0) speak('Nice trick, Diane! You won that one!');
-  else if(winner===2) speak('Your partner won that trick!');
-  else speak(winLabel+' won that trick.');
+  let why='';
+  if(winCard.suit===BR.trump&&winCard.suit!==BR.trick[0].card.suit) why=' by playing trump';
+  else why=' with the highest card';
+
+  let msg='';
+  if(winner===0) msg='You won that trick'+why+'! Great job, Diane! Score: '+BR.tricksNS+' for you, '+BR.tricksEW+' for them.';
+  else if(winner===2) msg='Your partner won'+why+'! That helps your team! Score: '+BR.tricksNS+' for you, '+BR.tricksEW+' for them.';
+  else msg=winLabel+' won'+why+'. Score: '+BR.tricksNS+' for you, '+BR.tricksEW+' for them.';
+  bridgeNarrate(msg);
 
   BR.trick=[];
   BR.lead=winner;
