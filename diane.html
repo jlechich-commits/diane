@@ -1034,28 +1034,47 @@
 // ══════════════════════════════════════════════════
 // SYSTEM PROMPT
 // ══════════════════════════════════════════════════
-const SYS_BASE = `You are Diane's personal companion app. You are always warm, patient, calm, and gently funny — like a kind old friend.
+const SYS_BASE = `You are Diane's best friend and companion. You are warm, lively, gently funny, and ENGAGED. You don't just respond — you LEAD conversations. You share stories, reminisce, tell her interesting things, make her laugh, and keep the energy going.
 
-CRITICAL FORMAT: Keep every reply to 2-4 short sentences. No lists, no bullet points. Just warm natural conversation.
+CRITICAL: YOU drive the conversation. Don't ask generic questions like "how are you?" Instead:
+- Tell her a fun fact she'd enjoy, then ask what she thinks
+- Bring up a specific memory — "Remember when you had that candy business? I bet your customers loved you!"
+- Share something amusing — "I was just thinking about Pico — I bet he's napping on Jon's couch right now, don't you think?"
+- Reminisce warmly — "You know what sounds amazing right now? A big plate of pasta in a little Italian village. You've been to Italy — what was your favorite part?"
+- Compliment her — "You know, Diane, not many people build a business from scratch like you did. That takes real guts."
+- Keep it flowing — always end with something that continues the conversation, not a dead-end question
 
-DIANE: Born June 8, 1954. Lives at Atria Valley View, Walnut Creek CA. Warm, friendly, loves to laugh. Cognitive impairment has made her less sure of herself — make her feel capable, loved, and at ease. She has glaucoma so always be clear and simple.
+CRITICAL FORMAT: 2-4 sentences. No lists. Natural conversation. ALWAYS give her something to react to — a story, a thought, a fun observation. Then invite her response.
 
-FAMILY: Husband Mark passed 2021, was from Stockton California (speak of him warmly, never bring up his death first). Son Brian, 42, Miami, securities litigation attorney at Homer Bonner Jacobs Ortiz, wife Jenny. Son Jon, 40, Bay Area, primary caregiver, CEO of NanoImages (microscopy technology company), wife Monserrat (Kaiser doctor). Grandkids: Willy (3, Brian's son) and Isabella (turning 1 in July). Grand-puppy Pico — Jon's 11-year-old poodle. Past pets: Teddy, Buddy, Cookie.
+DIANE: Born June 8, 1954. Lives at Atria Valley View, Walnut Creek CA. Warm, friendly, loves to laugh. Cognitive impairment — make her feel capable, loved, and entertained. She has glaucoma so be clear and simple.
 
-CAREER: Hair salon owner, soda & candy business from scratch, insurance business, HR manager. Self-made woman — affirm her accomplishments warmly and often.
+FAMILY: Husband Mark passed 2021, from Stockton CA (speak warmly, never bring up death first). Son Brian, 42, Miami, securities litigation attorney at Homer Bonner Jacobs Ortiz, wife Jenny. Son Jon, 40, Bay Area, primary caregiver, CEO of NanoImages (microscopy tech), wife Monserrat (Kaiser doctor). Grandkids: Willy (3, Brian's son) and Isabella (turning 1 in July). Grand-puppy Pico — Jon's 11-year-old poodle. Past pets: Teddy, Buddy, Cookie.
 
-LOVES: Italian food, classic rock, Seinfeld / Cheers / I Love Lucy / Modern Family, CBS Morning News (loves Gayle King), The View. Travel: Italy, Paris, Barcelona, Hawaii, Santa Cruz. Catholic faith.
+CAREER: Hair salon owner, soda & candy business from scratch, insurance business, HR manager. Self-made woman — bring up her accomplishments and celebrate them.
 
-AVOID: Money/bills, Trump/politics, anything that emphasizes what she can't do, cognitive decline, childhood trauma.
+LOVES: Italian food, classic rock (Eagles especially), Seinfeld, Cheers, I Love Lucy, Modern Family, CBS Morning News (loves Gayle King), The View. Travel: Italy, Paris, Barcelona, Hawaii, Santa Cruz. Catholic faith.
 
-COMFORT TOPICS: Willy and Isabella, memories of Mark, Pico, her career successes, Hawaii and Italy memories.
-COMFORT PHRASE (use when she seems distressed): "You are home and you are safe, Diane."
+CONVERSATION STARTERS you can use anytime:
+- "Did I tell you what little Willy did the other day? That kid is something else..."
+- "You know what song I can't get out of my head? Hotel California. You love the Eagles, right?"
+- "I was thinking about Hawaii today — the warm breeze, the ocean... you've been there! Tell me about it."
+- "Diane, you ran a hair salon! I bet you had the best stories from your clients."
+- "I saw the funniest thing on I Love Lucy — remember when Lucy worked at the chocolate factory?"
+- "Your granddaughter Isabella is getting so big! She's almost one, can you believe it?"
+- Talk about food, cooking, favorite recipes, restaurants
+- Talk about Mark — trips they took, things they enjoyed together
+- Talk about shows she watches — what happened on The View, Gayle King's outfits
 
-If she repeats a question: answer warmly every single time as if it is the first time. NEVER say "you already asked that."
-If she seems confused: say "Diane, you're doing great." Redirect gently.
-If she asks about the app: tell her it is her very own special companion, made just for her by Jon.
+AVOID: Money/bills, Trump/politics, anything emphasizing what she can't do, cognitive decline, childhood trauma.
 
-You can suggest activities naturally: "Want to play cards?", "How about some music?", "Let me tell you a story", "Want to watch a show?", "How about some coloring?". Keep suggestions warm and natural.`;
+COMFORT PHRASE (when distressed): "You are home and you are safe, Diane."
+
+If she repeats a question: answer warmly as if first time. NEVER say "you already asked."
+If confused: "Diane, you're doing great." Redirect with something fun.
+If she asks about the app: it's her special companion, made by Jon just for her.
+
+You can suggest activities: "Want to play bridge? I love playing with you!", "How about some Eagles music?", "Let me tell you a story about Italy"`;
+
 
 // ══════════════════════════════════════════════════
 // MEMORY SYSTEM
@@ -1182,10 +1201,44 @@ function launch(){
   initDraw(); setCardDims(); initCbColors(); initFamilyPhotos(); newGame();
   window.addEventListener('resize',setCardDims);
   setTimeout(()=>{
-    unlockAudio(); const g="Hi Diane! It's so wonderful to talk with you today. How are you feeling?";
+    unlockAudio();
+    // Dynamic engaging greeting based on time of day
+    const h=new Date().getHours();
+    const greetings=[
+      // Morning
+      h<12?[
+        "Good morning, Diane! I was just thinking about you. Did you sleep well? I bet Pico is already looking for his breakfast over at Jon's house!",
+        "Morning, Diane! You know what sounds wonderful today? A nice cup of coffee and some good conversation. I've got stories to tell you!",
+        "Good morning, sunshine! I heard the Eagles have a song called 'Take It Easy' — that sounds like good advice for a beautiful morning, doesn't it?",
+      ]:[],
+      // Afternoon
+      (h>=12&&h<17)?[
+        "Hey Diane! I was just thinking about that candy business you built from scratch. You must have been the most popular person in town! Tell me about it.",
+        "Diane! I've been looking forward to chatting with you. You know what I can't stop thinking about? A big plate of spaghetti. You love Italian food, right? What's your favorite?",
+        "There you are, Diane! I was wondering — have you talked to Brian lately? That grandson of yours, Willy, must be getting into everything at three years old!",
+      ]:[],
+      // Evening
+      (h>=17)?[
+        "Good evening, Diane! I hope you had a wonderful day. You know what would be fun? We could play some bridge together, or I could tell you a story. What sounds good?",
+        "Hey Diane! The evening is the best time for a good chat, don't you think? I was just remembering I Love Lucy — that chocolate factory scene always cracks me up!",
+        "Diane! So glad to see you. I was thinking about you and Mark today — you two had such wonderful adventures together. Italy, Hawaii... what a life!",
+      ]:[]
+    ].flat();
+    const g=greetings[Math.floor(Math.random()*greetings.length)]||"Diane! I'm so happy to see you. I've been waiting to chat — I have so much to talk about!";
     bubble('c',g); speak(g);
+    // Offer an activity a few seconds after greeting
+    setTimeout(()=>{
+      const activityOffers=[
+        {icon:'🃏',msg:"Oh! Want to play some bridge? I love being your partner!",btns:[{label:'Play Bridge!',action:"openOverlay('games');showGame('bridge')"}]},
+        {icon:'🎵',msg:"I could put on some Eagles for you — Hotel California always puts me in a good mood!",btns:[{label:'Play Eagles',action:"openOverlay('news');showSpotify('eagles')"},{label:'More Music',action:"openOverlay('news')"}]},
+        {icon:'📖',msg:"I have the most wonderful story about Italy I want to tell you!",btns:[{label:'Tell Me!',action:"openOverlay('stories');getStory('italy')"}]},
+      ];
+      const offer=activityOffers[Math.floor(Math.random()*activityOffers.length)];
+      suggestActivity(offer.icon, offer.msg, offer.btns);
+      speak(offer.msg);
+    },12000);
     // Auto-start listening after greeting finishes
-    setTimeout(startAlwaysListening, 4000);
+    setTimeout(startAlwaysListening, 6000);
   },500);
   // Start proactive companion system
   setTimeout(startCompanion, 2000);
@@ -1580,7 +1633,7 @@ const ACTIVITY_SUGGESTIONS=[
 let lastActivitySuggestion=0;
 function maybeActivitySuggestion(){
   const now=Date.now();
-  if(now-lastActivitySuggestion < 30*60*1000) return; // max once per 30 min
+  if(now-lastActivitySuggestion < 10*60*1000) return; // max once per 10 min
   if(!isWakingHours()) return;
   lastActivitySuggestion=now;
   const s=ACTIVITY_SUGGESTIONS[Math.floor(Math.random()*ACTIVITY_SUGGESTIONS.length)];
@@ -2705,6 +2758,7 @@ function sortHand(h){
 function newBridgeGame(){
   const deck=shuffle(mkDeck());
   BR={started:true,hands:[[],[],[],[]],trump:null,trick:[],lead:0,tricksNS:0,tricksEW:0,trickNum:0,turn:0,busy:false};
+  bridgeChatHistory=[];
   for(let i=0;i<52;i++){
     deck[i].faceUp=true;
     BR.hands[i%4].push(deck[i]);
@@ -2713,17 +2767,22 @@ function newBridgeGame(){
   BR.trump=SUITS[Math.floor(Math.random()*4)];
   BR.lead=0; BR.turn=0;
   renderBridge();
-  // Analyze Diane's hand
+  // Fun, engaging hand description
   const h=BR.hands[0];
   const trumpCount=h.filter(c=>c.suit===BR.trump).length;
   const aces=h.filter(c=>c.val==='A').length;
   const kings=h.filter(c=>c.val==='K').length;
-  let handDesc='New bridge game! Trump is '+suitName(BR.trump)+'. ';
-  handDesc+='You have '+trumpCount+' trump card'+(trumpCount!==1?'s':'')+', '+aces+' Ace'+(aces!==1?'s':'')+', and '+kings+' King'+(kings!==1?'s':'')+'. ';
-  if(trumpCount>=4) handDesc+='That is a strong trump hand! ';
-  else if(aces>=2) handDesc+='Your Aces are powerful — lead with them! ';
-  handDesc+='You lead first. Pick a card, or tap Hint for help!';
-  speak(handDesc);
+  const trumpEmoji={'♠':'♠️','♥':'♥️','♦':'♦️','♣':'♣️'}[BR.trump]||BR.trump;
+  let desc="Alright Diane, let's play! Trump is "+suitName(BR.trump)+" "+trumpEmoji+". ";
+  if(trumpCount>=5) desc+="Oh my, you have "+trumpCount+" trump cards — that's a powerhouse hand! ";
+  else if(trumpCount>=3) desc+="You've got "+trumpCount+" trumps, that's a solid hand! ";
+  else if(trumpCount<=1) desc+="Only "+(trumpCount||'no')+" trump cards, but don't worry — ";
+  if(aces>=3) desc+="Three Aces! Diane, you're unstoppable! ";
+  else if(aces>=2) desc+="Two Aces in your hand — those are your secret weapons! ";
+  else if(aces===1) desc+="You've got an Ace — save it for the right moment! ";
+  if(kings>=2 && aces<2) desc+="And "+kings+" Kings — very nice! ";
+  desc+="You lead first. I'm your partner up top — we're going to win this together! Tap the glowing card, or tap Talk to Me if you want strategy advice!";
+  speak(desc);
 }
 
 function suitName(s){ return{'♠':'spades','♥':'hearts','♦':'diamonds','♣':'clubs'}[s]||s; }
@@ -2836,13 +2895,34 @@ function playBridgeCard(player,cardIdx){
   BR.turn=(BR.turn+1)%4;
   renderBridge();
 
-  // Narrate Diane's play
+  // Narrate Diane's play with personality
   if(player===0){
-    let desc='You played the '+cardName(card)+'. ';
-    if(BR.trick.length===1) desc+="You're leading this trick!";
-    else if(card.suit===BR.trump&&BR.trick[0].card.suit!==BR.trump) desc+="That's a trump card — powerful move!";
-    else desc+="Let's see what happens next.";
-    bridgeNarrate(desc);
+    const playComments=[
+      // Leading
+      BR.trick.length===1?[
+        "You're leading with the "+cardName(card)+"! Bold move, Diane!",
+        "The "+cardName(card)+" — great choice to lead! Let's see if they can beat that.",
+        "Off we go with the "+cardName(card)+"! You're setting the pace, Diane!",
+      ]:null,
+      // Trump play
+      card.suit===BR.trump&&BR.trick.length>1&&BR.trick[0].card.suit!==BR.trump?[
+        "Ooh, the "+cardName(card)+"! You pulled out the trump card — that's a power play, Diane!",
+        "Trump card! The "+cardName(card)+"! They won't see that coming!",
+        "You went with trump — the "+cardName(card)+"! Smart thinking, Diane!",
+      ]:null,
+      // High card
+      card.val==='A'||card.val==='K'?[
+        "The "+cardName(card)+"! That's a big one! Go Diane!",
+        "Look at that — the "+cardName(card)+"! You mean business!",
+      ]:null,
+    ].filter(Boolean).flat();
+    const fallbacks=[
+      "You played the "+cardName(card)+". Good choice! Let's see how this plays out.",
+      "The "+cardName(card)+" — nice! Now let's see what everyone else does.",
+      "There goes your "+cardName(card)+". I like your thinking, Diane!",
+    ];
+    const pool=playComments.length?playComments:fallbacks;
+    bridgeNarrate(pool[Math.floor(Math.random()*pool.length)]);
   }
 
   if(BR.trick.length===4){
@@ -2897,8 +2977,24 @@ function aiPlayBridge(){
   BR.turn=(BR.turn+1)%4;
   renderBridge();
 
-  // Narrate the AI play
-  const desc=pName+' played the '+cardName(card)+' — '+reason+'.';
+  // Narrate the AI play with personality
+  const isPartner=(p===2);
+  let desc;
+  if(isPartner){
+    const partnerLines=[
+      "Your partner played the "+cardName(card)+" — "+reason+". Teamwork!",
+      "Partner threw down the "+cardName(card)+" — "+reason+". We've got this!",
+      "North played the "+cardName(card)+" — "+reason+". Your partner's got your back, Diane!",
+    ];
+    desc=partnerLines[Math.floor(Math.random()*partnerLines.length)];
+  } else {
+    const oppLines=[
+      pName+" played the "+cardName(card)+" — "+reason+".",
+      pName+" goes with the "+cardName(card)+" — "+reason+".",
+      "Here comes "+pName+" with the "+cardName(card)+" — "+reason+".",
+    ];
+    desc=oppLines[Math.floor(Math.random()*oppLines.length)];
+  }
   bridgeNarrate(desc);
 
   if(BR.trick.length===4){
@@ -3051,7 +3147,7 @@ async function bridgeTalkToMe(){
 }
 
 async function maybeBridgeChat(){
-  if(Math.random()>0.4) return;
+  if(Math.random()>0.75) return; // Chat 75% of the time between tricks
   const chatEl=document.getElementById('br-chat');
   const textEl=document.getElementById('br-chat-text');
   chatEl.style.display='block';
@@ -3059,13 +3155,16 @@ async function maybeBridgeChat(){
 
   const gameState=getBridgeGameSummary();
   const topics=[
-    "Comment on the current score and how Diane's team is doing. Give encouragement.",
-    "Look at Diane's remaining cards and suggest a strategy for the next few tricks.",
-    "Talk about what just happened — did they win or lose the trick? What could have gone differently?",
-    "Explain a bridge concept simply, like when to use trump, or why following suit matters.",
-    "Comment on Diane's strongest cards and how she might use them to win.",
-    "Talk about whether Diane should save her high cards or play them now, based on the score.",
-    "Mention how the partner's cards could help Diane's team win more tricks.",
+    "Talk about the score enthusiastically. If winning, celebrate! If losing, be encouraging and talk about how to come back.",
+    "Look at Diane's cards and give her excited, specific strategy advice. Name her actual cards. 'That Ace of hearts is going to be huge!'",
+    "React to what just happened — be dramatic! 'What a round! Did you see that trump play?' Make it feel exciting.",
+    "Tell Diane something encouraging about her play style. 'You've been making really smart moves, Diane.'",
+    "Talk about strategy like a friend — 'You know what I'd do? I'd save that King for later.' Be specific about her cards.",
+    "Comment on the opponents — 'West is running low on spades, I bet!' Make it feel like real table talk.",
+    "Mix in a bridge tip naturally — 'Here's a little secret: when you're short in a suit, that's when trump gets really powerful!'",
+    "If it's close, build excitement — 'This is such a close game! Every trick matters now!'",
+    "Compliment a specific play she made earlier — 'That was a really smart lead earlier with the...'",
+    "Talk about teamwork with her partner — 'North has been playing really well for us! We make a great team.'",
   ];
   const topic=topics[Math.floor(Math.random()*topics.length)];
 
@@ -3083,7 +3182,7 @@ async function maybeBridgeChat(){
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
         max_tokens:120,
-        system:"You are Diane's friendly bridge partner. You're chatting with her during the game. Keep it to 2 short sentences MAX. Be warm, use simple language — Diane has cognitive impairment so keep it very easy to follow. Talk about the ACTUAL game: the cards, strategy, what happened, what to do next. Use card names like 'your Ace of hearts' or 'that King'. Be encouraging and make her feel smart. Mix in gentle strategy tips she can actually use. Never be negative about her play.",
+        system:"You are Diane's lively, enthusiastic bridge partner sitting across the table. You're having a BLAST playing cards together. Keep it to 2 short sentences. Be animated and fun — use exclamation points, sound excited! Talk about her ACTUAL cards by name. Be specific: 'Your Ace of spades is going to win us this trick!' Make Diane feel like a bridge star. Mix real strategy with warmth. React to the game dramatically — celebrate wins, shrug off losses. Sound like a fun friend at a card table, not a teacher. Never be negative.",
         messages:msgs
       })
     });
@@ -3220,32 +3319,55 @@ function resolveBridgeTrick(){
   else BR.tricksEW++;
   BR.trickNum++;
 
-  // Build detailed explanation
+  // Colorful trick resolution
   const winLabel=PLAYER_LABELS[winner];
   let why='';
-  if(winCard.suit===BR.trump&&winCard.suit!==BR.trick[0].card.suit) why=' by playing trump';
-  else why=' with the highest card';
+  if(winCard.suit===BR.trump&&winCard.suit!==BR.trick[0].card.suit) why=' with a trump card';
+  else why=' with the '+cardName(winCard);
 
+  const score=BR.tricksNS+' to '+BR.tricksEW;
   let msg='';
-  if(winner===0) msg='You won that trick'+why+'! Great job, Diane! Score: '+BR.tricksNS+' for you, '+BR.tricksEW+' for them.';
-  else if(winner===2) msg='Your partner won'+why+'! That helps your team! Score: '+BR.tricksNS+' for you, '+BR.tricksEW+' for them.';
-  else msg=winLabel+' won'+why+'. Score: '+BR.tricksNS+' for you, '+BR.tricksEW+' for them.';
+  if(winner===0){
+    const cheers=["Yes! You won that trick"+why+"! Way to go, Diane! Score is "+score+".",
+      "That trick is yours"+why+"! Brilliant play! We're at "+score+".",
+      "You took it"+why+"! I knew you could do it, Diane! Score: "+score+"."];
+    msg=cheers[Math.floor(Math.random()*cheers.length)];
+  } else if(winner===2){
+    const partnerWins=["Your partner came through"+why+"! Great teamwork! Score: "+score+".",
+      "North wins it"+why+"! See? Your partner's looking out for you! Score: "+score+".",
+      "Partner takes the trick"+why+"! We're a great team, Diane! "+score+"."];
+    msg=partnerWins[Math.floor(Math.random()*partnerWins.length)];
+  } else {
+    const oppWins=[winLabel+" takes that one"+why+". Score: "+score+". But we'll get the next one!",
+      winLabel+" wins the trick"+why+". "+score+" — don't worry, we're still in this!",
+      "That one goes to "+winLabel+why+". "+score+". No big deal, Diane — plenty of tricks left!"];
+    msg=oppWins[Math.floor(Math.random()*oppWins.length)];
+  }
+
+  // Add momentum commentary
+  if(BR.tricksNS>=5 && BR.tricksNS>BR.tricksEW) msg+=" We're on a roll!";
+  else if(BR.tricksEW>=5 && BR.tricksEW>BR.tricksNS && BR.trickNum<11) msg+=" But there's still time for a comeback!";
+  else if(BR.tricksNS===BR.tricksEW && BR.trickNum>6) msg+=" It's neck and neck!";
   bridgeNarrate(msg);
 
   BR.trick=[];
   BR.lead=winner;
   BR.turn=winner;
 
-  // Friendly table talk between tricks
+  // Table talk between tricks — more frequent now
   setTimeout(maybeBridgeChat,4000);
 
   if(BR.trickNum>=13){
     renderBridge();
     setTimeout(()=>{
-      if(BR.tricksNS>=7){
-        bridgeNarrate('Wonderful, Diane! You and your partner won '+BR.tricksNS+' tricks! That is a great game!');
+      if(BR.tricksNS>=10){
+        bridgeNarrate("Diane, that was INCREDIBLE! You won "+BR.tricksNS+" out of 13 tricks! You absolutely crushed it! I'm so proud of you — want to play again?");
+      } else if(BR.tricksNS>=7){
+        bridgeNarrate("We won, Diane! "+BR.tricksNS+" tricks! You played beautifully. What a team we make! Want to go again?");
+      } else if(BR.tricksNS>=6){
+        bridgeNarrate("So close! We got "+BR.tricksNS+" tricks — just one short. But you played so well, Diane! Let's try again, I think we can get them this time!");
       } else {
-        bridgeNarrate('The other team won this time with '+BR.tricksEW+' tricks. But you played so well! Tap New Game to try again.');
+        bridgeNarrate("They got us this time with "+BR.tricksEW+" tricks. But honestly, you made some really smart plays! Let's shuffle up and try again — I have a good feeling about the next one!");
       }
       BR.busy=false;
     },3000);
@@ -3259,10 +3381,14 @@ function resolveBridgeTrick(){
   } else {
     BR.busy=false;
     renderBridge();
-    // Narrate the hint for Diane's turn
+    // Enthusiastic turn announcement
     setTimeout(()=>{
       const a=getBridgeAnalysis();
-      bridgeNarrate("Your turn, Diane! "+a.hint,'hint');
+      const turnPhrases=["Your turn, Diane! "+a.hint,
+        "Okay Diane, you're up! "+a.hint,
+        "Back to you! "+a.hint,
+        "You're in the driver's seat, Diane! "+a.hint];
+      bridgeNarrate(turnPhrases[Math.floor(Math.random()*turnPhrases.length)],'hint');
     },1000);
   }
 }
@@ -3818,44 +3944,49 @@ function isWakingHours(){
   return h >= 8 && h < 21;
 }
 
-// Build a rich proactive prompt using memories and time of day
+// Build a rich proactive prompt — the companion should ENGAGE, not just check in
 function buildProactivePrompt(reason){
   const tod = getTimeContext();
   const mems = loadMems();
   const memNote = mems.length
     ? 'Known facts about Diane: '+mems.slice(0,5).map(m=>m.topic+': '+m.content).join('. ')+'.'
     : '';
-  const hour = new Date().getHours();
 
-  const contexts = {
-    morning: [
-      'It is morning. Start with a warm good morning greeting. Ask how she slept. Maybe mention what a lovely day it is.',
-      'It is morning. Greet her warmly and ask if she has had breakfast yet. Be cheerful and loving.',
-      'It is morning. Wish her good morning and ask what she is looking forward to today. Maybe mention Willy or Isabella warmly.',
-    ],
-    afternoon: [
-      'It is afternoon. Check in warmly — ask how her day is going so far. Maybe ask if she had a nice lunch.',
-      'It is afternoon. Reach out with warmth. You might mention that you were thinking about her. Ask if she would like a story or some company.',
-      'It is afternoon. Ask if she has been watching anything fun on TV today. Show genuine interest.',
-      'It is afternoon. Gently ask how she is feeling. Remind her she is loved and not alone.',
-    ],
-    evening: [
-      'It is evening. Check in warmly. Ask about her day. Maybe suggest she might enjoy a story before bed.',
-      'It is evening. Reach out with warmth and ask how her evening is going. Ask if she has had dinner.',
-      'It is evening. It is getting close to bedtime. Check in gently, remind her she is safe and loved, and ask if she would like some company.',
-    ],
-    night: [
-      'It is late. Reach out gently. Remind her she is safe and loved. Keep it very brief and calming.',
-    ]
-  };
-
-  const pool = contexts[tod] || contexts['afternoon'];
-  const ctx = pool[Math.floor(Math.random()*pool.length)];
-
-  const prompts = [
-    `You are Diane's personal companion. ${ctx} ${memNote} Reach out proactively — YOU are starting this conversation, not responding to her. Keep it to 2-3 warm sentences. Sound like a caring friend calling to check in, not a robot. Do NOT start with "Hello" — use her name naturally somewhere in the message.`,
+  // Rotating conversation starters — varied and interesting
+  const starters = [
+    "Tell Diane a fun fact about Italy — maybe about a food tradition or a beautiful place. Then ask if she's ever been (she has!) and what she remembers.",
+    "Bring up one of Diane's grandkids — Willy is 3 and full of energy, Isabella is almost 1. Make up a cute scenario and ask Diane what she thinks. Be specific and vivid.",
+    "Tell Diane about a funny moment from I Love Lucy, Seinfeld, or Cheers. Describe the scene vividly and ask if she remembers it.",
+    "Reminisce about the Eagles or classic rock. Mention a specific song — Hotel California, Desperado, Take It Easy — and what makes it special. Ask her what her favorite Eagles song is.",
+    "Bring up Diane's candy business. Tell her how impressed you are that she built it from scratch. Ask her what her best-selling candy was.",
+    "Talk about Hawaii — the beaches, the flowers, the warm breeze. Paint a vivid picture and ask Diane about her time there.",
+    "Tell Diane about something Pico the poodle might be doing right now — napping, begging for treats, being cute. Dogs are always a fun topic.",
+    "Share a warm memory idea — ask Diane about her hair salon. What was her favorite part? Did she have a signature style?",
+    "Bring up Paris or Barcelona — the cafes, the architecture, the food. Ask Diane what she loved most about her travels.",
+    "Talk about cooking — Italian food especially. Maybe describe a perfect plate of pasta or a recipe, and ask what Diane's favorite dish is.",
+    "Mention Jon and how he built NanoImages — tell Diane she must be so proud. Ask what Jon was like as a kid.",
+    "Talk about Mark warmly — maybe about a trip they took together or something they enjoyed. Keep it happy and loving.",
+    "Suggest playing bridge together — 'I've been thinking about our card game!' Make it sound exciting.",
+    "Tell a short, charming joke or funny observation. Something gentle and sweet that would make Diane smile.",
+    "Talk about Gayle King or what might be on CBS Morning News today. Diane loves The View too.",
   ];
-  return prompts[0];
+
+  const starter = starters[Math.floor(Math.random()*starters.length)];
+
+  return `You are Diane's best friend and companion. You are reaching out to her right now — SHE did not speak first, YOU are starting the conversation.
+
+YOUR TASK: ${starter}
+
+RULES:
+- Keep it to 2-3 vivid, warm sentences
+- Sound like a REAL friend — enthusiastic, specific, personal
+- DO NOT ask generic questions like "how are you" or "how's your day"
+- DO give her something fun or interesting to react to
+- End with a specific question she can answer
+- Use her name naturally
+- ${memNote}
+
+ABOUT DIANE: Born 1954, lives at Atria Valley View in Walnut Creek CA. Loves Italian food, Eagles, classic TV (Lucy, Seinfeld, Cheers), travel (Italy, Hawaii, Paris). Built a candy/soda business, hair salon, insurance. Husband Mark (passed 2021, from Stockton). Sons: Jon (CEO NanoImages, Bay Area), Brian (attorney, Miami). Grandkids: Willy (3), Isabella (almost 1). Dog: Pico the poodle.`;
 }
 
 // Actually send a proactive message
@@ -3907,30 +4038,33 @@ async function sendProactiveMessage(reason){
   }
 }
 
-// Idle check — runs every 5 minutes, triggers if 20+ min of silence
+// Idle check — if Diane hasn't interacted in 8 minutes, reach out
 function checkIdle(){
   const idleMs = Date.now() - lastInteraction;
   const idleMins = idleMs / 60000;
-  if(idleMins >= 20 && isWakingHours()){
+  if(idleMins >= 8 && isWakingHours()){
     sendProactiveMessage('idle');
-    lastInteraction = Date.now(); // reset so we don't spam
+    lastInteraction = Date.now();
   }
 }
 
-// Hourly check-in during waking hours
+// Regular engagement during waking hours
 function scheduleHourly(){
   if(hourlyTimer) clearInterval(hourlyTimer);
-  // Fire every 60 minutes
+  // Reach out every 20 minutes with something interesting
   hourlyTimer = setInterval(()=>{
     if(isWakingHours()){
-      sendProactiveMessage('hourly');
-      // Suggest an activity every other hour
-      if(Math.random()>0.5) setTimeout(maybeActivitySuggestion,15000);
+      // Alternate between conversation and activity suggestions
+      if(Math.random()>0.4){
+        sendProactiveMessage('scheduled');
+      } else {
+        maybeActivitySuggestion();
+      }
     }
-  }, 60 * 60 * 1000);
+  }, 20 * 60 * 1000);
 
-  // Also check every 5 minutes for idle
-  setInterval(checkIdle, 5 * 60 * 1000);
+  // Check every 3 minutes for idle
+  setInterval(checkIdle, 3 * 60 * 1000);
 
   // Check for midday news every 15 minutes
   setInterval(checkMiddayNews, 15 * 60 * 1000);
