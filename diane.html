@@ -819,36 +819,23 @@ function goTo(id,btn){
 // ══════════════════════════════════════════════════
 // TTS — ELEVENLABS + BROWSER FALLBACK
 // ══════════════════════════════════════════════════
+// Pre-created audio element — must exist before any async calls for iPad Safari
+const dAudio = new Audio();
+dAudio.preload = 'none';
+
 function stopAudio(){
   synth.cancel();
-  if(currentAudio){ currentAudio.pause(); currentAudio=null; }
+  try{ dAudio.pause(); dAudio.src=''; }catch(e){}
+  currentAudio=null;
   setStat('');
 }
-async function speak(text){
-  stopAudio();
-  if(elKey){
-    try{
-      const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${elVoice}`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json','xi-api-key':elKey},
-        body:JSON.stringify({text,model_id:'eleven_turbo_v2_5',voice_settings:{stability:0.5,similarity_boost:0.75,style:0.3,use_speaker_boost:true}})
-      });
-      if(r.ok){
-        const blob=await r.blob();
-        const url=URL.createObjectURL(blob);
-        currentAudio=new Audio(url);
-        currentAudio.onended=()=>{ URL.revokeObjectURL(url); setStat(''); };
-        currentAudio.play();
-        setStat('🔊 Speaking…');
-        return;
-      }
-    } catch(e){ console.warn('ElevenLabs failed, using browser TTS'); }
-  }
-  if(!synth) return;
+
+function browserSpeak(text){
+  // Plain browser TTS fallback
   synth.cancel();
   setTimeout(()=>{
     const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US'; u.rate=0.87; u.pitch=1.02; u.volume=1;
+    u.lang='en-US'; u.rate=0.87; u.pitch=1.05; u.volume=1;
     const vs=synth.getVoices();
     const v=vs.find(x=>x.name==='Samantha')||vs.find(x=>x.name.includes('Karen'))||
             vs.find(x=>x.name.includes('Moira'))||vs.find(x=>x.lang==='en-US')||vs[0];
@@ -857,7 +844,50 @@ async function speak(text){
     u.onend=()=>setStat('');
     u.onerror=()=>setStat('');
     synth.speak(u);
-  },100);
+  },80);
+}
+
+async function speak(text){
+  stopAudio();
+  if(!text||!text.trim()) return;
+  if(!elKey){ browserSpeak(text); return; }
+  setStat('🔊 Speaking…');
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':elKey},
+      body:JSON.stringify({
+        text:text,
+        model_id:'eleven_turbo_v2_5',
+        voice_settings:{stability:0.5,similarity_boost:0.75,style:0.2,use_speaker_boost:true}
+      })
+    });
+    if(!r.ok){
+      const errText=await r.text();
+      console.warn('ElevenLabs error '+r.status+':',errText);
+      setStat('');
+      browserSpeak(text);
+      return;
+    }
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    // Reuse the pre-created audio element (already trusted by iPad Safari)
+    dAudio.src=url;
+    dAudio.onended=()=>{ URL.revokeObjectURL(url); dAudio.src=''; setStat(''); };
+    dAudio.onerror=()=>{ URL.revokeObjectURL(url); setStat(''); browserSpeak(text); };
+    const playPromise=dAudio.play();
+    if(playPromise!==undefined){
+      playPromise.catch(e=>{
+        console.warn('Audio play blocked:',e);
+        setStat('');
+        browserSpeak(text);
+      });
+    }
+  } catch(e){
+    console.warn('ElevenLabs fetch failed:',e);
+    setStat('');
+    browserSpeak(text);
+  }
 }
 function setStat(t){ document.getElementById('stat').textContent=t; }
 
