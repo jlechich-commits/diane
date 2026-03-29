@@ -1178,7 +1178,7 @@ async function updateElKey(){
       return;
     }
     // It worked! Save key and play the test audio
-    localStorage.setItem('diane_el_key',k); elKey=k;
+    localStorage.setItem('diane_el_key',k); elKey=k; elDisabled=false;
     document.getElementById('set-el-key').value='';
     const buf=await r.arrayBuffer();
     const blob=new Blob([buf],{type:'audio/mpeg'});
@@ -1398,6 +1398,8 @@ function browserSpeak(text){
   synth.speak(u);
 }
 
+let elDisabled=false; // disable EL after first failure to prevent voice switching
+
 function speak(text){
   if(!text||!text.trim()) return;
   stopAudio();
@@ -1406,9 +1408,8 @@ function speak(text){
   // ALWAYS start browser TTS immediately (must be in user gesture chain for iPad Safari)
   browserSpeak(text);
 
-  // If ElevenLabs key is set, try to upgrade to natural voice
-  // If it works, cancel browser TTS and play ElevenLabs audio instead
-  if(elKey){
+  // If ElevenLabs key is set and hasn't failed, try to upgrade to natural voice
+  if(elKey&&!elDisabled){
     speakEL(text);
   }
 }
@@ -1424,7 +1425,11 @@ async function speakEL(text){
         voice_settings:{stability:0.5,similarity_boost:0.75,style:0.2}
       })
     });
-    if(!r.ok) return; // browser TTS already playing, just let it continue
+    if(!r.ok){
+      console.warn('ElevenLabs failed ('+r.status+'), disabling for this session');
+      elDisabled=true;
+      return;
+    }
     const arrayBuf=await r.arrayBuffer();
     // Cancel browser TTS since we have ElevenLabs audio
     try{ synth.cancel(); }catch(e){}
