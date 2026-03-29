@@ -67,8 +67,13 @@
     .activity-btn{padding:10px 16px;border:2px solid var(--gold-pale);border-radius:12px;background:var(--warm);font-size:15px;font-family:'Nunito';font-weight:700;color:var(--brown);cursor:pointer;}
     .activity-btn:active{background:var(--gold-pale);border-color:var(--gold);}
 
+    /* QUICK ACCESS BAR */
+    .quick-bar{display:flex;gap:6px;padding:8px 14px 4px;background:var(--cream);border-top:1px solid var(--gold-pale);overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch;}
+    .quick-btn{flex-shrink:0;padding:8px 14px;border:2px solid var(--gold-pale);border-radius:14px;background:var(--warm);font-size:15px;font-family:'Nunito';font-weight:700;color:var(--brown);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+    .quick-btn:active{background:var(--gold-pale);border-color:var(--gold);transform:scale(0.95);}
+
     /* COMPANION INPUT */
-    .companion-input{flex-shrink:0;padding:8px 14px 14px;background:var(--cream);border-top:1px solid var(--gold-pale);}
+    .companion-input{flex-shrink:0;padding:8px 14px 14px;background:var(--cream);}
     .stat{text-align:center;font-size:13px;color:var(--lite);font-style:italic;height:16px;margin-bottom:7px;}
     .trow{display:flex;gap:8px;align-items:flex-end;margin-bottom:9px;}
     #txtin{flex:1;padding:11px 14px;border:2px solid var(--gold-pale);border-radius:13px;font-size:17px;font-family:'Nunito';background:var(--warm);color:var(--dark);outline:none;resize:none;min-height:46px;max-height:100px;line-height:1.4;}
@@ -329,6 +334,8 @@
     @media (orientation: landscape) {
       .companion-header{padding:6px 16px 4px;}
       .ht{font-size:20px;}
+      .quick-bar{padding:4px 14px 2px;gap:4px;}
+      .quick-btn{padding:5px 10px;font-size:13px;}
       .companion-input{padding:4px 14px 6px;}
       .trow{margin-bottom:4px;}
       #txtin{min-height:38px;padding:8px 12px;font-size:15px;}
@@ -445,6 +452,15 @@
   <!-- Chat - always visible -->
   <div id="companion-main">
     <div id="chat-msgs"></div>
+    <div class="quick-bar">
+      <button class="quick-btn" onclick="openOverlay('games');showGame('bridge')">&#x1F0A1; Bridge</button>
+      <button class="quick-btn" onclick="openOverlay('games');showGame('solitaire')">&#x1F0CF; Solitaire</button>
+      <button class="quick-btn" onclick="openOverlay('games');showGame('memory')">&#x1F9E0; Memory</button>
+      <button class="quick-btn" onclick="openOverlay('tv')">&#x1F4FA; TV</button>
+      <button class="quick-btn" onclick="openOverlay('stories')">&#x1F4D6; Stories</button>
+      <button class="quick-btn" onclick="openOverlay('draw')">&#x1F3A8; Draw</button>
+      <button class="quick-btn" onclick="openOverlay('news')">&#x1F4F0; News</button>
+    </div>
     <div class="companion-input">
       <div class="stat" id="stat"></div>
       <div class="trow">
@@ -1554,10 +1570,10 @@ function routeCommand(text){
 }
 
 function suggestGames(){
-  suggestActivity('\u1F3AE', "Want to play some cards, Diane?", [
-    {label:'Bridge', icon:'\u1F0A1', action:"openOverlay('games');showGame('bridge')"},
-    {label:'Solitaire', icon:'\u1F0CF', action:"openOverlay('games');showGame('solitaire')"},
-    {label:'Memory Match', icon:'\u1F9E0', action:"openOverlay('games');showGame('memory')"}
+  suggestActivity('🎮', "Want to play some cards, Diane?", [
+    {label:'Bridge', icon:'🃏', action:"openOverlay('games');showGame('bridge')"},
+    {label:'Solitaire', icon:'🃏', action:"openOverlay('games');showGame('solitaire')"},
+    {label:'Memory Match', icon:'🧠', action:"openOverlay('games');showGame('memory')"}
   ]);
   speak("Want to play some cards, Diane? You can pick bridge, solitaire, or memory match!");
 }
@@ -1581,15 +1597,15 @@ function suggestActivity(icon, message, buttons){
 
 const ACTIVITY_SUGGESTIONS=[
   {
-    icon:'\u1F0CF', message:"How about a card game, Diane? It's always fun!",
+    icon:'🃏', message:"How about a card game, Diane? It's always fun!",
     buttons:[
-      {label:'Bridge', icon:'\u1F0A1', action:"openOverlay('games');showGame('bridge')"},
-      {label:'Solitaire', icon:'\u1F0CF', action:"openOverlay('games');showGame('solitaire')"},
-      {label:'Memory', icon:'\u1F9E0', action:"openOverlay('games');showGame('memory')"}
+      {label:'Bridge', icon:'🃏', action:"openOverlay('games');showGame('bridge')"},
+      {label:'Solitaire', icon:'🃏', action:"openOverlay('games');showGame('solitaire')"},
+      {label:'Memory', icon:'🧠', action:"openOverlay('games');showGame('memory')"}
     ]
   },
   {
-    icon:'\u1F3B5', message:"Want to listen to some music? I know you love the classics!",
+    icon:'🎵', message:"Want to listen to some music? I know you love the classics!",
     buttons:[
       {label:'Classic Rock', action:"openOverlay('news');showSpotify('classic-rock')"},
       {label:'Eagles', action:"openOverlay('news');showSpotify('eagles')"},
@@ -1597,7 +1613,7 @@ const ACTIVITY_SUGGESTIONS=[
     ]
   },
   {
-    icon:'\u1F4D6', message:"I have a lovely story for you! What sounds good?",
+    icon:'📖', message:"I have a lovely story for you! What sounds good?",
     buttons:[
       {label:'Funny', action:"openOverlay('stories');getStory('funny')"},
       {label:'Italy', action:"openOverlay('stories');getStory('italy')"},
@@ -1606,7 +1622,7 @@ const ACTIVITY_SUGGESTIONS=[
     ]
   },
   {
-    icon:'\u1F4FA', message:"Want to watch something fun? I have your favorite shows!",
+    icon:'📺', message:"Want to watch something fun? I have your favorite shows!",
     buttons:[
       {label:'I Love Lucy', action:"openOverlay('tv');playTv('lucy1','I Love Lucy','https://archive.org/embed/vts-01-1_20220124_0030')"},
       {label:'Andy Griffith', action:"openOverlay('tv');playTv('andy1','Andy Griffith','https://archive.org/embed/Andy-Griffith-Show_Andy-Discovers-America')"},
@@ -1614,14 +1630,14 @@ const ACTIVITY_SUGGESTIONS=[
     ]
   },
   {
-    icon:'\u1F3A8', message:"Want to get creative? You can draw or color a picture!",
+    icon:'🎨', message:"Want to get creative? You can draw or color a picture!",
     buttons:[
       {label:'Coloring Book', action:"openOverlay('draw');switchDrawTab('color',document.querySelectorAll('.draw-tab')[1])"},
       {label:'Free Draw', action:"openOverlay('draw')"}
     ]
   },
   {
-    icon:'\u1F4F0', message:"I have today's news ready for you, Diane!",
+    icon:'📰', message:"I have today's news ready for you, Diane!",
     buttons:[
       {label:'Read Headlines', action:"openOverlay('news');loadNews()"},
       {label:'NPR Podcast', action:"openOverlay('news');playPodcast('npr')"}
@@ -1818,6 +1834,17 @@ function listenCycle(){
         const conf=e.results[i][0].confidence;
         // Filter out very short utterances and low confidence noise
         if(t.length>3 && conf>0.4){
+          // If companion is currently speaking, only interrupt for substantial input
+          // (longer phrases with high confidence = real conversation, not mic echo)
+          if(alSpeaking){
+            if(t.length<10 || conf<0.7){
+              // Likely echo or background noise — ignore it
+              return;
+            }
+            // Real interruption — stop speech and respond
+            stopAudio();
+            alSpeaking=false;
+          }
           listening=false;
           try{ alRecog?.abort(); }catch(ex){}
           handleHeard(t);
@@ -1856,7 +1883,7 @@ function handleHeard(text){
     return;
   }
   document.getElementById('miclbl').textContent='Thinking…';
-  sendMsg(text).then(()=>{
+  sendMsg(text, true).then(()=>{
     // Wait extra time after response for speech to play before restarting mic
     alProcessing=false;
     // Don't restart immediately — speakAndPause handles alSpeaking flag
@@ -1888,7 +1915,8 @@ function speakAndPause(text){
   try{ alRecog?.abort(); }catch(e){}
   _origSpeak(text);
   // Resume after estimated speech duration — generous timing to avoid cutting off
-  const dur=Math.max(3000, Math.min(text.length*90, 20000));
+  // 110ms/char gives more buffer to prevent mic picking up TTS output
+  const dur=Math.max(3000, Math.min(text.length*110, 25000));
   setTimeout(()=>{
     alSpeaking=false;
     // Resume listening after speech finishes
@@ -1929,9 +1957,9 @@ function sendTxt(){
 function ck(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTxt();} }
 function grow(el){ el.style.height=''; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
 
-async function sendMsg(text){
+async function sendMsg(text, fromMic=false){
   if(!text.trim()) return;
-  synth.cancel();
+  if(!fromMic) stopAudio(); // Only stop speech for typed messages; mic handler manages its own interruption
   bubble('u',text);
   const shouldMem=checkMemTrigger(text);
   conv.push({role:'user',content:text});
