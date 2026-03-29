@@ -1162,41 +1162,54 @@ function checkPIN(){
 async function updateElKey(){
   const k=document.getElementById('set-el-key').value.trim();
   if(!k){ alert('Please paste your ElevenLabs API key.'); return; }
-  // Test the key first
+  // Test with an actual TTS call (short text to minimize usage)
   try{
-    const r=await fetch('https://api.elevenlabs.io/v1/user',{
-      headers:{'xi-api-key':k}
+    setStat('Testing ElevenLabs key…');
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':k},
+      body:JSON.stringify({text:'Hello!',model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.75}})
     });
     if(!r.ok){
       const body=await r.text().catch(()=>'');
-      alert('ElevenLabs key test failed (HTTP '+r.status+'): '+body+'\n\nPlease check your key and try again.');
+      setStat('');
+      alert('ElevenLabs TTS test FAILED\n\nHTTP '+r.status+'\n'+body+'\n\nKey: '+k.substring(0,8)+'…\nVoice: '+elVoice);
       return;
     }
-    const user=await r.json();
+    // It worked! Save key and play the test audio
     localStorage.setItem('diane_el_key',k); elKey=k;
     document.getElementById('set-el-key').value='';
-    alert('ElevenLabs voice activated! 🎙\nAccount: '+(user.xi_api_key ? 'Valid' : 'Unknown')+'\nCharacters remaining: '+(user.subscription?.character_count !== undefined ? (user.subscription.character_limit - user.subscription.character_count) : 'unknown'));
+    const buf=await r.arrayBuffer();
+    const blob=new Blob([buf],{type:'audio/mpeg'});
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);
+    audio.onended=()=>URL.revokeObjectURL(url);
+    audio.play().catch(()=>{});
+    setStat('✅ ElevenLabs working!');
+    setTimeout(()=>setStat(''),3000);
+    alert('ElevenLabs voice activated! You should hear "Hello" in the natural voice.');
     openSettings();
   } catch(e){
-    alert('Could not test ElevenLabs key: '+e.message);
+    setStat('');
+    alert('Could not reach ElevenLabs: '+e.message);
   }
 }
 function updateVoice(){ elVoice=document.getElementById('set-voice').value; localStorage.setItem('diane_el_voice',elVoice); }
 
 function testVoice(){
-  // Direct test — no async, no setTimeout, pure user gesture chain
   try{ synth.cancel(); }catch(e){}
-  const u=new SpeechSynthesisUtterance('Hello Diane! Can you hear me?');
-  u.lang='en-US'; u.rate=0.85; u.pitch=1.0; u.volume=1;
+  const u=new SpeechSynthesisUtterance('Hello Diane! Can you hear me? This is your companion app speaking.');
+  u.lang='en-US'; u.rate=0.9; u.pitch=1.05; u.volume=1;
   const vs=synth.getVoices();
-  const v=vs.find(x=>x.name==='Samantha')||vs.find(x=>x.name.includes('Karen'))||
-          vs.find(x=>x.name.includes('Moira'))||vs.find(x=>x.lang==='en-US')||vs[0];
+  const v=pickBestVoice(vs);
   if(v) u.voice=v;
-  u.onstart=()=>{ document.getElementById('stat').textContent='🔊 Speaking…'; };
-  u.onend=()=>{ document.getElementById('stat').textContent='✅ Voice works!'; };
-  u.onerror=(e)=>{ alert('Voice error: '+JSON.stringify(e.error||e)); document.getElementById('stat').textContent='❌ Voice failed'; };
+  const vName=v?v.name:'none';
+  u.onstart=()=>{ document.getElementById('stat').textContent='🔊 Using: '+vName; };
+  u.onend=()=>{ document.getElementById('stat').textContent='✅ Voice: '+vName; };
+  u.onerror=(e)=>{ alert('Voice error: '+JSON.stringify(e.error||e)); };
   synth.speak(u);
-  if(!vs.length) alert('No voices found on this device. Is speech enabled in Settings > Accessibility > Spoken Content?');
+  if(!vs.length) alert('No voices found. Go to iPad Settings > Accessibility > Spoken Content > Voices > English and download a voice.');
+  else alert('Using voice: '+vName+'\n\nFor a better voice, go to iPad Settings > Accessibility > Spoken Content > Voices > English and download "Ava (Premium)" or "Zoe (Enhanced)".');
 }
 
 function openSettings(){
@@ -1357,13 +1370,26 @@ function stopAudio(){
   setStat('');
 }
 
+function pickBestVoice(voices){
+  // Prefer premium/enhanced voices, then standard — all warm female en-US
+  const prefs=[
+    'Ava (Premium','Zoe (Premium','Samantha (Premium',
+    'Ava (Enhanced','Zoe (Enhanced','Samantha (Enhanced',
+    'Ava','Zoe','Samantha','Karen','Moira'
+  ];
+  for(const p of prefs){
+    const v=voices.find(x=>x.name.includes(p)&&x.lang.startsWith('en'));
+    if(v) return v;
+  }
+  return voices.find(x=>x.lang==='en-US')||voices[0];
+}
+
 function browserSpeak(text){
   try{ synth.cancel(); }catch(e){}
   const u=new SpeechSynthesisUtterance(text);
-  u.lang='en-US'; u.rate=0.85; u.pitch=1.0; u.volume=1;
+  u.lang='en-US'; u.rate=0.9; u.pitch=1.05; u.volume=1;
   const vs=synth.getVoices();
-  const v=vs.find(x=>x.name==='Samantha')||vs.find(x=>x.name.includes('Karen'))||
-          vs.find(x=>x.name.includes('Moira'))||vs.find(x=>x.lang==='en-US')||vs[0];
+  const v=pickBestVoice(vs);
   if(v) u.voice=v;
   u.onstart=()=>setStat('🔊 Speaking…');
   u.onend=()=>setStat('');
