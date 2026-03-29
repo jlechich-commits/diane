@@ -388,7 +388,7 @@
           <textarea id="txtin" rows="1" placeholder="Type a message…" onkeydown="ck(event)" oninput="grow(this)"></textarea>
           <button id="sendb" onclick="sendTxt()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
-        <button id="micb" onclick="toggleMic()"><span class="mic-icon">🎙</span><span id="miclbl">Tap to Speak</span></button>
+        <button id="micb" onclick="toggleMic()"><span class="mic-icon">🎙</span><span id="miclbl">Starting…</span></button>
       </div>
     </div>
 
@@ -1162,6 +1162,8 @@ function launch(){
   setTimeout(()=>{
     unlockAudio(); const g="Hi Diane! It's so wonderful to talk with you today. How are you feeling?";
     bubble('c',g); speak(g);
+    // Auto-start listening after greeting finishes
+    setTimeout(startAlwaysListening, 4000);
   },500);
   // Start proactive companion system
   setTimeout(startCompanion, 2000);
@@ -1596,36 +1598,96 @@ async function playViaContext(arrayBuf){
 function setStat(t){ document.getElementById('stat').textContent=t; }
 
 // ══════════════════════════════════════════════════
-// STT — CHAT MIC
+// STT — ALWAYS LISTENING COMPANION
 // ══════════════════════════════════════════════════
-function toggleMic(){ unlockAudio(); listening?stopMic():startMic(); }
-function startMic(){
+let alwaysListening=false, alRecog=null, alSpeaking=false;
+
+function startAlwaysListening(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){ alert('Voice input requires Safari on iPad.\nPlease open this page in Safari.'); return; }
-  synth.cancel();
-  recog=new SR();
-  recog.lang='en-US'; recog.continuous=false; recog.interimResults=false;
-  recog.onstart=()=>{
+  if(!SR) return;
+  alwaysListening=true;
+  document.getElementById('micb').classList.add('hot');
+  document.getElementById('miclbl').textContent='🎙 Listening…';
+  listenCycle();
+}
+
+function listenCycle(){
+  if(!alwaysListening) return;
+  // Don't listen while speaking
+  if(alSpeaking){ setTimeout(listenCycle,500); return; }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  try{ alRecog?.stop(); }catch(e){}
+  alRecog=new SR();
+  alRecog.lang='en-US'; alRecog.continuous=false; alRecog.interimResults=false;
+  alRecog.onstart=()=>{
     listening=true;
-    document.getElementById('micb').classList.add('hot');
-    document.getElementById('miclbl').textContent='Listening… tap to stop';
-    setStat('🎙 Listening…');
+    document.getElementById('miclbl').textContent='🎙 Listening…';
   };
-  recog.onresult=e=>{ const t=e.results[0][0].transcript; stopMic(); sendMsg(t); };
-  recog.onerror=e=>{
-    stopMic();
-    if(e.error==='not-allowed')
-      alert('Microphone access denied.\n\nGo to iPad Settings → Safari → Microphone and tap Allow.');
+  alRecog.onresult=e=>{
+    const t=e.results[0][0].transcript;
+    if(t.trim().length>1){
+      listening=false;
+      handleHeard(t);
+    }
   };
-  recog.onend=()=>stopMic();
-  recog.start();
+  alRecog.onerror=e=>{
+    if(e.error==='not-allowed'){
+      alwaysListening=false;
+      document.getElementById('micb').classList.remove('hot');
+      document.getElementById('miclbl').textContent='Tap to Enable Mic';
+      return;
+    }
+    // Other errors (no-speech, aborted) — just restart
+  };
+  alRecog.onend=()=>{
+    listening=false;
+    // Auto-restart listening after a brief pause
+    if(alwaysListening) setTimeout(listenCycle,300);
+  };
+  try{ alRecog.start(); }catch(e){ setTimeout(listenCycle,1000); }
 }
-function stopMic(){
-  listening=false; try{recog?.stop();}catch(e){} recog=null;
-  document.getElementById('micb').classList.remove('hot');
-  document.getElementById('miclbl').textContent='Tap to Speak';
-  setStat('');
+
+function handleHeard(text){
+  // Show what Diane said and respond
+  bubble('u',text);
+  document.getElementById('miclbl').textContent='Thinking…';
+  sendMsg(text).then(()=>{
+    // Resume listening after response is done
+    // Small delay to let speech finish
+    setTimeout(()=>{
+      if(alwaysListening) listenCycle();
+    },1000);
+  });
 }
+
+// Toggle mic — first tap enables always-listening, second tap disables
+function toggleMic(){
+  unlockAudio();
+  if(alwaysListening){
+    alwaysListening=false;
+    try{ alRecog?.stop(); }catch(e){}
+    alRecog=null;
+    listening=false;
+    document.getElementById('micb').classList.remove('hot');
+    document.getElementById('miclbl').textContent='Tap to Listen';
+    setStat('');
+  } else {
+    startAlwaysListening();
+  }
+}
+
+// Pause/resume listening around speech
+const _origSpeak=speak;
+function speakAndPause(text){
+  alSpeaking=true;
+  try{ alRecog?.stop(); }catch(e){}
+  _origSpeak(text);
+  // Resume after estimated speech duration (rough: 80ms per character)
+  const dur=Math.max(2000, Math.min(text.length*80, 15000));
+  setTimeout(()=>{ alSpeaking=false; },dur);
+}
+// Override speak to pause listening
+speak=speakAndPause;
 
 // ══════════════════════════════════════════════════
 // CHAT
