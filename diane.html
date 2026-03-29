@@ -2329,10 +2329,10 @@ function playBridgeCard(player,cardIdx){
 
   if(BR.trick.length===4){
     BR.busy=true;
-    setTimeout(resolveBridgeTrick,4000);
+    setTimeout(resolveBridgeTrick,8000);
   } else if(BR.turn!==0){
     BR.busy=true;
-    setTimeout(aiPlayBridge,3500);
+    setTimeout(aiPlayBridge,8000);
   }
 }
 
@@ -2384,9 +2384,9 @@ function aiPlayBridge(){
   bridgeNarrate(desc);
 
   if(BR.trick.length===4){
-    setTimeout(resolveBridgeTrick,4500);
+    setTimeout(resolveBridgeTrick,8000);
   } else if(BR.turn!==0){
-    setTimeout(aiPlayBridge,4000);
+    setTimeout(aiPlayBridge,8000);
   } else {
     BR.busy=false;
     renderBridge();
@@ -2538,7 +2538,7 @@ function resolveBridgeTrick(){
   renderBridge();
 
   if(BR.turn!==0){
-    setTimeout(aiPlayBridge,4000);
+    setTimeout(aiPlayBridge,8000);
   } else {
     BR.busy=false;
     renderBridge();
