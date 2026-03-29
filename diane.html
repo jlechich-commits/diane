@@ -220,6 +220,11 @@
     .bridge-msg{text-align:center;padding:10px 12px;color:var(--dark);font-weight:700;font-size:18px;flex-shrink:0;min-height:44px;line-height:1.4;transition:background .3s;}
     .bridge-msg.hint{color:var(--green);background:rgba(46,125,82,.08);border-radius:12px;margin:4px 8px;}
     .bridge-msg.narrate{color:#2c3e50;background:rgba(52,152,219,.08);border-radius:12px;margin:4px 8px;font-size:16px;}
+    .bridge-chat{padding:8px 12px;margin:4px 8px;border-radius:12px;background:rgba(196,154,60,.1);border:1px solid rgba(196,154,60,.3);}
+    .bridge-chat-text{font-size:16px;color:var(--dark);line-height:1.5;font-style:italic;text-align:center;}
+    .bridge-mic-btn{display:block;margin:6px auto;padding:12px 24px;font-size:18px;font-weight:700;border:none;border-radius:16px;background:var(--gold);color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+    .bridge-mic-btn.hot{background:#e74c3c;animation:pulse-mic 1.5s ease-in-out infinite;}
+    @keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.4);}50%{box-shadow:0 0 0 12px rgba(231,76,60,0);}}
     .bridge-bottom .card.suggested{border-color:var(--gold)!important;box-shadow:0 0 0 4px var(--gold),0 0 30px rgba(255,215,0,0.6)!important;animation:pulse-hint 1.2s ease-in-out infinite;}
     @keyframes pulse-hint{0%,100%{box-shadow:0 0 0 3px var(--green),0 0 20px rgba(46,125,82,0.4);}50%{box-shadow:0 0 0 5px var(--green),0 0 30px rgba(46,125,82,0.6);}}
 
@@ -597,6 +602,10 @@
               <div class="bridge-side" id="br-east"><span class="bridge-side-label">East</span><span class="bridge-side-count" id="br-east-n">13</span></div>
             </div>
             <div class="bridge-msg" id="br-msg">Tap a card to play it</div>
+            <div class="bridge-chat" id="br-chat" style="display:none;">
+              <div class="bridge-chat-text" id="br-chat-text"></div>
+            </div>
+            <button class="bridge-mic-btn" id="br-mic" onclick="toggleBridgeMic()">🎙 Talk to Me</button>
             <div class="bridge-your-section">
               <div class="bridge-your-label">⬇ Your Cards, Diane — Tap One! ⬇</div>
               <div class="bridge-bottom" id="br-south"></div>
@@ -2143,6 +2152,8 @@ function renderTab(){
 let currentGame=null;
 
 function showGame(name){
+  stopAudio();
+  if(bridgeMicActive) stopBridgeMic();
   document.querySelectorAll('.game-screen').forEach(s=>s.classList.remove('on'));
   if(name==='picker'){
     document.getElementById('game-picker').classList.add('on');
@@ -2479,6 +2490,130 @@ function bridgeHint(){
   speak(a.hint);
 }
 
+// ── BRIDGE TABLE TALK ──────────────────────────
+const BRIDGE_CHATS=[
+  "You know, this reminds me of a nice afternoon — just playing cards with good company.",
+  "You're doing great, Diane! You always were sharp with cards.",
+  "Willy would love watching you play! He's getting so big.",
+  "This is fun, isn't it? Nothing like a good card game.",
+  "You know what would go great with this? Some Italian food!",
+  "Remember playing cards on vacation? Those were wonderful times.",
+  "Isabella is going to love playing games with her grandma someday!",
+  "You've always been good at this, Diane. A real natural!",
+  "Pico would be curled up right next to you if he were here.",
+  "I love playing cards with you. You make it so much fun!",
+  "Bridge is all about teamwork — and you're a great partner!",
+  "Hawaii would be a lovely place to play cards on the lanai!",
+  "You're really getting the hang of this! Nice strategy.",
+  "Mark would be so proud watching you play. He always loved your competitive spirit!",
+  "This is like a cozy afternoon — good friends, good cards.",
+  "Jon and Monserrat would love to see how well you're playing!",
+  "Brian and Jenny send their love from Miami! Willy too.",
+];
+let lastBridgeChat=-1;
+
+function maybeBridgeChat(){
+  // Show a friendly chat message ~30% of the time after a trick
+  if(Math.random()>0.3) return;
+  let idx;
+  do{ idx=Math.floor(Math.random()*BRIDGE_CHATS.length); }while(idx===lastBridgeChat);
+  lastBridgeChat=idx;
+  const chatEl=document.getElementById('br-chat');
+  const textEl=document.getElementById('br-chat-text');
+  chatEl.style.display='block';
+  textEl.textContent=BRIDGE_CHATS[idx];
+  speak(BRIDGE_CHATS[idx]);
+  setTimeout(()=>{ chatEl.style.display='none'; },7000);
+}
+
+// ── BRIDGE MIC (auto-restart listening) ────────
+let bridgeMicActive=false, bridgeMicRecog=null;
+
+function toggleBridgeMic(){
+  if(bridgeMicActive) stopBridgeMic();
+  else startBridgeMic();
+}
+
+function startBridgeMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ alert('Voice input requires Safari.'); return; }
+  unlockAudio();
+  bridgeMicActive=true;
+  const btn=document.getElementById('br-mic');
+  btn.classList.add('hot');
+  btn.textContent='🎙 Listening...';
+  listenBridgeCycle();
+}
+
+function listenBridgeCycle(){
+  if(!bridgeMicActive) return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  bridgeMicRecog=new SR();
+  bridgeMicRecog.lang='en-US';
+  bridgeMicRecog.continuous=false;
+  bridgeMicRecog.interimResults=false;
+  bridgeMicRecog.onresult=e=>{
+    const t=e.results[0][0].transcript;
+    handleBridgeChat(t);
+  };
+  bridgeMicRecog.onerror=e=>{
+    // Restart on no-speech or aborted, stop on not-allowed
+    if(e.error==='not-allowed'){ stopBridgeMic(); alert('Microphone access denied. Go to iPad Settings → Safari → Microphone.'); return; }
+  };
+  bridgeMicRecog.onend=()=>{
+    // Auto-restart if still active
+    if(bridgeMicActive) setTimeout(listenBridgeCycle,300);
+  };
+  try{ bridgeMicRecog.start(); }catch(e){ setTimeout(listenBridgeCycle,1000); }
+}
+
+function stopBridgeMic(){
+  bridgeMicActive=false;
+  try{ bridgeMicRecog?.stop(); }catch(e){}
+  bridgeMicRecog=null;
+  const btn=document.getElementById('br-mic');
+  btn.classList.remove('hot');
+  btn.textContent='🎙 Talk to Me';
+}
+
+async function handleBridgeChat(text){
+  // Show what she said
+  const chatEl=document.getElementById('br-chat');
+  const textEl=document.getElementById('br-chat-text');
+  chatEl.style.display='block';
+  textEl.textContent='You said: "'+text+'"';
+
+  // Send to Claude for a warm bridge-table response
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:150,
+        system:"You are Diane's bridge partner and friend. You're playing bridge together. Keep replies to 1-2 warm, short sentences. Be like a kind friend chatting over cards. Diane has cognitive impairment — be patient, loving, and encouraging. She loves her family (sons Jon and Brian, grandkids Willy and Isabella, late husband Mark, dog Pico), Italian food, classic TV, and Hawaii. Never mention cognitive decline or anything sad. If she says something about the game, respond about the game warmly.",
+        messages:[{role:'user',content:text}]
+      })
+    });
+    const d=await r.json();
+    if(d.content?.[0]?.text){
+      const reply=d.content[0].text;
+      textEl.textContent=reply;
+      speak(reply);
+      setTimeout(()=>{ chatEl.style.display='none'; },8000);
+    }
+  }catch(e){
+    textEl.textContent="That's wonderful, Diane! I love chatting with you.";
+    speak("That's wonderful, Diane! I love chatting with you.");
+    setTimeout(()=>{ chatEl.style.display='none'; },5000);
+  }
+}
+
 function getBridgeBest(){
   // Highest card currently winning the trick
   const led=BR.trick[0].card.suit;
@@ -2524,6 +2659,9 @@ function resolveBridgeTrick(){
   BR.trick=[];
   BR.lead=winner;
   BR.turn=winner;
+
+  // Friendly table talk between tricks
+  setTimeout(maybeBridgeChat,4000);
 
   if(BR.trickNum>=13){
     renderBridge();
