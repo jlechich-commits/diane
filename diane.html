@@ -1254,7 +1254,7 @@ function launch(){
       speak(offer.msg);
     },12000);
     // Auto-start listening after greeting finishes
-    setTimeout(startAlwaysListening, 6000);
+    setTimeout(startMic, 6000);
   },500);
   // Start proactive companion system
   setTimeout(startCompanion, 2000);
@@ -1800,111 +1800,176 @@ function setStat(t){ document.getElementById('stat').textContent=t; }
 // DESIGN: Gentle listening — long pauses between cycles to avoid
 // constant mic chimes on iPad Safari. Waits fully for speech to finish
 // before restarting. Uses continuous mode to avoid repeated mic activations.
-let alwaysListening=false, alRecog=null, alSpeaking=false;
-let alProcessing=false; // true while waiting for API response
+// ── WAKE-WORD MIC SYSTEM ──
+// Passive mode: mic listens for wake word "Diane" only
+// Active mode: mic listens for actual conversation (triggered by wake word or tap)
+let micEnabled=false, alRecog=null, alSpeaking=false;
+let alProcessing=false;
+let micMode='off'; // 'off', 'passive', 'active'
+let activeTimeout=null;
+const WAKE_WORDS=[/\bdiane\b/i, /\bdi+a+n+e?\b/i, /\bdeanne?\b/i, /\bhey\b/i];
+const ACTIVE_DURATION=15000; // 15 seconds of active listening after wake word
 
-function startAlwaysListening(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR) return;
-  alwaysListening=true;
-  document.getElementById('micb').classList.add('hot');
-  document.getElementById('miclbl').textContent='Listening…';
-  listenCycle();
+function updateMicUI(){
+  const btn=document.getElementById('micb');
+  const lbl=document.getElementById('miclbl');
+  btn.classList.remove('hot');
+  if(micMode==='off'){
+    lbl.textContent='Tap to Enable Mic';
+  } else if(micMode==='passive'){
+    lbl.textContent='Say "Diane" to talk';
+  } else if(micMode==='active'){
+    btn.classList.add('hot');
+    lbl.textContent='Listening — speak now!';
+  }
 }
 
-function listenCycle(){
-  if(!alwaysListening) return;
-  // Don't listen while speaking or processing a response
-  if(alSpeaking||alProcessing){ setTimeout(listenCycle,1000); return; }
+function startMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR) return;
+  micEnabled=true;
+  micMode='passive';
+  updateMicUI();
+  startRecognition();
+}
+
+function startRecognition(){
+  if(!micEnabled) return;
+  if(alSpeaking||alProcessing){ setTimeout(startRecognition,1000); return; }
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   try{ alRecog?.abort(); }catch(e){}
   alRecog=new SR();
   alRecog.lang='en-US';
-  alRecog.continuous=true; // Stay open longer — fewer mic activations = fewer chimes
+  alRecog.continuous=true;
   alRecog.interimResults=false;
-  alRecog.onstart=()=>{
-    listening=true;
-    if(!alProcessing) document.getElementById('miclbl').textContent='Listening…';
-  };
   alRecog.onresult=e=>{
-    // Get the latest final result
     for(let i=e.resultIndex;i<e.results.length;i++){
       if(e.results[i].isFinal){
         const t=e.results[i][0].transcript.trim();
         const conf=e.results[i][0].confidence;
-        // Filter out very short utterances and low confidence noise
-        if(t.length>3 && conf>0.4){
-          // If companion is currently speaking, only interrupt for substantial input
-          // (longer phrases with high confidence = real conversation, not mic echo)
-          if(alSpeaking){
-            if(t.length<10 || conf<0.7){
-              // Likely echo or background noise — ignore it
-              return;
+        if(t.length<2 || conf<0.3) continue;
+
+        if(micMode==='passive'){
+          // In passive mode, only respond to wake word
+          const hasWake=WAKE_WORDS.some(rx=>rx.test(t));
+          if(hasWake){
+            // Check if there's more than just the wake word (e.g. "Diane play bridge")
+            const afterWake=t.replace(/^.*?\b(diane|deanne?|hey)\b[,.]?\s*/i,'').trim();
+            if(afterWake.length>2){
+              // Wake word + command in one phrase — process it
+              enterActiveMode();
+              listening=false;
+              try{ alRecog?.abort(); }catch(ex){}
+              handleHeard(afterWake);
+            } else {
+              // Just the wake word — enter active listening
+              enterActiveMode();
+              // Brief audio confirmation
+              speak("Yes?");
             }
-            // Real interruption — stop speech and respond
-            stopAudio();
-            alSpeaking=false;
+            return;
           }
-          listening=false;
-          try{ alRecog?.abort(); }catch(ex){}
-          handleHeard(t);
-          return;
+          // Not a wake word — ignore (don't interrupt anything)
+          continue;
+        }
+
+        if(micMode==='active'){
+          // In active mode, process all speech
+          if(t.length>2 && conf>0.4){
+            // If companion is speaking, only interrupt for substantial input
+            if(alSpeaking){
+              if(t.length<8 || conf<0.6) continue;
+              stopAudio();
+              alSpeaking=false;
+            }
+            listening=false;
+            try{ alRecog?.abort(); }catch(ex){}
+            // Strip wake word if they said it again
+            const clean=t.replace(/^.*?\b(diane|deanne?|hey)\b[,.]?\s*/i,'').trim();
+            handleHeard(clean.length>2 ? clean : t);
+            return;
+          }
         }
       }
     }
   };
   alRecog.onerror=e=>{
     if(e.error==='not-allowed'){
-      alwaysListening=false;
-      document.getElementById('micb').classList.remove('hot');
-      document.getElementById('miclbl').textContent='Tap to Enable Mic';
+      micEnabled=false;
+      micMode='off';
+      updateMicUI();
       return;
     }
-    // no-speech or aborted — wait before restarting to avoid chime spam
   };
   alRecog.onend=()=>{
     listening=false;
-    // Wait 2 seconds before restarting to avoid rapid chime sounds
-    if(alwaysListening && !alProcessing && !alSpeaking) setTimeout(listenCycle,2000);
+    if(micEnabled && !alProcessing && !alSpeaking) setTimeout(startRecognition,2000);
   };
-  try{ alRecog.start(); }catch(e){ setTimeout(listenCycle,3000); }
+  try{ alRecog.start(); listening=true; }catch(e){ setTimeout(startRecognition,3000); }
+}
+
+function enterActiveMode(){
+  micMode='active';
+  updateMicUI();
+  clearTimeout(activeTimeout);
+  // Auto-return to passive after ACTIVE_DURATION
+  activeTimeout=setTimeout(()=>{
+    if(micMode==='active' && !alProcessing){
+      micMode='passive';
+      updateMicUI();
+    }
+  }, ACTIVE_DURATION);
+}
+
+function returnToPassive(){
+  clearTimeout(activeTimeout);
+  if(micEnabled){
+    micMode='passive';
+    updateMicUI();
+  }
 }
 
 function handleHeard(text){
-  // Show what Diane said
   bubble('u',text);
   alProcessing=true;
-  // Check for activity commands first
   if(routeCommand(text)){
     touchInteraction();
-    // Wait for any speech to finish before resuming listening
     alProcessing=false;
-    setTimeout(()=>{ if(alwaysListening && !alSpeaking) listenCycle(); },4000);
+    // After a routed command, return to passive after speech finishes
+    setTimeout(()=>{ returnToPassive(); if(micEnabled && !alSpeaking) startRecognition(); },4000);
     return;
   }
   document.getElementById('miclbl').textContent='Thinking…';
   sendMsg(text, true).then(()=>{
-    // Wait extra time after response for speech to play before restarting mic
     alProcessing=false;
-    // Don't restart immediately — speakAndPause handles alSpeaking flag
-    // listenCycle will be called when alSpeaking becomes false
+    // Return to passive — speakAndPause will handle resuming recognition
+    returnToPassive();
   });
 }
 
-// Toggle mic — first tap enables always-listening, second tap disables
+// Toggle mic — tap to enable/disable, or tap while passive to go active
 function toggleMic(){
   unlockAudio();
-  if(alwaysListening){
-    alwaysListening=false;
+  if(micMode==='off'){
+    // First tap: enable mic in passive (wake word) mode
+    startMic();
+  } else if(micMode==='passive'){
+    // Tap while passive: go directly to active listening (shortcut past wake word)
+    enterActiveMode();
+    // Restart recognition in active mode
+    try{ alRecog?.abort(); }catch(e){}
+    startRecognition();
+  } else if(micMode==='active'){
+    // Tap while active: turn off mic entirely
+    micEnabled=false;
+    micMode='off';
+    clearTimeout(activeTimeout);
     try{ alRecog?.abort(); }catch(e){}
     alRecog=null;
     listening=false;
     alProcessing=false;
-    document.getElementById('micb').classList.remove('hot');
-    document.getElementById('miclbl').textContent='Tap to Listen';
+    updateMicUI();
     setStat('');
-  } else {
-    startAlwaysListening();
   }
 }
 
@@ -1914,16 +1979,13 @@ function speakAndPause(text){
   alSpeaking=true;
   try{ alRecog?.abort(); }catch(e){}
   _origSpeak(text);
-  // Resume after estimated speech duration — generous timing to avoid cutting off
-  // 110ms/char gives more buffer to prevent mic picking up TTS output
+  // Resume after estimated speech duration
   const dur=Math.max(3000, Math.min(text.length*110, 25000));
   setTimeout(()=>{
     alSpeaking=false;
-    // Resume listening after speech finishes
-    if(alwaysListening && !alProcessing) setTimeout(listenCycle,1500);
+    if(micEnabled && !alProcessing) setTimeout(startRecognition,1500);
   },dur);
 }
-// Override speak to pause listening
 speak=speakAndPause;
 
 // ══════════════════════════════════════════════════
@@ -2955,10 +3017,10 @@ function playBridgeCard(player,cardIdx){
 
   if(BR.trick.length===4){
     BR.busy=true;
-    setTimeout(resolveBridgeTrick,8000);
+    setTimeout(resolveBridgeTrick,6000);
   } else if(BR.turn!==0){
     BR.busy=true;
-    setTimeout(aiPlayBridge,8000);
+    setTimeout(aiPlayBridge,6000);
   }
 }
 
@@ -3026,9 +3088,9 @@ function aiPlayBridge(){
   bridgeNarrate(desc);
 
   if(BR.trick.length===4){
-    setTimeout(resolveBridgeTrick,8000);
+    setTimeout(resolveBridgeTrick,6000);
   } else if(BR.turn!==0){
-    setTimeout(aiPlayBridge,8000);
+    setTimeout(aiPlayBridge,6000);
   } else {
     BR.busy=false;
     renderBridge();
@@ -3405,7 +3467,7 @@ function resolveBridgeTrick(){
   renderBridge();
 
   if(BR.turn!==0){
-    setTimeout(aiPlayBridge,8000);
+    setTimeout(aiPlayBridge,6000);
   } else {
     BR.busy=false;
     renderBridge();
