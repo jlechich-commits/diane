@@ -349,30 +349,30 @@
       .activity-text{font-size:15px;margin-bottom:8px;}
       .activity-btn{padding:8px 12px;font-size:13px;}
 
-      /* Overlay headers compact */
-      .overlay-header{padding:8px 14px;}
-      .overlay-back{padding:8px 14px;font-size:14px;}
-      .overlay-title{font-size:18px;}
+      /* Overlay headers compact — minimize wasted space in landscape */
+      .overlay-header{padding:4px 14px;}
+      .overlay-back{padding:5px 12px;font-size:13px;border-radius:8px;}
+      .overlay-title{font-size:16px;}
 
-      /* Games in landscape */
-      .bridge-wrap{padding:2px;}
-      .bridge-info{padding:4px 8px;font-size:14px;}
-      .bridge-trump{padding:4px 12px;font-size:15px;}
-      .bridge-score{font-size:14px;}
-      .bridge-msg{padding:6px 10px;font-size:15px;min-height:32px;}
-      .bridge-your-label{font-size:16px;padding:6px 0 2px;}
-      .bridge-your-section{padding:4px 6px 8px;margin:2px 4px 0;border-radius:14px;}
-      .bridge-bottom{gap:5px;padding:6px 6px;}
-      .bridge-bottom .card{width:60px;height:86px;border-width:2px;border-radius:8px;}
-      .bridge-bottom .card .crank{font-size:18px;}.bridge-bottom .card .csm{font-size:16px;}.bridge-bottom .card .cctr{font-size:28px;}
-      .bridge-top .card{width:24px;height:36px;}
-      .bridge-top .card .crank{font-size:7px;}.bridge-top .card .csm{font-size:7px;}.bridge-top .card .cctr{font-size:10px;}
-      .bridge-trick-area{min-height:60px;padding:6px;gap:6px;}
-      .bridge-trick-card .card{width:46px;height:66px;}
-      .bridge-trick-card .card .crank{font-size:12px;}.bridge-trick-card .card .csm{font-size:11px;}.bridge-trick-card .card .cctr{font-size:18px;}
-      .bridge-side{width:36px;}
-      .bridge-mic-btn{padding:8px 16px;font-size:15px;}
-      .bridge-chat{padding:6px 10px;margin:2px 8px;}
+      /* Games in landscape — maximize card size, minimize chrome */
+      .bridge-wrap{padding:1px;}
+      .bridge-info{padding:2px 8px;font-size:13px;}
+      .bridge-trump{padding:2px 10px;font-size:14px;}
+      .bridge-score{font-size:13px;}
+      .bridge-msg{padding:3px 10px;font-size:14px;min-height:24px;}
+      .bridge-your-label{font-size:14px;padding:3px 0 1px;}
+      .bridge-your-section{padding:2px 6px 6px;margin:1px 4px 0;border-radius:10px;}
+      .bridge-bottom{gap:6px;padding:4px 6px;}
+      .bridge-bottom .card{width:74px;height:106px;border-width:2px;border-radius:9px;}
+      .bridge-bottom .card .crank{font-size:22px;}.bridge-bottom .card .csm{font-size:20px;}.bridge-bottom .card .cctr{font-size:34px;}
+      .bridge-top .card{width:26px;height:38px;}
+      .bridge-top .card .crank{font-size:8px;}.bridge-top .card .csm{font-size:7px;}.bridge-top .card .cctr{font-size:11px;}
+      .bridge-trick-area{min-height:50px;padding:4px;gap:5px;}
+      .bridge-trick-card .card{width:50px;height:72px;}
+      .bridge-trick-card .card .crank{font-size:13px;}.bridge-trick-card .card .csm{font-size:12px;}.bridge-trick-card .card .cctr{font-size:20px;}
+      .bridge-side{width:32px;}
+      .bridge-mic-btn{padding:6px 14px;font-size:14px;}
+      .bridge-chat{padding:4px 8px;margin:1px 8px;}
 
       /* Solitaire in landscape */
       .sol-bar{margin-bottom:4px;}
@@ -2523,7 +2523,7 @@ function setCardDims(){
   // In landscape, use height to constrain card size so they fit on screen
   let cw;
   if(isLandscape){
-    cw=Math.max(32,Math.min(Math.floor((W-50)/7), Math.floor((H-200)/2.5)));
+    cw=Math.max(40,Math.min(Math.floor((W-50)/7), Math.floor((H-140)/2.5)));
   } else {
     cw=Math.max(38,Math.floor((W-50)/7));
   }
