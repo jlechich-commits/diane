@@ -294,7 +294,7 @@
       <div class="hclock" id="hclock"></div>
     </div>
     <div class="hdate" id="hdate"></div>
-    <button class="gear" onclick="pinGate(openSettings)">⚙</button>
+    <button class="gear" onclick="gearTap()">⚙</button>
   </div>
 
   <div class="secs">
@@ -479,19 +479,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════ PIN MODAL ════════════════════════ -->
-<div id="pin-modal">
-  <div class="pin-box">
-    <div class="pin-title">🔒 Caregiver Access</div>
-    <div class="pin-sub">Enter your PIN to continue</div>
-    <input type="password" id="pin-in" class="pin-in" maxlength="6" inputmode="numeric" placeholder="••••" onkeydown="pinKey(event)">
-    <div class="pin-err" id="pin-err"></div>
-    <div class="pin-btns">
-      <button class="pin-btn cancel" onclick="closePIN()">Cancel</button>
-      <button class="pin-btn ok" onclick="checkPIN()">Enter</button>
-    </div>
-  </div>
-</div>
+<!-- PIN modal removed - using prompt() instead -->
 
 <!-- ═══════════════════════════ SETTINGS MODAL ═══════════════════ -->
 <div id="set-modal">
@@ -658,13 +646,15 @@ let currentAudio=null;
 let helpListening=false, helpRecog=null, helpResponse='', camStream=null, camMode='help';
 const synth=window.speechSynthesis;
 let newsItems=[], curStoryText='', curStoryCat='';
-let pinCallback=null;
+let pinCallback=null; // kept for compatibility
 
 // ══════════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════════
 window.addEventListener('load',()=>{
   apiKey=localStorage.getItem('diane_key')||'';
+  // Fix corrupted PIN if stored as string 'null'
+  if(localStorage.getItem('diane_pin')==='null') localStorage.removeItem('diane_pin');
   elKey=localStorage.getItem('diane_el_key')||'';
   elVoice=localStorage.getItem('diane_el_voice')||'EXAVITQu4vr4xnSDxMaL';
   synth.getVoices();
@@ -720,10 +710,11 @@ function closePIN(){
 function pinKey(e){ if(e.key==='Enter') checkPIN(); }
 function checkPIN(){
   const v=document.getElementById('pin-in').value;
-  const correct=localStorage.getItem('diane_pin')||'1234';
+  const _raw=localStorage.getItem('diane_pin'); const correct=(_raw&&_raw!=='null')?_raw:'1234';
   if(v===correct){
+    const cb=pinCallback; // save BEFORE closePIN nulls it
     closePIN();
-    if(pinCallback){ const cb=pinCallback; pinCallback=null; cb(); }
+    if(cb) cb();
   } else {
     document.getElementById('pin-err').textContent='Incorrect PIN. Please try again.';
     document.getElementById('pin-in').value='';
