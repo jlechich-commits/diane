@@ -1226,6 +1226,21 @@ function goTo(id,btn){
   document.getElementById('hsub').textContent=SUBS[id]||'';
   if(id==='news'&&!newsItems.length) loadNews();
   if(id==='draw') resizeCvs();
+  if(id==='tv') announceTvShows();
+}
+
+let tvIdleTimer=null;
+function announceTvShows(){
+  const shows=['I Love Lucy','Beverly Hillbillies','Andy Griffith','Bonanza','Dick Van Dyke','Carol Burnett','Dragnet','The Lone Ranger','That Girl','Cheers','Bewitched and All in the Family'];
+  const pick=shows.slice(0,5).join(', ');
+  speak("Here are your TV shows, Diane! You can watch "+pick+", and more. Just tap any show to start watching! Scroll down to see more shows.");
+  clearTimeout(tvIdleTimer);
+  tvIdleTimer=setTimeout(()=>{
+    const sec=document.getElementById('sec-tv');
+    if(sec&&sec.classList.contains('on')){
+      speak("Don't forget, Diane — you can scroll down to see more shows! There are YouTube episodes of Dick Van Dyke, Bonanza, Dragnet, and more below.");
+    }
+  },60000);
 }
 
 // ══════════════════════════════════════════════════
@@ -2492,12 +2507,15 @@ async function makeColorPage(description){
   document.getElementById('cb-picker').style.display='none';
   document.getElementById('cb-sub-picker').style.display='none';
   const loading=document.getElementById('cb-loading'); loading.classList.add('on');
-  speak('Let me draw a beautiful coloring page for you, Diane!');
+  speak('Let me draw a beautiful coloring page for you, Diane! This will just take a moment.');
   try{
+    const ctrl=new AbortController();
+    const timeout=setTimeout(()=>ctrl.abort(),30000);
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
+      signal:ctrl.signal,
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2000,messages:[{role:'user',content:`Create a simple SVG coloring page for an elderly woman. Theme: ${description}.
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,messages:[{role:'user',content:`Create a simple SVG coloring page for an elderly woman. Theme: ${description}.
 
 STRICT REQUIREMENTS:
 - viewBox="0 0 500 500" width="500" height="500"
@@ -2509,15 +2527,25 @@ STRICT REQUIREMENTS:
 - No text, no gradients, no patterns, no clipPath, no image tags
 - Output ONLY the raw SVG starting with <svg and ending with </svg>. Nothing else. No markdown.`}]})
     });
+    clearTimeout(timeout);
+    if(!r.ok){
+      const errBody=await r.text();
+      console.error('Coloring API error:',r.status,errBody);
+      throw new Error('API returned '+r.status);
+    }
     const d=await r.json();
     let svgText=d.content?.[0]?.text||'';
     const match=svgText.match(/<svg[\s\S]*<\/svg>/i);
     if(match) svgText=match[0];
+    if(!svgText||svgText.length<50) throw new Error('No SVG returned');
     loading.classList.remove('on');
     renderColorPage(svgText);
   } catch(e){
+    console.error('Coloring page error:',e);
     loading.classList.remove('on');
     document.getElementById('cb-picker').style.display='';
+    document.getElementById('cb-sub-picker').style.display='none';
+    speak("Sorry Diane, the coloring page didn't load. Let's try again!");
     alert('Could not create a coloring page right now. Please try again!');
   }
 }
