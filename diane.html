@@ -2299,6 +2299,7 @@ function bridgeNarrate(text,cssClass){
   const msg=document.getElementById('br-msg');
   msg.textContent=text;
   msg.className='bridge-msg '+(cssClass||'narrate');
+  stopAudio();
   speak(text);
 }
 
@@ -2360,10 +2361,9 @@ function renderBridge(){
     south.appendChild(el);
   });
 
-  // Message — auto-hint when it's Diane's turn
+  // Message — auto-hint when it's Diane's turn (text only, no speech — bridgeNarrate handles speech)
   const msg=document.getElementById('br-msg');
-  msg.className='bridge-msg';
-  if(BR.trickNum>=13){ msg.textContent='Game over!'; }
+  if(BR.trickNum>=13){ msg.textContent='Game over!'; msg.className='bridge-msg'; }
   else if(BR.turn===0&&!BR.busy){
     const hintText=getBridgeHintText();
     msg.textContent='👆 '+hintText;
@@ -2371,7 +2371,11 @@ function renderBridge(){
     // Scroll Diane's cards into view
     setTimeout(()=>south.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
   }
-  else msg.textContent=PLAYERS[BR.turn]+' is playing...';
+  else if(!msg.classList.contains('narrate')){
+    // Only overwrite if not showing a narration
+    msg.textContent=PLAYERS[BR.turn]+' is playing...';
+    msg.className='bridge-msg';
+  }
 }
 
 function mkBridgeCard(card,faceUp,small){
@@ -2604,24 +2608,29 @@ function resolveBridgeTrick(){
 
   if(BR.trickNum>=13){
     renderBridge();
-    if(BR.tricksNS>=7){
-      speak('Wonderful, Diane! You and your partner won '+BR.tricksNS+' tricks! That is a great game!');
-      document.getElementById('br-msg').textContent='🎉 You won '+BR.tricksNS+' to '+BR.tricksEW+'! Great game!';
-    } else {
-      speak('The other team won this time with '+BR.tricksEW+' tricks. But you played so well! Want to try again?');
-      document.getElementById('br-msg').textContent='They won '+BR.tricksEW+' to '+BR.tricksNS+'. Tap New Game to try again!';
-    }
-    BR.busy=false;
+    setTimeout(()=>{
+      if(BR.tricksNS>=7){
+        bridgeNarrate('Wonderful, Diane! You and your partner won '+BR.tricksNS+' tricks! That is a great game!');
+      } else {
+        bridgeNarrate('The other team won this time with '+BR.tricksEW+' tricks. But you played so well! Tap New Game to try again.');
+      }
+      BR.busy=false;
+    },3000);
     return;
   }
 
   renderBridge();
 
   if(BR.turn!==0){
-    setTimeout(aiPlayBridge,800);
+    setTimeout(aiPlayBridge,2200);
   } else {
     BR.busy=false;
     renderBridge();
+    // Narrate the hint for Diane's turn
+    setTimeout(()=>{
+      const a=getBridgeAnalysis();
+      bridgeNarrate("Your turn, Diane! "+a.hint,'hint');
+    },500);
   }
 }
 
