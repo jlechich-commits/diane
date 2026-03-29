@@ -1717,13 +1717,24 @@ async function loadNews(){
   list.innerHTML='<div style="color:var(--lite);font-style:italic;text-align:center;padding:24px 0">Loading today\'s news…</div>';
   newsItems=[];
   try{
-    const r=await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/news/rss.xml&count=10');
-    const d=await r.json();
-    if(!d.items?.length) throw new Error('no items');
-    newsItems=d.items.map(item=>{
-      const tmp=document.createElement('div'); tmp.innerHTML=item.description||'';
-      return{title:item.title||'',desc:tmp.textContent||''};
+    // Fetch from multiple sources for richer content
+    const feeds=[
+      'https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/news/rss.xml&count=6',
+      'https://api.rss2json.com/v1/api.json?rss_url=https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml&count=6'
+    ];
+    const results=await Promise.allSettled(feeds.map(f=>fetch(f).then(r=>r.json())));
+    results.forEach(r=>{
+      if(r.status==='fulfilled'&&r.value.items){
+        r.value.items.forEach(item=>{
+          const tmp=document.createElement('div'); tmp.innerHTML=item.description||'';
+          const desc=tmp.textContent||'';
+          if(desc.length>20){
+            newsItems.push({title:item.title||'',desc:desc,link:item.link||'',source:r.value.feed?.title||''});
+          }
+        });
+      }
     });
+    if(!newsItems.length) throw new Error('no items');
     renderNews();
   } catch(e){
     list.innerHTML='<div style="color:var(--lite);font-style:italic;text-align:center;padding:24px 0">Could not load news right now. Please try again.</div>';
@@ -1732,16 +1743,72 @@ async function loadNews(){
 function renderNews(){
   const list=document.getElementById('newslist');
   list.innerHTML='';
-  newsItems.forEach((item)=>{
+  newsItems.forEach((item,idx)=>{
     const el=document.createElement('div'); el.className='ni-card';
     const h=document.createElement('h3'); h.textContent=item.title;
-    const b=document.createElement('button'); b.className='rbtn'; b.textContent='🔊 Read This Story';
-    b.onclick=()=>{ synth.cancel(); speak(item.title+'. '+item.desc); };
+    if(item.source){ const src=document.createElement('div'); src.style.cssText='font-size:11px;color:var(--lite);margin-bottom:4px;'; src.textContent=item.source; el.appendChild(src); }
     el.appendChild(h);
-    if(item.desc){ const p=document.createElement('p'); p.textContent=item.desc; el.appendChild(p); }
-    el.appendChild(b);
+    if(item.desc){ const p=document.createElement('p'); p.textContent=item.desc.substring(0,200)+(item.desc.length>200?'…':''); el.appendChild(p); }
+    const btns=document.createElement('div'); btns.style.cssText='display:flex;gap:8px;flex-wrap:wrap;';
+    const b1=document.createElement('button'); b1.className='rbtn'; b1.textContent='🔊 Read Summary';
+    b1.onclick=()=>speak(item.title+'. '+item.desc);
+    btns.appendChild(b1);
+    const b2=document.createElement('button'); b2.className='rbtn'; b2.textContent='📖 Full Story';
+    b2.style.background='var(--green)'; b2.style.color='white';
+    b2.onclick=()=>expandStory(idx);
+    btns.appendChild(b2);
+    el.appendChild(btns);
+    const expanded=document.createElement('div'); expanded.id='news-expand-'+idx; expanded.style.display='none';
+    el.appendChild(expanded);
     list.appendChild(el);
   });
+}
+
+async function expandStory(idx){
+  const item=newsItems[idx];
+  const expandEl=document.getElementById('news-expand-'+idx);
+  if(expandEl.style.display==='block'){ expandEl.style.display='none'; return; }
+  if(expandEl.dataset.loaded){
+    expandEl.style.display='block';
+    speak(expandEl.textContent);
+    return;
+  }
+  expandEl.style.display='block';
+  expandEl.innerHTML='<div style="padding:12px 0;color:var(--lite);font-style:italic;">Writing the full story for you, Diane…</div>';
+  speak('Let me get the full story for you, Diane.');
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,messages:[{role:'user',content:`You are reading the news to an elderly woman named Diane. Based on this news headline and summary, write a clear, easy-to-follow full news story in 4-5 short paragraphs. Use simple language. Be informative but gentle — avoid graphic details. Write as if you are a friendly news anchor explaining the story.
+
+Headline: ${item.title}
+Summary: ${item.desc}
+Source: ${item.source}`}]})
+    });
+    if(!r.ok) throw new Error('API error '+r.status);
+    const d=await r.json();
+    const fullText=d.content?.[0]?.text||'';
+    if(!fullText) throw new Error('empty response');
+    expandEl.innerHTML='';
+    expandEl.style.cssText='display:block;padding:12px 0;font-size:15px;line-height:1.7;color:var(--dark);border-top:1px solid var(--gold-pale);margin-top:10px;';
+    fullText.split('\n\n').forEach(para=>{
+      if(para.trim()){
+        const p=document.createElement('p');
+        p.textContent=para.trim();
+        p.style.marginBottom='10px';
+        expandEl.appendChild(p);
+      }
+    });
+    const readBtn=document.createElement('button');
+    readBtn.className='rbtn'; readBtn.textContent='🔊 Read Full Story';
+    readBtn.onclick=()=>speak(fullText);
+    expandEl.appendChild(readBtn);
+    expandEl.dataset.loaded='true';
+    speak(fullText);
+  } catch(e){
+    expandEl.innerHTML='<div style="padding:12px 0;color:var(--rose);">Could not load the full story. Try "Read Summary" instead.</div>';
+  }
 }
 
 // ══════════════════════════════════════════════════
