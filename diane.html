@@ -691,6 +691,8 @@ function launch(){
     const g="Hi Diane! It's so wonderful to talk with you today. How are you feeling?";
     bubble('c',g); speak(g);
   },500);
+  // Start proactive companion system
+  setTimeout(startCompanion, 2000);
 }
 
 // ══════════════════════════════════════════════════
@@ -1688,6 +1690,186 @@ function cpos(e){ const r=document.getElementById('cvs').getBoundingClientRect()
 function setBS(s,btn){ bSize=s; document.querySelectorAll('.dszbtn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
 function togErase(){ erasing=!erasing; document.getElementById('erasebtn').textContent=erasing?'✏️ Draw':'Eraser'; }
 function clearCvs(){ if(ctx){ const c=document.getElementById('cvs'); ctx.clearRect(0,0,c.width,c.height); } }
+
+
+// ══════════════════════════════════════════════════
+// PROACTIVE COMPANION SYSTEM
+// ══════════════════════════════════════════════════
+let lastInteraction = Date.now();
+let proactiveTimer = null;
+let hourlyTimer = null;
+let companionActive = false;
+
+// Track any interaction from Diane
+function touchInteraction(){
+  lastInteraction = Date.now();
+}
+
+// Time-of-day context
+function getTimeContext(){
+  const h = new Date().getHours();
+  if(h>=5 && h<12) return 'morning';
+  if(h>=12 && h<17) return 'afternoon';
+  if(h>=17 && h<21) return 'evening';
+  return 'night';
+}
+
+function isWakingHours(){
+  const h = new Date().getHours();
+  return h >= 8 && h < 21;
+}
+
+// Build a rich proactive prompt using memories and time of day
+function buildProactivePrompt(reason){
+  const tod = getTimeContext();
+  const mems = loadMems();
+  const memNote = mems.length
+    ? 'Known facts about Diane: '+mems.slice(0,5).map(m=>m.topic+': '+m.content).join('. ')+'.'
+    : '';
+  const hour = new Date().getHours();
+
+  const contexts = {
+    morning: [
+      'It is morning. Start with a warm good morning greeting. Ask how she slept. Maybe mention what a lovely day it is.',
+      'It is morning. Greet her warmly and ask if she has had breakfast yet. Be cheerful and loving.',
+      'It is morning. Wish her good morning and ask what she is looking forward to today. Maybe mention Willy or Isabella warmly.',
+    ],
+    afternoon: [
+      'It is afternoon. Check in warmly — ask how her day is going so far. Maybe ask if she had a nice lunch.',
+      'It is afternoon. Reach out with warmth. You might mention that you were thinking about her. Ask if she would like a story or some company.',
+      'It is afternoon. Ask if she has been watching anything fun on TV today. Show genuine interest.',
+      'It is afternoon. Gently ask how she is feeling. Remind her she is loved and not alone.',
+    ],
+    evening: [
+      'It is evening. Check in warmly. Ask about her day. Maybe suggest she might enjoy a story before bed.',
+      'It is evening. Reach out with warmth and ask how her evening is going. Ask if she has had dinner.',
+      'It is evening. It is getting close to bedtime. Check in gently, remind her she is safe and loved, and ask if she would like some company.',
+    ],
+    night: [
+      'It is late. Reach out gently. Remind her she is safe and loved. Keep it very brief and calming.',
+    ]
+  };
+
+  const pool = contexts[tod] || contexts['afternoon'];
+  const ctx = pool[Math.floor(Math.random()*pool.length)];
+
+  const prompts = [
+    `You are Diane's personal companion. ${ctx} ${memNote} Reach out proactively — YOU are starting this conversation, not responding to her. Keep it to 2-3 warm sentences. Sound like a caring friend calling to check in, not a robot. Do NOT start with "Hello" — use her name naturally somewhere in the message.`,
+  ];
+  return prompts[0];
+}
+
+// Actually send a proactive message
+async function sendProactiveMessage(reason){
+  if(!apiKey) return;
+  if(!isWakingHours() && reason !== 'idle_night') return;
+
+  // Don't interrupt if already speaking
+  if(synth.speaking || (currentAudio && !currentAudio.paused)) return;
+
+  // Switch to chat tab if not already there
+  const chatBtn = document.querySelector('.nb');
+  if(chatBtn && !document.getElementById('sec-chat').classList.contains('on')){
+    // Don't switch tabs - just speak and add to chat
+  }
+
+  try{
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-opus-4-5',
+        max_tokens:150,
+        system: buildProactivePrompt(reason),
+        messages:[{role:'user', content:'[Initiate a warm check-in message to Diane right now]'}]
+      })
+    });
+    const d = await r.json();
+    if(d.content?.[0]?.text){
+      const msg = d.content[0].text;
+      // Add to conv history so context is maintained
+      conv.push({role:'assistant', content:msg});
+      if(conv.length>40) conv=conv.slice(-40);
+      // Show in chat
+      bubble('c', msg);
+      // Make sure chat tab is visible
+      const chatSec = document.getElementById('sec-chat');
+      if(chatSec && !chatSec.classList.contains('on')){
+        document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+        document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+        chatSec.classList.add('on');
+        document.querySelectorAll('.nb')[0].classList.add('on');
+        document.getElementById('hsub').textContent='Your personal companion';
+      }
+      // Scroll chat to bottom
+      const msgs = document.getElementById('chat-msgs');
+      if(msgs) msgs.scrollTop = msgs.scrollHeight;
+      // Speak it
+      speak(msg);
+      touchInteraction();
+    }
+  } catch(e){
+    console.warn('Proactive message failed:', e);
+  }
+}
+
+// Idle check — runs every 5 minutes, triggers if 20+ min of silence
+function checkIdle(){
+  const idleMs = Date.now() - lastInteraction;
+  const idleMins = idleMs / 60000;
+  if(idleMins >= 20 && isWakingHours()){
+    sendProactiveMessage('idle');
+    lastInteraction = Date.now(); // reset so we don't spam
+  }
+}
+
+// Hourly check-in during waking hours
+function scheduleHourly(){
+  if(hourlyTimer) clearInterval(hourlyTimer);
+  // Fire every 60 minutes
+  hourlyTimer = setInterval(()=>{
+    if(isWakingHours()){
+      sendProactiveMessage('hourly');
+    }
+  }, 60 * 60 * 1000);
+
+  // Also check every 5 minutes for idle
+  setInterval(checkIdle, 5 * 60 * 1000);
+}
+
+// On first load during waking hours, send a greeting after a short delay
+function sendWelcomeMessage(){
+  if(!isWakingHours()) return;
+  // Already handled by launch() first greeting - skip if conv already started
+  // This fires on SUBSEQUENT opens of the app (not first load)
+}
+
+// Patch sendMsg and toggleMic to track interaction
+const _origSendMsg = sendMsg;
+window.sendMsg = async function(text){
+  touchInteraction();
+  return _origSendMsg(text);
+};
+
+// Start the companion system
+function startCompanion(){
+  if(companionActive) return;
+  companionActive = true;
+  scheduleHourly();
+  // Send a greeting check-in 3 seconds after app opens (if waking hours)
+  // but only if this isn't the very first load (launch() handles that)
+  const isFirstLoad = !localStorage.getItem('diane_last_open');
+  localStorage.setItem('diane_last_open', Date.now().toString());
+  if(!isFirstLoad && isWakingHours()){
+    setTimeout(()=>sendProactiveMessage('open'), 3000);
+  }
+}
+
 
 </script>
 </body>
