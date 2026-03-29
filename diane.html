@@ -926,24 +926,9 @@
 
 
     <div class="set-sec">
-      <div class="set-lbl">
-        ElevenLabs Voice Key
-        <span class="set-badge warn" id="el-badge">Not set</span>
-      </div>
-      <div class="set-row">
-        <input type="password" id="set-el-key" class="set-inp" placeholder="Paste ElevenLabs API key…">
-        <button class="set-btn pri" onclick="updateElKey()">Save</button>
-      </div>
-      <div class="set-hint">Free at elevenlabs.io → Sign up → Profile → API Key. Makes Diane's voice sound completely natural.</div>
-      <button class="set-btn pri" style="margin-top:8px;background:var(--green);" onclick="testVoice()">🔊 Test Voice</button>
-      <div style="margin-top:8px;">
-        <select id="set-voice" class="set-inp" style="width:100%;" onchange="updateVoice()">
-          <option value="EXAVITQu4vr4xnSDxMaL">Sarah — warm &amp; gentle (recommended)</option>
-          <option value="9BWtsMINqrJLrRacOk9x">Aria — bright &amp; friendly</option>
-          <option value="FGY2WhTYpPnrIDTdsKH5">Laura — clear &amp; upbeat</option>
-          <option value="XrExE9yKIg1WjnnlVkGX">Matilda — soft &amp; calm</option>
-        </select>
-      </div>
+      <div class="set-lbl">Voice</div>
+      <button class="set-btn pri" style="background:var(--green);" onclick="testVoice()">🔊 Test Voice</button>
+      <div class="set-hint">Uses your iPad's built-in voice. For a better voice, go to iPad Settings → Accessibility → Spoken Content → Voices → English and download "Ava (Premium)".</div>
     </div>
 
     <div class="set-sec">
@@ -1078,7 +1063,7 @@ function doMemSave(btnId, encodedText){
 // ══════════════════════════════════════════════════
 // GLOBALS
 // ══════════════════════════════════════════════════
-let apiKey='', elKey='', elVoice='EXAVITQu4vr4xnSDxMaL';
+let apiKey='';
 let conv=[], listening=false, recog=null;
 // currentAudio replaced by AudioContext system
 let helpListening=false, helpRecog=null, helpResponse='', camStream=null, camMode='help';
@@ -1093,8 +1078,6 @@ window.addEventListener('load',()=>{
   apiKey=localStorage.getItem('diane_key')||'';
   // Fix corrupted PIN if stored as string 'null'
   if(localStorage.getItem('diane_pin')==='null') localStorage.removeItem('diane_pin');
-  elKey=localStorage.getItem('diane_el_key')||'';
-  elVoice=localStorage.getItem('diane_el_voice')||'EXAVITQu4vr4xnSDxMaL';
   synth.getVoices();
   if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=()=>synth.getVoices();
   setInterval(()=>{ if(synth.speaking&&!synth.paused){synth.pause();synth.resume();} },8000);
@@ -1167,43 +1150,6 @@ function checkPIN(){
 // ══════════════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════════════
-async function updateElKey(){
-  const k=document.getElementById('set-el-key').value.trim();
-  if(!k){ alert('Please paste your ElevenLabs API key.'); return; }
-  // Test with an actual TTS call (short text to minimize usage)
-  try{
-    setStat('Testing ElevenLabs key…');
-    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','xi-api-key':k},
-      body:JSON.stringify({text:'Hello!',model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.75}})
-    });
-    if(!r.ok){
-      const body=await r.text().catch(()=>'');
-      setStat('');
-      alert('ElevenLabs TTS test FAILED\n\nHTTP '+r.status+'\n'+body+'\n\nKey: '+k.substring(0,8)+'…\nVoice: '+elVoice);
-      return;
-    }
-    // It worked! Save key and play the test audio
-    localStorage.setItem('diane_el_key',k); elKey=k; elDisabled=false;
-    document.getElementById('set-el-key').value='';
-    const buf=await r.arrayBuffer();
-    const blob=new Blob([buf],{type:'audio/mpeg'});
-    const url=URL.createObjectURL(blob);
-    const audio=new Audio(url);
-    audio.onended=()=>URL.revokeObjectURL(url);
-    audio.play().catch(()=>{});
-    setStat('✅ ElevenLabs working!');
-    setTimeout(()=>setStat(''),3000);
-    alert('ElevenLabs voice activated! You should hear "Hello" in the natural voice.');
-    openSettings();
-  } catch(e){
-    setStat('');
-    alert('Could not reach ElevenLabs: '+e.message);
-  }
-}
-function updateVoice(){ elVoice=document.getElementById('set-voice').value; localStorage.setItem('diane_el_voice',elVoice); }
-
 function testVoice(){
   try{ synth.cancel(); }catch(e){}
   const u=new SpeechSynthesisUtterance('Hello Diane! Can you hear me? This is your companion app speaking.');
@@ -1222,9 +1168,6 @@ function testVoice(){
 
 function openSettings(){
   renderMemList();
-  const elBadge=document.getElementById('el-badge');
-  if(elBadge){ if(elKey){elBadge.textContent='Active ✓';elBadge.className='set-badge';}else{elBadge.textContent='Not set';elBadge.className='set-badge warn';} }
-  const vs=document.getElementById('set-voice'); if(vs) vs.value=elVoice;
   document.getElementById('set-modal').classList.add('on');
 }
 function closeSettings(){
@@ -1406,68 +1349,11 @@ function browserSpeak(text){
   synth.speak(u);
 }
 
-let elDisabled=false; // disable EL after first failure to prevent voice switching
-
 function speak(text){
   if(!text||!text.trim()) return;
   stopAudio();
   unlockAudio();
-
-  // ALWAYS start browser TTS immediately (must be in user gesture chain for iPad Safari)
   browserSpeak(text);
-
-  // If ElevenLabs key is set and hasn't failed, try to upgrade to natural voice
-  if(elKey&&!elDisabled){
-    speakEL(text);
-  }
-}
-
-async function speakEL(text){
-  try{
-    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','xi-api-key':elKey},
-      body:JSON.stringify({
-        text:text,
-        model_id:'eleven_flash_v2_5',
-        voice_settings:{stability:0.5,similarity_boost:0.75,style:0.2}
-      })
-    });
-    if(!r.ok){
-      console.warn('ElevenLabs failed ('+r.status+'), disabling for this session');
-      elDisabled=true;
-      return;
-    }
-    const arrayBuf=await r.arrayBuffer();
-    // Cancel browser TTS since we have ElevenLabs audio
-    try{ synth.cancel(); }catch(e){}
-    // Play via Audio element (most reliable on iPad Safari)
-    try{
-      const blob=new Blob([arrayBuf],{type:'audio/mpeg'});
-      const url=URL.createObjectURL(blob);
-      const audio=new Audio(url);
-      audio.onended=()=>{ URL.revokeObjectURL(url); setStat(''); };
-      audio.onerror=()=>{ URL.revokeObjectURL(url); setStat(''); };
-      await audio.play();
-      setStat('🔊 Speaking…');
-      return;
-    } catch(e){}
-    // Fallback: AudioContext
-    try{
-      if(!dAudioCtx) dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
-      if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
-      const decoded=await dAudioCtx.decodeAudioData(arrayBuf.slice(0));
-      const source=dAudioCtx.createBufferSource();
-      source.buffer=decoded;
-      source.connect(dAudioCtx.destination);
-      source.onended=()=>{ dAudioSource=null; setStat(''); };
-      dAudioSource=source;
-      source.start(0);
-      setStat('🔊 Speaking…');
-    } catch(e){}
-  } catch(e){
-    // ElevenLabs failed entirely — browser TTS already playing, nothing to do
-  }
 }
 function setStat(t){ document.getElementById('stat').textContent=t; }
 
@@ -2413,10 +2299,10 @@ function playBridgeCard(player,cardIdx){
 
   if(BR.trick.length===4){
     BR.busy=true;
-    setTimeout(resolveBridgeTrick,2000);
+    setTimeout(resolveBridgeTrick,4000);
   } else if(BR.turn!==0){
     BR.busy=true;
-    setTimeout(aiPlayBridge,1800);
+    setTimeout(aiPlayBridge,3500);
   }
 }
 
@@ -2468,9 +2354,9 @@ function aiPlayBridge(){
   bridgeNarrate(desc);
 
   if(BR.trick.length===4){
-    setTimeout(resolveBridgeTrick,2500);
+    setTimeout(resolveBridgeTrick,4500);
   } else if(BR.turn!==0){
-    setTimeout(aiPlayBridge,2200);
+    setTimeout(aiPlayBridge,4000);
   } else {
     BR.busy=false;
     renderBridge();
@@ -2622,7 +2508,7 @@ function resolveBridgeTrick(){
   renderBridge();
 
   if(BR.turn!==0){
-    setTimeout(aiPlayBridge,2200);
+    setTimeout(aiPlayBridge,4000);
   } else {
     BR.busy=false;
     renderBridge();
@@ -2630,7 +2516,7 @@ function resolveBridgeTrick(){
     setTimeout(()=>{
       const a=getBridgeAnalysis();
       bridgeNarrate("Your turn, Diane! "+a.hint,'hint');
-    },500);
+    },1000);
   }
 }
 
