@@ -1187,19 +1187,46 @@ async function updateGcpKey(){
   if(!k){ alert('Please paste your Google Cloud API key.'); return; }
   setStat('Testing Google Voice…');
   try{
-    const r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+k,{
+    // First try selected voice, fall back to standard if it fails
+    let voice=gcpVoice;
+    let r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+k,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         input:{text:'Hello Diane! Can you hear me?'},
-        voice:{languageCode:'en-US',name:gcpVoice},
+        voice:{languageCode:'en-US',name:voice},
         audioConfig:{audioEncoding:'MP3'}
       })
     });
     if(!r.ok){
+      // Try standard voice as fallback
+      voice='en-US-Standard-F';
+      r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+k,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          input:{text:'Hello Diane! Can you hear me?'},
+          voice:{languageCode:'en-US',name:voice},
+          audioConfig:{audioEncoding:'MP3'}
+        })
+      });
+    }
+    if(!r.ok){
+      // Try with no specific voice name
+      r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+k,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          input:{text:'Hello Diane!'},
+          voice:{languageCode:'en-US'},
+          audioConfig:{audioEncoding:'MP3'}
+        })
+      });
+    }
+    if(!r.ok){
       const body=await r.text().catch(()=>'');
       setStat('');
-      alert('Google TTS test FAILED — HTTP '+r.status+'\n\n'+body);
+      alert('Google TTS FAILED — HTTP '+r.status+'\n\n'+body+'\n\nMake sure Cloud Text-to-Speech API is enabled in your Google Cloud project.');
       return;
     }
     const d=await r.json();
@@ -1428,7 +1455,7 @@ function speak(text){
 
 async function speakGCP(text){
   try{
-    const r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+gcpKey,{
+    let r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+gcpKey,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -1437,6 +1464,18 @@ async function speakGCP(text){
         audioConfig:{audioEncoding:'MP3',speakingRate:0.92,pitch:0.5}
       })
     });
+    if(!r.ok){
+      // Retry without specific voice name
+      r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+gcpKey,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          input:{text:text},
+          voice:{languageCode:'en-US'},
+          audioConfig:{audioEncoding:'MP3',speakingRate:0.92,pitch:0.5}
+        })
+      });
+    }
     if(!r.ok) return; // silently fall back to browser TTS
     const d=await r.json();
     if(!d.audioContent) return;
