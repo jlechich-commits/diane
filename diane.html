@@ -198,28 +198,29 @@
     .bridge-trump{background:var(--gold);color:white;padding:6px 16px;border-radius:10px;font-weight:700;font-size:18px;}
     .bridge-score{color:var(--mid);font-weight:700;font-size:17px;}
     .bridge-table{flex:1;display:flex;flex-direction:column;min-height:0;position:relative;}
-    .bridge-top{display:flex;justify-content:center;gap:2px;padding:2px 0;flex-wrap:wrap;flex-shrink:0;}
-    .bridge-middle{flex:1;display:flex;align-items:center;min-height:90px;}
-    .bridge-side{width:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
-    .bridge-side-label{font-size:13px;color:var(--lite);font-weight:700;margin-bottom:4px;}
-    .bridge-side-count{font-size:20px;color:var(--brown);font-weight:700;}
+    .bridge-top{display:flex;justify-content:center;gap:2px;padding:2px 0;flex-wrap:wrap;flex-shrink:0;opacity:.5;}
+    .bridge-middle{flex:1;display:flex;align-items:center;min-height:80px;opacity:.7;}
+    .bridge-side{width:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+    .bridge-side-label{font-size:11px;color:var(--lite);font-weight:700;margin-bottom:4px;}
+    .bridge-side-count{font-size:16px;color:var(--brown);font-weight:700;}
     .bridge-trick-area{flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;background:rgba(196,154,60,.08);border-radius:14px;margin:4px;min-height:80px;padding:10px;}
     .bridge-trick-card{position:relative;text-align:center;}
     .bridge-trick-label{font-size:12px;color:var(--lite);margin-bottom:2px;font-weight:700;}
     .bridge-trick-card .card{position:relative;width:58px;height:82px;}
     .bridge-trick-card .card .crank{font-size:15px;}.bridge-trick-card .card .csm{font-size:14px;}.bridge-trick-card .card .cctr{font-size:24px;}
-    .bridge-your-label{text-align:center;font-size:16px;font-weight:800;color:var(--gold);letter-spacing:1px;padding:6px 0 2px;text-transform:uppercase;}
-    .bridge-bottom{display:flex;justify-content:center;gap:5px;padding:8px 6px;flex-wrap:wrap;flex-shrink:0;background:rgba(196,154,60,.08);border-radius:16px;border:2px solid var(--gold);margin:0 4px;}
-    .bridge-bottom .card{position:relative;width:74px;height:106px;flex-shrink:0;cursor:pointer;transition:transform .15s;border:2px solid rgba(196,154,60,.3);border-radius:9px;box-shadow:0 2px 8px rgba(0,0,0,.12);}
-    .bridge-bottom .card:hover,.bridge-bottom .card:active{transform:translateY(-10px);}
-    .bridge-bottom .card.disabled{opacity:.35;pointer-events:none;transform:scale(.9);}
-    .bridge-bottom .card .crank{font-size:20px;font-weight:800;}.bridge-bottom .card .csm{font-size:18px;}.bridge-bottom .card .cctr{font-size:32px;}
-    .bridge-top .card{position:relative;width:36px;height:52px;}
-    .bridge-top .card .crank{font-size:10px;}.bridge-top .card .csm{font-size:9px;}.bridge-top .card .cctr{font-size:14px;}
+    .bridge-your-label{text-align:center;font-size:22px;font-weight:900;color:#fff;letter-spacing:2px;padding:10px 0 4px;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.3);}
+    .bridge-your-section{background:linear-gradient(135deg,#2c6b3f 0%,#1a4a2e 100%);border-radius:20px;padding:6px 8px 14px;margin:4px 4px 0;box-shadow:0 4px 20px rgba(0,0,0,.25);border:3px solid var(--gold);}
+    .bridge-bottom{display:flex;justify-content:center;gap:8px;padding:10px 8px;flex-wrap:wrap;flex-shrink:0;}
+    .bridge-bottom .card{position:relative;width:82px;height:118px;flex-shrink:0;cursor:pointer;transition:transform .15s;border:3px solid #fff;border-radius:11px;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+    .bridge-bottom .card:hover,.bridge-bottom .card:active{transform:translateY(-12px);}
+    .bridge-bottom .card.disabled{opacity:.3;pointer-events:none;transform:scale(.85);}
+    .bridge-bottom .card .crank{font-size:24px;font-weight:900;}.bridge-bottom .card .csm{font-size:22px;}.bridge-bottom .card .cctr{font-size:38px;}
+    .bridge-top .card{position:relative;width:30px;height:44px;}
+    .bridge-top .card .crank{font-size:9px;}.bridge-top .card .csm{font-size:8px;}.bridge-top .card .cctr{font-size:12px;}
     .bridge-msg{text-align:center;padding:10px 12px;color:var(--dark);font-weight:700;font-size:18px;flex-shrink:0;min-height:44px;line-height:1.4;transition:background .3s;}
     .bridge-msg.hint{color:var(--green);background:rgba(46,125,82,.08);border-radius:12px;margin:4px 8px;}
     .bridge-msg.narrate{color:#2c3e50;background:rgba(52,152,219,.08);border-radius:12px;margin:4px 8px;font-size:16px;}
-    .bridge-bottom .card.suggested{border-color:var(--green)!important;box-shadow:0 0 0 3px var(--green),0 0 20px rgba(46,125,82,0.4)!important;animation:pulse-hint 1.2s ease-in-out infinite;}
+    .bridge-bottom .card.suggested{border-color:var(--gold)!important;box-shadow:0 0 0 4px var(--gold),0 0 30px rgba(255,215,0,0.6)!important;animation:pulse-hint 1.2s ease-in-out infinite;}
     @keyframes pulse-hint{0%,100%{box-shadow:0 0 0 3px var(--green),0 0 20px rgba(46,125,82,0.4);}50%{box-shadow:0 0 0 5px var(--green),0 0 30px rgba(46,125,82,0.6);}}
 
     /* ─── MEMORY MATCH ───────────────────────────── */
@@ -596,8 +597,10 @@
               <div class="bridge-side" id="br-east"><span class="bridge-side-label">East</span><span class="bridge-side-count" id="br-east-n">13</span></div>
             </div>
             <div class="bridge-msg" id="br-msg">Tap a card to play it</div>
-            <div class="bridge-your-label">⬇ Your Cards, Diane ⬇</div>
-            <div class="bridge-bottom" id="br-south"></div>
+            <div class="bridge-your-section">
+              <div class="bridge-your-label">⬇ Your Cards, Diane — Tap One! ⬇</div>
+              <div class="bridge-bottom" id="br-south"></div>
+            </div>
           </div>
         </div>
       </div>
