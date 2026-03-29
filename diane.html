@@ -947,6 +947,8 @@
         <button class="set-btn pri" onclick="updateGcpKey()">Save &amp; Test</button>
       </div>
       <div class="set-hint">For a natural-sounding voice. Free 1M characters/month from Google Cloud Console → enable Text-to-Speech API → create API key.</div>
+      <button class="set-btn" style="margin-top:8px;background:#e67e22;color:#fff;" onclick="gcpDebug()">🔍 Debug Google Connection</button>
+      <div id="gcp-debug" style="display:none;margin-top:8px;padding:10px;background:#f5f0e8;border-radius:10px;font-size:12px;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-family:monospace;word-break:break-all;"></div>
       <div style="margin-top:8px;">
         <select id="set-gcp-voice" class="set-inp" style="width:100%;" onchange="saveGcpVoice()">
           <option value="en-US-Neural2-F">Neural2-F — warm &amp; friendly (recommended)</option>
@@ -1181,6 +1183,70 @@ function checkPIN(){
 // SETTINGS
 // ══════════════════════════════════════════════════
 let gcpKey='', gcpVoice='en-US-Neural2-F';
+
+async function gcpDebug(){
+  const el=document.getElementById('gcp-debug');
+  el.style.display='block';
+  const k=document.getElementById('set-gcp-key').value.trim()||gcpKey;
+  if(!k){ el.textContent='❌ No API key entered. Paste your key in the field above first.'; return; }
+  el.textContent='Testing with key: '+k.substring(0,8)+'…\n\n';
+
+  // Test 1: List voices (simplest API call)
+  el.textContent+='TEST 1: Listing available voices…\n';
+  try{
+    const r1=await fetch('https://texttospeech.googleapis.com/v1/voices?key='+k+'&languageCode=en-US');
+    const t1=await r1.text();
+    if(r1.ok){
+      const d=JSON.parse(t1);
+      const names=(d.voices||[]).slice(0,10).map(v=>v.name).join('\n  ');
+      el.textContent+='✅ SUCCESS! Found '+((d.voices||[]).length)+' voices.\nFirst 10:\n  '+names+'\n\n';
+    } else {
+      el.textContent+='❌ FAILED (HTTP '+r1.status+'):\n'+t1+'\n\n';
+      el.textContent+='LIKELY CAUSE:\n';
+      if(t1.includes('PERMISSION_DENIED')) el.textContent+='→ Cloud Text-to-Speech API is NOT enabled.\n  Go to console.cloud.google.com → search "Cloud Text-to-Speech API" → click ENABLE\n\n';
+      else if(t1.includes('API_KEY')) el.textContent+='→ API key issue. Try creating a new one.\n\n';
+      else el.textContent+='→ Check the error above.\n\n';
+      return;
+    }
+  }catch(e){
+    el.textContent+='❌ Network error: '+e.message+'\n\n';
+    return;
+  }
+
+  // Test 2: Synthesize speech
+  el.textContent+='TEST 2: Synthesizing speech…\n';
+  try{
+    const r2=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+k,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        input:{text:'Hello'},
+        voice:{languageCode:'en-US'},
+        audioConfig:{audioEncoding:'MP3'}
+      })
+    });
+    const t2=await r2.text();
+    if(r2.ok){
+      el.textContent+='✅ SUCCESS! Speech synthesized.\n\n';
+      el.textContent+='Everything is working! Tap Save & Test to activate.\n';
+      // Try to play it
+      try{
+        const d=JSON.parse(t2);
+        const bin=atob(d.audioContent);
+        const bytes=new Uint8Array(bin.length);
+        for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+        const blob=new Blob([bytes],{type:'audio/mpeg'});
+        const audio=new Audio(URL.createObjectURL(blob));
+        audio.play();
+        el.textContent+='🔊 Playing test audio now…';
+      }catch(pe){ el.textContent+='(could not play audio: '+pe.message+')'; }
+    } else {
+      el.textContent+='❌ FAILED (HTTP '+r2.status+'):\n'+t2+'\n';
+    }
+  }catch(e){
+    el.textContent+='❌ Network error: '+e.message+'\n';
+  }
+}
 
 async function updateGcpKey(){
   const k=document.getElementById('set-gcp-key').value.trim();
