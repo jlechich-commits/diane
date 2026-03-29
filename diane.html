@@ -941,7 +941,21 @@
       <div class="set-lbl">Voice</div>
       <select id="set-voice-pick" class="set-inp" style="width:100%;margin-bottom:8px;" onchange="saveVoiceChoice()"></select>
       <button class="set-btn pri" style="background:var(--green);" onclick="testVoice()">🔊 Test Selected Voice</button>
-      <div class="set-hint">Pick a voice above and tap Test. Premium/Enhanced voices sound best — download them in iPad Settings → Accessibility → Spoken Content → Voices → English.</div>
+      <button class="set-btn" style="margin-top:8px;" onclick="showVoiceDiag()">🔍 Show All Available Voices</button>
+      <div id="voice-diag" style="display:none;margin-top:8px;padding:10px;background:#f5f0e8;border-radius:10px;font-size:13px;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-family:monospace;"></div>
+      <div class="set-hint">Pick a voice above and tap Test. If only robotic voices show, you need to download better ones on the iPad — see the diagnostic above for instructions.</div>
+    </div>
+
+    <div class="set-sec">
+      <div class="set-lbl">
+        ElevenLabs Voice Key
+        <span class="set-badge warn" id="el-badge">Not set</span>
+      </div>
+      <div class="set-row">
+        <input type="password" id="set-el-key" class="set-inp" placeholder="Paste ElevenLabs API key…">
+        <button class="set-btn pri" onclick="updateElKey()">Save &amp; Test</button>
+      </div>
+      <div class="set-hint">Optional — for a natural-sounding voice. Free at elevenlabs.io. If set, overrides the iPad voice above.</div>
     </div>
 
     <div class="set-sec">
@@ -1089,6 +1103,7 @@ let pinCallback=null; // kept for compatibility
 // ══════════════════════════════════════════════════
 window.addEventListener('load',()=>{
   apiKey=localStorage.getItem('diane_key')||'';
+  elKey=localStorage.getItem('diane_el_key')||'';
   // Fix corrupted PIN if stored as string 'null'
   if(localStorage.getItem('diane_pin')==='null') localStorage.removeItem('diane_pin');
   synth.getVoices();
@@ -1178,9 +1193,73 @@ function testVoice(){
   synth.speak(u);
 }
 
+function showVoiceDiag(){
+  const el=document.getElementById('voice-diag');
+  const voices=synth.getVoices();
+  let txt='TOTAL VOICES: '+voices.length+'\n\n';
+  const en=voices.filter(v=>v.lang.startsWith('en'));
+  txt+='ENGLISH VOICES ('+en.length+'):\n';
+  en.forEach(v=>{
+    const quality=v.name.includes('Premium')?'⭐ PREMIUM':v.name.includes('Enhanced')?'✨ ENHANCED':'  standard';
+    txt+=quality+' | '+v.name+' ('+v.lang+')'+(v.localService?' [on device]':' [network]')+'\n';
+  });
+  txt+='\n─────────────────\n';
+  txt+='To get better voices on iPad:\n';
+  txt+='1. Open iPad Settings app\n';
+  txt+='2. Tap Accessibility\n';
+  txt+='3. Tap Spoken Content (or Live Speech)\n';
+  txt+='4. Tap Voices\n';
+  txt+='5. Tap English\n';
+  txt+='6. Download Ava (Premium) or Samantha (Enhanced)\n';
+  txt+='\nIf you don\'t see "Spoken Content":\n';
+  txt+='Try: Settings → Accessibility → VoiceOver → Speech → Voices\n';
+  txt+='Or: Settings → Accessibility → Live Speech\n';
+  txt+='\niPadOS version needed: check Settings → General → About';
+  el.textContent=txt;
+  el.style.display='block';
+}
+
+let elKey='', elVoice='EXAVITQu4vr4xnSDxMaL';
+
+async function updateElKey(){
+  const k=document.getElementById('set-el-key').value.trim();
+  if(!k){ alert('Please paste your ElevenLabs API key.'); return; }
+  setStat('Testing ElevenLabs…');
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':k},
+      body:JSON.stringify({text:'Hello Diane!',model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.75}})
+    });
+    if(!r.ok){
+      const body=await r.text().catch(()=>'');
+      setStat('');
+      alert('ElevenLabs test FAILED — HTTP '+r.status+'\n\n'+body+'\n\nTry generating a brand new API key at elevenlabs.io');
+      return;
+    }
+    localStorage.setItem('diane_el_key',k); elKey=k;
+    document.getElementById('set-el-key').value='';
+    const buf=await r.arrayBuffer();
+    const blob=new Blob([buf],{type:'audio/mpeg'});
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);
+    audio.onended=()=>URL.revokeObjectURL(url);
+    audio.play().catch(()=>{});
+    setStat('✅ ElevenLabs working!');
+    setTimeout(()=>setStat(''),3000);
+    const badge=document.getElementById('el-badge');
+    if(badge){badge.textContent='Active ✓';badge.className='set-badge';}
+  }catch(e){
+    setStat('');
+    alert('Could not reach ElevenLabs: '+e.message);
+  }
+}
+
 function openSettings(){
   renderMemList();
   populateVoicePicker();
+  const badge=document.getElementById('el-badge');
+  if(badge){ if(elKey){badge.textContent='Active ✓';badge.className='set-badge';}else{badge.textContent='Not set';badge.className='set-badge warn';} }
   document.getElementById('set-modal').classList.add('on');
 }
 function closeSettings(){
@@ -1329,9 +1408,11 @@ function unlockAudio(){
   }
 }
 
+let currentElAudio=null;
 function stopAudio(){
   try{ synth.cancel(); }catch(e){}
   try{ if(dAudioSource){ dAudioSource.stop(); dAudioSource=null; } }catch(e){}
+  try{ if(currentElAudio){ currentElAudio.pause(); currentElAudio=null; } }catch(e){}
   setStat('');
 }
 
@@ -1395,7 +1476,33 @@ function speak(text){
   if(!text||!text.trim()) return;
   stopAudio();
   unlockAudio();
+  // Always start browser TTS immediately (iPad Safari gesture chain)
   browserSpeak(text);
+  // If ElevenLabs is set, try to upgrade to natural voice
+  if(elKey) speakEL(text);
+}
+
+async function speakEL(text){
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':elKey},
+      body:JSON.stringify({text:text,model_id:'eleven_flash_v2_5',voice_settings:{stability:0.5,similarity_boost:0.75,style:0.2}})
+    });
+    if(!r.ok) return; // silently fall back to browser TTS
+    const buf=await r.arrayBuffer();
+    try{ synth.cancel(); }catch(e){} // cancel browser TTS
+    const blob=new Blob([buf],{type:'audio/mpeg'});
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);
+    currentElAudio=audio;
+    audio.onended=()=>{ URL.revokeObjectURL(url); currentElAudio=null; setStat(''); };
+    audio.onerror=()=>{ URL.revokeObjectURL(url); currentElAudio=null; };
+    await audio.play();
+    setStat('🔊 Speaking…');
+  }catch(e){
+    // ElevenLabs failed — browser TTS already playing
+  }
 }
 function setStat(t){ document.getElementById('stat').textContent=t; }
 
