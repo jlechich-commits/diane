@@ -1158,13 +1158,27 @@ function checkPIN(){
 // ══════════════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════════════
-function updateElKey(){
+async function updateElKey(){
   const k=document.getElementById('set-el-key').value.trim();
   if(!k){ alert('Please paste your ElevenLabs API key.'); return; }
-  localStorage.setItem('diane_el_key',k); elKey=k;
-  document.getElementById('set-el-key').value='';
-  alert('ElevenLabs voice activated! 🎙 Diane will now sound completely natural.');
-  openSettings();
+  // Test the key first
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/user',{
+      headers:{'xi-api-key':k}
+    });
+    if(!r.ok){
+      const body=await r.text().catch(()=>'');
+      alert('ElevenLabs key test failed (HTTP '+r.status+'): '+body+'\n\nPlease check your key and try again.');
+      return;
+    }
+    const user=await r.json();
+    localStorage.setItem('diane_el_key',k); elKey=k;
+    document.getElementById('set-el-key').value='';
+    alert('ElevenLabs voice activated! 🎙\nAccount: '+(user.xi_api_key ? 'Valid' : 'Unknown')+'\nCharacters remaining: '+(user.subscription?.character_count !== undefined ? (user.subscription.character_limit - user.subscription.character_count) : 'unknown'));
+    openSettings();
+  } catch(e){
+    alert('Could not test ElevenLabs key: '+e.message);
+  }
 }
 function updateVoice(){ elVoice=document.getElementById('set-voice').value; localStorage.setItem('diane_el_voice',elVoice); }
 
@@ -1376,8 +1390,9 @@ async function speak(text){
     if(!r.ok){
       const errText=await r.text().catch(()=>'');
       console.warn('ElevenLabs HTTP error:',r.status,errText);
-      setStat('⚠️ Voice error ('+r.status+')');
-      setTimeout(()=>setStat(''),3000);
+      setStat('⚠️ EL error '+r.status+' — using iPad voice');
+      browserSpeak(text);
+      setTimeout(()=>setStat(''),4000);
       return;
     }
     const arrayBuf=await r.arrayBuffer();
@@ -1403,8 +1418,8 @@ async function speak(text){
     tryAudioContext(arrayBuf);
   } catch(e){
     console.warn('ElevenLabs error:',e.message);
-    setStat('⚠️ Voice unavailable');
-    setTimeout(()=>setStat(''),3000);
+    browserSpeak(text);
+    setStat('');
   }
 }
 
@@ -2595,46 +2610,57 @@ function initFamilyPhotos(){
     const btn=document.createElement('button');
     btn.className='cb-theme';
     btn.innerHTML=`<span class="cb-theme-icon">${p.icon}</span><span class="cb-theme-name">${p.label}</span>`;
-    btn.onclick=()=>loadFamilyPhoto(base+p.file);
+    btn.onclick=()=>loadFamilyPhoto(base+p.file,p.label);
     grid.appendChild(btn);
   });
 }
 
-function loadFamilyPhoto(url){
+async function loadFamilyPhoto(url,label){
   document.getElementById('cb-picker').style.display='none';
   document.getElementById('cb-loading').classList.add('on');
-  speak("Turning your family photo into a coloring page, Diane!");
-  const img=new Image();
-  img.crossOrigin='anonymous';
-  img.onload=()=>{
-    const cvs=document.createElement('canvas');
-    cvs.width=500; cvs.height=500;
-    const ctx=cvs.getContext('2d');
-    ctx.fillStyle='white'; ctx.fillRect(0,0,500,500);
-    const scale=Math.min(500/img.width,500/img.height);
-    const ow=img.width*scale,oh=img.height*scale;
-    ctx.drawImage(img,(500-ow)/2,(500-oh)/2,ow,oh);
-    const id=ctx.getImageData(0,0,500,500);
-    ctx.putImageData(sobelEdge(id,500,500),0,0);
-    const sec=document.getElementById('sec-draw');
-    const toolH=80,tabH=44,avail=sec.clientHeight-toolH-tabH-8;
-    const csz=Math.min(sec.clientWidth-8,avail,520);
-    const colorCvs=document.getElementById('color-cvs');
-    colorCvs.width=csz;colorCvs.height=csz;colorCvs.style.width=csz+'px';colorCvs.style.height=csz+'px';
-    const cctx=colorCvs.getContext('2d');
-    cctx.fillStyle='white';cctx.fillRect(0,0,csz,csz);
-    cctx.drawImage(cvs,0,0,csz,csz);
-    setupColorCanvas(colorCvs);
+  speak("Creating a coloring page from your photo, Diane! This will take a moment.");
+  try{
+    // Fetch the photo and convert to base64
+    const resp=await fetch(url);
+    const blob=await resp.blob();
+    const b64=await new Promise(resolve=>{
+      const reader=new FileReader();
+      reader.onloadend=()=>resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(blob);
+    });
+    // Send to Claude vision API to create SVG coloring page
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+        {type:'text',text:`Look at this photo and create a simple SVG coloring page based on what you see. Draw the main subjects (people, animals, objects) as simple bold outlines suitable for coloring.
+
+STRICT REQUIREMENTS:
+- viewBox="0 0 500 500" width="500" height="500"
+- Start with white background: <rect width="500" height="500" fill="white"/>
+- ALL shapes must have: fill="white" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+- Use ONLY: circle, ellipse, rect, path, line, polyline, polygon
+- 8-15 large distinct regions to color in
+- Simple bold outlines like a children's coloring book — NOT realistic, keep it simple and charming
+- No text, no gradients, no patterns, no clipPath, no image tags
+- Output ONLY the raw SVG starting with <svg and ending with </svg>. Nothing else. No markdown.`}
+      ]}]})
+    });
+    if(!r.ok) throw new Error('API returned '+r.status);
+    const d=await r.json();
+    let svgText=d.content?.[0]?.text||'';
+    const match=svgText.match(/<svg[\s\S]*<\/svg>/i);
+    if(match) svgText=match[0];
+    if(!svgText||svgText.length<50) throw new Error('No SVG returned');
     document.getElementById('cb-loading').classList.remove('on');
-    document.getElementById('cb-canvas-wrap').classList.add('on');
-    speak("Here is your coloring page, Diane! Tap a color then tap any area to fill it in.");
-  };
-  img.onerror=()=>{
+    renderColorPage(svgText);
+  } catch(e){
+    console.error('Family photo coloring error:',e);
     document.getElementById('cb-loading').classList.remove('on');
     document.getElementById('cb-picker').style.display='';
-    speak("Sorry, that photo could not be loaded. Try another one!");
-  };
-  img.src=url;
+    speak("Sorry Diane, that coloring page didn't load. Let's try again!");
+  }
 }
 
 function showCbCategory(cat){
