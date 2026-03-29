@@ -698,11 +698,53 @@
         </div>
 
         <div id="tv-shows">
-          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:6px;">Watch Now (plays right here)</div>
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:6px;">Tap a show to watch — plays right here!</div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucy1','I Love Lucy','https://archive.org/embed/vts-01-1_20220124_0030')">
+            <span style="font-size:32px;flex-shrink:0;">❤️</span>
+            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy — Disc 1</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic Lucy & Ricky episodes</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucy3','I Love Lucy — Disc 3','https://archive.org/embed/vts-01-1_20220124_0109')">
+            <span style="font-size:32px;flex-shrink:0;">❤️</span>
+            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy — Disc 3</h3><p style="margin:0;font-size:12px;color:var(--lite);">More classic episodes</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucy13','I Love Lucy — Disc 13','https://archive.org/embed/vts-01-1_20220124_2321')">
+            <span style="font-size:32px;flex-shrink:0;">❤️</span>
+            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy — Disc 13</h3><p style="margin:0;font-size:12px;color:var(--lite);">Later season favorites</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
 
           <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('beverly','The Beverly Hillbillies','https://archive.org/embed/bevhill-s01e01-36')">
             <span style="font-size:32px;flex-shrink:0;">🏠</span>
             <div style="flex:1;"><h3 style="margin:0;">The Beverly Hillbillies</h3><p style="margin:0;font-size:12px;color:var(--lite);">Full episodes — Season 1</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('beverly2','Beverly Hillbillies Collection','https://archive.org/embed/TheBeverlyHillbillies')">
+            <span style="font-size:32px;flex-shrink:0;">🏠</span>
+            <div style="flex:1;"><h3 style="margin:0;">Beverly Hillbillies — More</h3><p style="margin:0;font-size:12px;color:var(--lite);">Extended collection of episodes</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('andy1','The Andy Griffith Show','https://archive.org/embed/Andy-Griffith-Show_Andy-Discovers-America')">
+            <span style="font-size:32px;flex-shrink:0;">👮</span>
+            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith — Andy Discovers America</h3><p style="margin:0;font-size:12px;color:var(--lite);">Season 3 classic episode</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('andy2','The Andy Griffith Show','https://archive.org/embed/Andy_Griffith_The_Bighouse')">
+            <span style="font-size:32px;flex-shrink:0;">👮</span>
+            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith — The Big House</h3><p style="margin:0;font-size:12px;color:var(--lite);">Barney runs the jail</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('andy3','The Andy Griffith Show','https://archive.org/embed/theandygriffithshowconvictsatlarge')">
+            <span style="font-size:32px;flex-shrink:0;">👮</span>
+            <div style="flex:1;"><h3 style="margin:0;">Andy Griffith — Convicts at Large</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic Mayberry adventure</p></div>
             <span style="font-size:20px;">▶</span>
           </div>
 
@@ -724,37 +766,54 @@
             <span style="font-size:20px;">▶</span>
           </div>
 
-          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:18px;">Free Channels (opens Pluto TV)</div>
-          <div style="font-size:13px;color:var(--mid);margin-bottom:10px;line-height:1.5;">These open in a new tab with free 24/7 channels — no account needed, just tap and watch!</div>
-
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('634f3011f4fff20007431641','I Love Lucy')">
-            <span style="font-size:32px;flex-shrink:0;">❤️</span>
-            <div style="flex:1;"><h3 style="margin:0;">I Love Lucy</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — all episodes free</p></div>
-            <span style="font-size:16px;color:var(--lite);">↗</span>
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('lucylost','Lucy&#39;s Lost Episodes','https://archive.org/embed/lucys-lost-episodes-1989')">
+            <span style="font-size:32px;flex-shrink:0;">🌟</span>
+            <div style="flex:1;"><h3 style="margin:0;">Lucy's Lost Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Rare sketches, bloopers & more</p></div>
+            <span style="font-size:20px;">▶</span>
           </div>
 
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('60f75178e7f8aa0007e9c259','The Andy Griffith Show')">
-            <span style="font-size:32px;flex-shrink:0;">👮</span>
-            <div style="flex:1;"><h3 style="margin:0;">The Andy Griffith Show</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — Mayberry all day</p></div>
-            <span style="font-size:16px;color:var(--lite);">↗</span>
-          </div>
-
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('5f7796e470510900070d4e3d','The Beverly Hillbillies')">
-            <span style="font-size:32px;flex-shrink:0;">🏠</span>
-            <div style="flex:1;"><h3 style="margin:0;">Beverly Hillbillies</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — nonstop episodes</p></div>
-            <span style="font-size:16px;color:var(--lite);">↗</span>
-          </div>
-
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('66ba495ffe11e5000881f049','Cheers + Frasier')">
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('cheers','Cheers Finale','https://archive.org/embed/cheers-finale-complete')">
             <span style="font-size:32px;flex-shrink:0;">🍺</span>
-            <div style="flex:1;"><h3 style="margin:0;">Cheers + Frasier</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — where everybody knows your name</p></div>
-            <span style="font-size:16px;color:var(--lite);">↗</span>
+            <div style="flex:1;"><h3 style="margin:0;">Cheers — The Finale</h3><p style="margin:0;font-size:12px;color:var(--lite);">The legendary last episode</p></div>
+            <span style="font-size:20px;">▶</span>
           </div>
 
-          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="openPlutoChannel('68e9913c4a666b9054849832','Bonanza')">
+          <div style="font-size:12px;color:var(--lite);letter-spacing:2px;text-transform:uppercase;margin:16px 0 10px;">YouTube — Full Episode Collections</div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('dvd-yt','Dick Van Dyke — All Seasons','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mvfaoOh5OUqrOYotNcONk6q')">
+            <span style="font-size:32px;flex-shrink:0;">🎭</span>
+            <div style="flex:1;"><h3 style="margin:0;">Dick Van Dyke — Full Series</h3><p style="margin:0;font-size:12px;color:var(--lite);">All 5 seasons on YouTube (FilmRise)</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('bonanza-yt','Bonanza — Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2muuAC1cbho4Ons-Y0YrfnHm')">
             <span style="font-size:32px;flex-shrink:0;">🤠</span>
-            <div style="flex:1;"><h3 style="margin:0;">Bonanza</h3><p style="margin:0;font-size:12px;color:var(--lite);">24/7 channel — the Ponderosa awaits</p></div>
-            <span style="font-size:16px;color:var(--lite);">↗</span>
+            <div style="flex:1;"><h3 style="margin:0;">Bonanza — Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Classic western on YouTube (FilmRise)</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('dragnet-yt','Dragnet — Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mtJdEkXzqobcvASSBByF_FR')">
+            <span style="font-size:32px;flex-shrink:0;">🔍</span>
+            <div style="flex:1;"><h3 style="margin:0;">Dragnet — Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Just the facts, ma'am (FilmRise)</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('loneranger-yt','The Lone Ranger','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2ms-tkik56_ELYJYip6w8p-D')">
+            <span style="font-size:32px;flex-shrink:0;">🐴</span>
+            <div style="flex:1;"><h3 style="margin:0;">The Lone Ranger</h3><p style="margin:0;font-size:12px;color:var(--lite);">Hi-yo, Silver! (FilmRise)</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('thatgirl-yt','That Girl — Full Episodes','https://www.youtube.com/embed/videoseries?list=PLtbMv4lXX2mu6ryxL1Tsj_e-0voHI1mcJ')">
+            <span style="font-size:32px;flex-shrink:0;">👩</span>
+            <div style="flex:1;"><h3 style="margin:0;">That Girl — Full Episodes</h3><p style="margin:0;font-size:12px;color:var(--lite);">Marlo Thomas classic (FilmRise)</p></div>
+            <span style="font-size:20px;">▶</span>
+          </div>
+
+          <div class="ni-card" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;" onclick="playTv('classictv-yt','Classic TV Rewind','https://www.youtube.com/embed/videoseries?list=PLLd8OpOlwVZsMfROpPbeqVb7sYgBGzGIx')">
+            <span style="font-size:32px;flex-shrink:0;">📺</span>
+            <div style="flex:1;"><h3 style="margin:0;">Classic TV Rewind (Sony)</h3><p style="margin:0;font-size:12px;color:var(--lite);">Bewitched, All in the Family, Diff'rent Strokes & more</p></div>
+            <span style="font-size:20px;">▶</span>
           </div>
 
         </div>
@@ -1676,13 +1735,6 @@ function closeTvPlayer(){
   document.getElementById('tv-player').style.display='none';
 }
 
-function openPlutoChannel(channelId,showName){
-  speak(showName+' is opening now, Diane. It is a free channel that plays all day!');
-  setTimeout(()=>{
-    window.open('https://pluto.tv/us/live-tv/'+channelId,'_blank');
-  },1500);
-}
-
 // ══════════════════════════════════════════════════
 // STORIES
 // ══════════════════════════════════════════════════
@@ -2357,8 +2409,88 @@ function setCbTool(t){
   document.getElementById('cb-brush-btn').classList.toggle('on',t==='brush');
 }
 
+const CB_CATEGORIES={
+  flowers:[
+    {icon:'🌹',label:'Rose Bouquet',desc:'a bouquet of roses in a vase'},
+    {icon:'🌷',label:'Tulip Garden',desc:'a garden row of tulips'},
+    {icon:'🌻',label:'Sunflower Field',desc:'a big sunflower with leaves'},
+    {icon:'💐',label:'Wildflowers',desc:'a meadow of wildflowers'}
+  ],
+  animals:[
+    {icon:'🐱',label:'Kitten',desc:'a cute kitten playing with yarn'},
+    {icon:'🐶',label:'Puppy',desc:'a happy puppy with a ball'},
+    {icon:'🐦',label:'Songbird',desc:'a bird sitting on a branch with flowers'},
+    {icon:'🐰',label:'Bunny',desc:'a bunny in a garden with carrots'}
+  ],
+  hawaii:[
+    {icon:'🌺',label:'Hibiscus',desc:'a tropical hibiscus flower'},
+    {icon:'🏝️',label:'Beach Scene',desc:'a Hawaiian beach with palm trees and ocean'},
+    {icon:'🐢',label:'Sea Turtle',desc:'a sea turtle swimming in the ocean'},
+    {icon:'🌈',label:'Rainbow Falls',desc:'a waterfall with a rainbow in Hawaii'}
+  ],
+  italy:[
+    {icon:'🏛️',label:'Venice Canal',desc:'a Venice canal with a gondola and bridge'},
+    {icon:'🍇',label:'Tuscan Vineyard',desc:'a Tuscan vineyard with rolling hills'},
+    {icon:'🍕',label:'Italian Kitchen',desc:'an Italian kitchen with pizza and pasta'},
+    {icon:'⛪',label:'Village Church',desc:'a quaint Italian village with a church'}
+  ],
+  butterfly:[
+    {icon:'🦋',label:'Monarch',desc:'a large monarch butterfly with detailed wings'},
+    {icon:'🌸',label:'Butterfly Garden',desc:'butterflies around blooming flowers'},
+    {icon:'🦋',label:'Swallowtail',desc:'a swallowtail butterfly on a flower'},
+    {icon:'🌿',label:'Caterpillar',desc:'a friendly caterpillar on a leaf'}
+  ],
+  garden:[
+    {icon:'🌻',label:'Garden Path',desc:'a garden path with flowers on both sides'},
+    {icon:'🏡',label:'Cottage Garden',desc:'a cozy cottage with a flower garden'},
+    {icon:'🌹',label:'Rose Arch',desc:'a garden arch covered in climbing roses'},
+    {icon:'🧑‍🌾',label:'Watering Can',desc:'a watering can in a garden with blooming flowers'}
+  ],
+  birds:[
+    {icon:'🦅',label:'Eagle',desc:'a bald eagle soaring over mountains'},
+    {icon:'🦉',label:'Owl',desc:'a wise owl perched on a tree branch at night'},
+    {icon:'🦚',label:'Peacock',desc:'a peacock with its beautiful tail feathers spread'},
+    {icon:'🐦',label:'Cardinal',desc:'a red cardinal on a snowy branch'}
+  ],
+  ocean:[
+    {icon:'🐚',label:'Seashells',desc:'seashells on a sandy beach with waves'},
+    {icon:'🐬',label:'Dolphins',desc:'dolphins jumping out of the ocean at sunset'},
+    {icon:'⛵',label:'Sailboat',desc:'a sailboat on calm ocean waters'},
+    {icon:'🐙',label:'Octopus',desc:'a friendly octopus in a coral reef'}
+  ],
+  holiday:[
+    {icon:'🎄',label:'Christmas Tree',desc:'a decorated Christmas tree with presents'},
+    {icon:'⭐',label:'Nativity',desc:'a peaceful nativity scene with a star'},
+    {icon:'🎃',label:'Pumpkin Patch',desc:'a pumpkin patch in autumn'},
+    {icon:'🐣',label:'Easter Eggs',desc:'decorated Easter eggs in a basket with flowers'}
+  ]
+};
+
+function showCbCategory(cat){
+  const items=CB_CATEGORIES[cat];
+  if(!items) return;
+  document.getElementById('cb-picker').style.display='none';
+  document.getElementById('cb-sub-picker').style.display='';
+  document.getElementById('cb-sub-title').textContent=cat.charAt(0).toUpperCase()+cat.slice(1)+' — Pick a picture';
+  const grid=document.getElementById('cb-sub-grid');
+  grid.innerHTML='';
+  items.forEach(item=>{
+    const btn=document.createElement('button');
+    btn.className='cb-theme';
+    btn.innerHTML=`<span class="cb-theme-icon">${item.icon}</span><span class="cb-theme-name">${item.label}</span>`;
+    btn.onclick=()=>makeColorPage(item.desc);
+    grid.appendChild(btn);
+  });
+}
+
+function backToCbCategories(){
+  document.getElementById('cb-sub-picker').style.display='none';
+  document.getElementById('cb-picker').style.display='';
+}
+
 async function makeColorPage(description){
   document.getElementById('cb-picker').style.display='none';
+  document.getElementById('cb-sub-picker').style.display='none';
   const loading=document.getElementById('cb-loading'); loading.classList.add('on');
   speak('Let me draw a beautiful coloring page for you, Diane!');
   try{
@@ -2478,6 +2610,7 @@ function floodFill(cvs,startX,startY,fillHex){
 function resetColorPage(){
   document.getElementById('cb-canvas-wrap').classList.remove('on');
   document.getElementById('cb-loading').classList.remove('on');
+  document.getElementById('cb-sub-picker').style.display='none';
   document.getElementById('cb-picker').style.display='';
 }
 
