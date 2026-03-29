@@ -1355,12 +1355,13 @@ async function speak(text){
   stopAudio();
   unlockAudio();
 
+  // If no ElevenLabs key, use browser TTS immediately (stays in user gesture chain)
   if(!elKey){
     browserSpeak(text);
     return;
   }
 
-  // ElevenLabs TTS — try AudioContext first, then Audio element fallback for iPad
+  // ElevenLabs TTS
   setStat('🔊 Speaking…');
   try{
     const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elVoice+'?output_format=mp3_44100_128',{
@@ -1373,42 +1374,56 @@ async function speak(text){
       })
     });
     if(!r.ok){
-      console.warn('ElevenLabs HTTP error:',r.status,await r.text().catch(()=>''));
-      setStat('');
-      browserSpeak(text);
+      const errText=await r.text().catch(()=>'');
+      console.warn('ElevenLabs HTTP error:',r.status,errText);
+      setStat('⚠️ Voice error ('+r.status+')');
+      setTimeout(()=>setStat(''),3000);
       return;
     }
     const arrayBuf=await r.arrayBuffer();
-    // Try AudioContext first
-    let played=false;
+    // Method 1: Audio element (most reliable on iPad Safari)
     try{
-      if(!dAudioCtx) dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
-      if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
-      const decoded=await dAudioCtx.decodeAudioData(arrayBuf.slice(0));
-      const source=dAudioCtx.createBufferSource();
-      source.buffer=decoded;
-      source.connect(dAudioCtx.destination);
-      source.onended=()=>{ dAudioSource=null; setStat(''); };
-      dAudioSource=source;
-      source.start(0);
-      played=true;
-    } catch(acErr){
-      console.warn('AudioContext failed, trying Audio element:',acErr.message);
-    }
-    // Fallback: use Audio element (more reliable on iPad Safari)
-    if(!played){
       const blob=new Blob([arrayBuf],{type:'audio/mpeg'});
       const url=URL.createObjectURL(blob);
       const audio=new Audio(url);
       audio.onended=()=>{ URL.revokeObjectURL(url); setStat(''); };
-      audio.onerror=()=>{ URL.revokeObjectURL(url); setStat(''); browserSpeak(text); };
+      audio.onerror=(e)=>{
+        console.warn('Audio element error:',e);
+        URL.revokeObjectURL(url);
+        // Method 2: AudioContext
+        tryAudioContext(arrayBuf);
+      };
       await audio.play();
+      setStat('🔊 Speaking…');
+      return;
+    } catch(audioErr){
+      console.warn('Audio element play failed:',audioErr.message);
     }
+    // Method 2: AudioContext fallback
+    tryAudioContext(arrayBuf);
+  } catch(e){
+    console.warn('ElevenLabs error:',e.message);
+    setStat('⚠️ Voice unavailable');
+    setTimeout(()=>setStat(''),3000);
+  }
+}
+
+async function tryAudioContext(arrayBuf){
+  try{
+    if(!dAudioCtx) dAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(dAudioCtx.state==='suspended') await dAudioCtx.resume();
+    const decoded=await dAudioCtx.decodeAudioData(arrayBuf.slice(0));
+    const source=dAudioCtx.createBufferSource();
+    source.buffer=decoded;
+    source.connect(dAudioCtx.destination);
+    source.onended=()=>{ dAudioSource=null; setStat(''); };
+    dAudioSource=source;
+    source.start(0);
     setStat('🔊 Speaking…');
   } catch(e){
-    console.warn('ElevenLabs error, falling back to browser TTS:',e.message);
-    setStat('');
-    browserSpeak(text);
+    console.warn('AudioContext also failed:',e.message);
+    setStat('⚠️ Audio failed');
+    setTimeout(()=>setStat(''),3000);
   }
 }
 function setStat(t){ document.getElementById('stat').textContent=t; }
