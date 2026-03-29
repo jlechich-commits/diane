@@ -49,9 +49,9 @@
     .sec{position:absolute;inset:0;overflow-y:auto;display:none;flex-direction:column;-webkit-overflow-scrolling:touch;}
     .sec.on{display:flex;}
     .nav{flex-shrink:0;background:white;border-top:1px solid var(--gold-pale);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);}
-    .nb{flex:1;padding:8px 1px 10px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;}
-    .nb .ni{font-size:21px;line-height:1;}
-    .nb .nl{font-size:9px;color:var(--lite);font-family:'Nunito';}
+    .nb{flex:1;padding:6px 1px 8px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .nb .ni{font-size:32px;line-height:1;}
+    .nb .nl{font-size:13px;color:var(--lite);font-family:'Nunito';font-weight:600;}
     .nb.on .nl{color:var(--gold);font-weight:700;}
     .nb.on .ni{filter:drop-shadow(0 0 4px rgba(196,154,60,.5));}
 
@@ -655,6 +655,8 @@
               <button class="cb-theme" onclick="showCbCategory('ocean')"><span class="cb-theme-icon">⛵</span><span class="cb-theme-name">Ocean</span></button>
               <button class="cb-theme" onclick="showCbCategory('holiday')"><span class="cb-theme-icon">🎄</span><span class="cb-theme-name">Holiday</span></button>
             </div>
+            <div class="cb-section-title" style="margin-top:16px;">Family Photos</div>
+            <div class="cb-themes" id="cb-family-grid"></div>
             <button class="cb-photo-btn" onclick="openCamera('color')">📷 Turn a Photo Into a Coloring Page</button>
           </div>
         </div>
@@ -1112,7 +1114,7 @@ function doSetup(){
 function launch(){
   document.getElementById('setup').classList.add('gone');
   document.getElementById('app').classList.remove('gone');
-  initDraw(); setCardDims(); initCbColors();
+  initDraw(); setCardDims(); initCbColors(); initFamilyPhotos();
   window.addEventListener('resize',setCardDims);
   setTimeout(()=>{
     unlockAudio(); const g="Hi Diane! It's so wonderful to talk with you today. How are you feeling?";
@@ -2555,6 +2557,70 @@ const CB_CATEGORIES={
     {icon:'🐣',label:'Easter Eggs',desc:'decorated Easter eggs in a basket with flowers'}
   ]
 };
+
+const FAMILY_PHOTOS=[
+  {file:'img11.jpg',label:'Diane & Baby',icon:'👶'},
+  {file:'img10.jpg',label:'Family on Couch',icon:'👨‍👩‍👧‍👦'},
+  {file:'img1.jpg',label:'Flamingos',icon:'🦩'},
+  {file:'img2.jpg',label:'Elephants',icon:'🐘'},
+  {file:'img3.jpg',label:'Pup on Blankets',icon:'🐩'},
+  {file:'img4.jpg',label:'Pup on Pillow',icon:'🐩'},
+  {file:'img5.jpg',label:'Pup in Sweater',icon:'🧥'},
+  {file:'img6.jpg',label:'Sleepy Pup',icon:'😴'},
+  {file:'img7.jpg',label:'Pup in Plaid',icon:'🐩'},
+  {file:'img8.jpg',label:'Pup on Walk',icon:'🚶'},
+  {file:'img9.jpg',label:'Christmas Pup',icon:'🎄'}
+];
+
+function initFamilyPhotos(){
+  const grid=document.getElementById('cb-family-grid');
+  if(!grid) return;
+  const base=window.location.href.replace(/\/[^\/]*$/,'/photos/');
+  FAMILY_PHOTOS.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.className='cb-theme';
+    btn.innerHTML=`<span class="cb-theme-icon">${p.icon}</span><span class="cb-theme-name">${p.label}</span>`;
+    btn.onclick=()=>loadFamilyPhoto(base+p.file);
+    grid.appendChild(btn);
+  });
+}
+
+function loadFamilyPhoto(url){
+  document.getElementById('cb-picker').style.display='none';
+  document.getElementById('cb-loading').classList.add('on');
+  speak("Turning your family photo into a coloring page, Diane!");
+  const img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=()=>{
+    const cvs=document.createElement('canvas');
+    cvs.width=500; cvs.height=500;
+    const ctx=cvs.getContext('2d');
+    ctx.fillStyle='white'; ctx.fillRect(0,0,500,500);
+    const scale=Math.min(500/img.width,500/img.height);
+    const ow=img.width*scale,oh=img.height*scale;
+    ctx.drawImage(img,(500-ow)/2,(500-oh)/2,ow,oh);
+    const id=ctx.getImageData(0,0,500,500);
+    ctx.putImageData(sobelEdge(id,500,500),0,0);
+    const sec=document.getElementById('sec-draw');
+    const toolH=80,tabH=44,avail=sec.clientHeight-toolH-tabH-8;
+    const csz=Math.min(sec.clientWidth-8,avail,520);
+    const colorCvs=document.getElementById('color-cvs');
+    colorCvs.width=csz;colorCvs.height=csz;colorCvs.style.width=csz+'px';colorCvs.style.height=csz+'px';
+    const cctx=colorCvs.getContext('2d');
+    cctx.fillStyle='white';cctx.fillRect(0,0,csz,csz);
+    cctx.drawImage(cvs,0,0,csz,csz);
+    setupColorCanvas(colorCvs);
+    document.getElementById('cb-loading').classList.remove('on');
+    document.getElementById('cb-canvas-wrap').classList.add('on');
+    speak("Here is your coloring page, Diane! Tap a color then tap any area to fill it in.");
+  };
+  img.onerror=()=>{
+    document.getElementById('cb-loading').classList.remove('on');
+    document.getElementById('cb-picker').style.display='';
+    speak("Sorry, that photo could not be loaded. Try another one!");
+  };
+  img.src=url;
+}
 
 function showCbCategory(cat){
   const items=CB_CATEGORIES[cat];
