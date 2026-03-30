@@ -1,0 +1,16 @@
+{
+  "appId": "com.lechich.diane",
+  "appName": "Diane",
+  "webDir": "www",
+  "server": {
+    "allowNavigation": [
+      "api.anthropic.com",
+      "texttospeech.googleapis.com",
+      "api.allorigins.win",
+      "archive.org"
+    ]
+  },
+  "ios": {
+    "contentInset": "always"
+  }
+}

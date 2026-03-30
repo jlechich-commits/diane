@@ -1,0 +1,7 @@
+node_modules/
+ios/App/Pods/
+ios/App/DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/
+.DS_Store
