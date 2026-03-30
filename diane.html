@@ -1698,7 +1698,14 @@ function stopAudio(){
   try{ synth.cancel(); }catch(e){}
   try{ if(dAudioSource){ dAudioSource.stop(); dAudioSource=null; } }catch(e){}
   try{ if(currentElAudio){ currentElAudio.pause(); currentElAudio=null; } }catch(e){}
+  clearTimeout(speechDoneCallback);
   setStat('');
+}
+function stopAllSpeech(){
+  speechQueue=[];
+  isSpeaking=false;
+  alSpeaking=false;
+  stopAudio();
 }
 
 function pickBestVoice(voices){
@@ -1722,22 +1729,64 @@ function browserSpeak(text){
   const v=pickBestVoice(vs);
   if(v) u.voice=v;
   u.onstart=()=>setStat('🔊 Speaking…');
-  u.onend=()=>setStat('');
+  u.onend=()=>{ setStat(''); clearTimeout(speechDoneCallback); onSpeechDone(); };
   u.onerror=(e)=>{ console.warn('Browser TTS error:',e); setStat('TTS error'); };
   synth.speak(u);
 }
 
-function speak(text){
+// Speech queue — prevents overlapping audio
+let speechQueue=[];
+let isSpeaking=false;
+let speechDoneCallback=null;
+
+function speak(text, priority){
   if(!text||!text.trim()) return;
+  if(priority==='immediate'){
+    // Clear queue and speak now (for user-initiated actions)
+    speechQueue=[];
+    isSpeaking=false;
+    _doSpeak(text);
+    return;
+  }
+  if(isSpeaking){
+    // Queue it up — will play when current speech finishes
+    speechQueue.push(text);
+    return;
+  }
+  _doSpeak(text);
+}
+
+function _doSpeak(text){
+  isSpeaking=true;
+  alSpeaking=true;
+  try{ alRecog?.abort(); }catch(e){}
   stopAudio();
   unlockAudio();
+  // Estimate when speech will end so we can process queue
+  const dur=Math.max(2000, Math.min(text.length*100, 20000));
+  clearTimeout(speechDoneCallback);
+  speechDoneCallback=setTimeout(onSpeechDone, dur);
   if(gcpKey){
-    // Use Google TTS only — no robotic voice
     speakGCP(text);
   } else {
-    // Fallback to browser TTS only when no Google key
     browserSpeak(text);
   }
+}
+
+function onSpeechDone(){
+  isSpeaking=false;
+  if(speechQueue.length>0){
+    const next=speechQueue.shift();
+    _doSpeak(next);
+  } else {
+    // Queue empty — resume mic
+    alSpeaking=false;
+    if(micEnabled && !alProcessing) setTimeout(startRecognition,1500);
+  }
+}
+
+function speakImmediate(text){
+  speak(text,'immediate');
 }
 
 async function speakGCP(text){
@@ -1764,7 +1813,7 @@ async function speakGCP(text){
       const url=URL.createObjectURL(blob);
       const audio=new Audio(url);
       currentElAudio=audio;
-      audio.onended=()=>{ URL.revokeObjectURL(url); currentElAudio=null; setStat(''); };
+      audio.onended=()=>{ URL.revokeObjectURL(url); currentElAudio=null; setStat(''); clearTimeout(speechDoneCallback); onSpeechDone(); };
       audio.onerror=()=>{ URL.revokeObjectURL(url); currentElAudio=null; playViaContext(bytes.buffer); };
       await audio.play();
     }catch(e){
@@ -1784,7 +1833,7 @@ async function playViaContext(arrayBuf){
     const source=dAudioCtx.createBufferSource();
     source.buffer=decoded;
     source.connect(dAudioCtx.destination);
-    source.onended=()=>{ dAudioSource=null; setStat(''); };
+    source.onended=()=>{ dAudioSource=null; setStat(''); clearTimeout(speechDoneCallback); onSpeechDone(); };
     dAudioSource=source;
     source.start(0);
     setStat('🔊 Speaking…');
@@ -1974,19 +2023,8 @@ function toggleMic(){
 }
 
 // Pause/resume listening around speech
-const _origSpeak=speak;
-function speakAndPause(text){
-  alSpeaking=true;
-  try{ alRecog?.abort(); }catch(e){}
-  _origSpeak(text);
-  // Resume after estimated speech duration
-  const dur=Math.max(3000, Math.min(text.length*110, 25000));
-  setTimeout(()=>{
-    alSpeaking=false;
-    if(micEnabled && !alProcessing) setTimeout(startRecognition,1500);
-  },dur);
-}
-speak=speakAndPause;
+// Mic integration — pause mic when speaking, resume when queue empty
+// This is handled inside _doSpeak and onSpeechDone directly
 
 // ══════════════════════════════════════════════════
 // CHAT
@@ -2021,7 +2059,7 @@ function grow(el){ el.style.height=''; el.style.height=Math.min(el.scrollHeight,
 
 async function sendMsg(text, fromMic=false){
   if(!text.trim()) return;
-  if(!fromMic) stopAudio(); // Only stop speech for typed messages; mic handler manages its own interruption
+  if(!fromMic) stopAllSpeech(); // Clear all queued speech for typed messages
   bubble('u',text);
   const shouldMem=checkMemTrigger(text);
   conv.push({role:'user',content:text});
@@ -2048,7 +2086,7 @@ async function sendMsg(text, fromMic=false){
       const reply=d.content[0].text;
       conv.push({role:'assistant',content:reply});
       if(conv.length>40) conv=conv.slice(-40);
-      bubble('c',reply); speak(reply);
+      bubble('c',reply); speakImmediate(reply);
       if(shouldMem) setTimeout(()=>promptMemSave(text),1800);
     } else {
       bubble('info','Something went wrong. Please try again.');
@@ -2882,7 +2920,6 @@ function bridgeNarrate(text,cssClass){
   const msg=document.getElementById('br-msg');
   msg.textContent=text;
   msg.className='bridge-msg '+(cssClass||'narrate');
-  stopAudio();
   speak(text);
 }
 
@@ -4107,11 +4144,9 @@ async function sendProactiveMessage(reason){
   if(!apiKey) return;
   if(!isWakingHours() && reason !== 'idle_night') return;
 
-  // Don't interrupt if already speaking
-  if(synth.speaking || dAudioSource) return;
-
-  // Close overlays to show chat
-  closeAllOverlays();
+  // Don't interrupt if already speaking or in a game/overlay
+  if(isSpeaking || speechQueue.length>0) return;
+  if(document.querySelector('.overlay.open')) return; // Don't interrupt games/activities
 
   try{
     const r = await fetch('https://api.anthropic.com/v1/messages',{
