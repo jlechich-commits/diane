@@ -3067,23 +3067,37 @@ function aiPlayBridge(){
   BR.turn=(BR.turn+1)%4;
   renderBridge();
 
-  // Narrate the AI play with personality
+  // Narrate the AI play with personality and table talk flavor
   const isPartner=(p===2);
+  const cn=cardName(card);
   let desc;
   if(isPartner){
     const partnerLines=[
-      "Your partner played the "+cardName(card)+" — "+reason+". Teamwork!",
-      "Partner threw down the "+cardName(card)+" — "+reason+". We've got this!",
-      "North played the "+cardName(card)+" — "+reason+". Your partner's got your back, Diane!",
+      "Your partner plays the "+cn+"! "+reason+". What a team we are, Diane!",
+      "North's got the "+cn+" — "+reason+". I think our partner knows what they're doing!",
+      "Look at that, partner drops the "+cn+"! "+reason+". We're in sync!",
+      "North comes through with the "+cn+"! "+reason+". That's our teammate!",
     ];
     desc=partnerLines[Math.floor(Math.random()*partnerLines.length)];
   } else {
     const oppLines=[
-      pName+" played the "+cardName(card)+" — "+reason+".",
-      pName+" goes with the "+cardName(card)+" — "+reason+".",
-      "Here comes "+pName+" with the "+cardName(card)+" — "+reason+".",
+      pName+" plays the "+cn+". "+reason+". Let's see what we can do about that!",
+      "Here comes "+pName+" with the "+cn+" — "+reason+". We're not worried, right Diane?",
+      pName+" throws out the "+cn+". "+reason+". Hmm, interesting move!",
+      "Oh, "+pName+" went with the "+cn+"! "+reason+". I've got my eye on them!",
     ];
     desc=oppLines[Math.floor(Math.random()*oppLines.length)];
+  }
+  // Occasionally add a fun aside to make it feel like real table chat
+  if(Math.random()<0.3){
+    const asides=[
+      " This is such a fun game!",
+      " I love playing with you, Diane!",
+      " You know, you've got a great poker face!",
+      " I always have the best time playing cards with you!",
+      " This hand is really getting interesting!",
+    ];
+    desc+=asides[Math.floor(Math.random()*asides.length)];
   }
   bridgeNarrate(desc);
 
@@ -3237,25 +3251,31 @@ async function bridgeTalkToMe(){
 }
 
 async function maybeBridgeChat(){
-  if(Math.random()>0.75) return; // Chat 75% of the time between tricks
   const chatEl=document.getElementById('br-chat');
   const textEl=document.getElementById('br-chat-text');
   chatEl.style.display='block';
-  textEl.textContent='💭 Thinking...';
+  textEl.textContent='💭 ...';
 
   const gameState=getBridgeGameSummary();
-  const topics=[
-    "Talk about the score enthusiastically. If winning, celebrate! If losing, be encouraging and talk about how to come back.",
-    "Look at Diane's cards and give her excited, specific strategy advice. Name her actual cards. 'That Ace of hearts is going to be huge!'",
-    "React to what just happened — be dramatic! 'What a round! Did you see that trump play?' Make it feel exciting.",
-    "Tell Diane something encouraging about her play style. 'You've been making really smart moves, Diane.'",
-    "Talk about strategy like a friend — 'You know what I'd do? I'd save that King for later.' Be specific about her cards.",
-    "Comment on the opponents — 'West is running low on spades, I bet!' Make it feel like real table talk.",
-    "Mix in a bridge tip naturally — 'Here's a little secret: when you're short in a suit, that's when trump gets really powerful!'",
-    "If it's close, build excitement — 'This is such a close game! Every trick matters now!'",
-    "Compliment a specific play she made earlier — 'That was a really smart lead earlier with the...'",
-    "Talk about teamwork with her partner — 'North has been playing really well for us! We make a great team.'",
+  // Mix game-related and personal/fun topics so it feels like chatting with a friend at a card table
+  const gameTalk=[
+    "Talk about the score enthusiastically. If winning, celebrate like crazy! If losing, be encouraging and rally Diane for a comeback.",
+    "Look at Diane's cards and give her excited, specific strategy advice. Name her actual cards. 'That Ace of hearts is going to be HUGE!'",
+    "React to what just happened — be dramatic and fun! 'What a round! That was amazing!' Make her feel like a bridge pro.",
+    "Compliment Diane's play — be specific and warm. 'You've been making really sharp moves today, Diane. I'm impressed!'",
+    "Give friendly strategy advice like a real bridge partner. Name specific cards. 'I'd hang onto that King — it could win us the game!'",
+    "Comment on opponents playfully — 'I think West is running out of options!' Make it fun and conspiratorial.",
+    "Share a bridge tip naturally — 'Here's a secret: when you're short in a suit, trump cards become incredibly powerful!'",
+    "Build excitement — 'This game is going to come down to the wire! I can feel it!'",
   ];
+  const funTalk=[
+    "Say something about how much you love playing cards with Diane. Maybe mention it reminds you of old times or that she's a great card player.",
+    "Tell Diane a quick fun fact or joke that would come up naturally at a card table with friends. Keep it light and warm.",
+    "Talk about something Diane loves — maybe Italian food, the Eagles, I Love Lucy, her grandkids Willy or Isabella, or her dog Pico. Keep it brief and natural.",
+    "Reminisce briefly — 'This reminds me of a great card game...' or 'Your family must love playing games with you!' Keep it warm and short.",
+    "Be silly and fun — 'If Pico were playing, he'd probably eat all the cards!' or joke about the game lightheartedly.",
+  ];
+  const topics=Math.random()<0.6?gameTalk:funTalk;
   const topic=topics[Math.floor(Math.random()*topics.length)];
 
   try{
@@ -3477,7 +3497,10 @@ function resolveBridgeTrick(){
       const turnPhrases=["Your turn, Diane! "+a.hint,
         "Okay Diane, you're up! "+a.hint,
         "Back to you! "+a.hint,
-        "You're in the driver's seat, Diane! "+a.hint];
+        "You're in the driver's seat, Diane! "+a.hint,
+        "Alright Diane, show them what you've got! "+a.hint,
+        "Here we go — your turn! "+a.hint+" I believe in you!",
+        "The spotlight's on you, Diane! "+a.hint];
       bridgeNarrate(turnPhrases[Math.floor(Math.random()*turnPhrases.length)],'hint');
     },1000);
   }
