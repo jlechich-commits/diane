@@ -224,11 +224,11 @@
     .bridge-bottom .card .crank{font-size:24px;font-weight:900;}.bridge-bottom .card .csm{font-size:22px;}.bridge-bottom .card .cctr{font-size:38px;}
     .bridge-top .card{position:relative;width:30px;height:44px;}
     .bridge-top .card .crank{font-size:9px;}.bridge-top .card .csm{font-size:8px;}.bridge-top .card .cctr{font-size:12px;}
-    .bridge-msg{text-align:center;padding:10px 12px;color:var(--dark);font-weight:700;font-size:18px;flex-shrink:0;min-height:44px;line-height:1.4;transition:background .3s;}
+    .bridge-msg{text-align:center;padding:12px 16px;color:var(--dark);font-weight:700;font-size:19px;flex-shrink:0;min-height:50px;line-height:1.5;transition:background .3s;margin:4px 8px;border-radius:12px;}
     .bridge-msg.hint{color:var(--green);background:rgba(46,125,82,.08);border-radius:12px;margin:4px 8px;}
     .bridge-msg.narrate{color:#2c3e50;background:rgba(52,152,219,.08);border-radius:12px;margin:4px 8px;font-size:16px;}
-    .bridge-chat{padding:8px 12px;margin:4px 8px;border-radius:12px;background:rgba(196,154,60,.1);border:1px solid rgba(196,154,60,.3);}
-    .bridge-chat-text{font-size:16px;color:var(--dark);line-height:1.5;font-style:italic;text-align:center;}
+    .bridge-chat{padding:12px 16px;margin:6px 8px;border-radius:14px;background:rgba(196,154,60,.12);border:2px solid rgba(196,154,60,.3);}
+    .bridge-chat-text{font-size:17px;color:var(--dark);line-height:1.5;font-style:italic;text-align:center;}
     .bridge-mic-btn{display:block;margin:6px auto;padding:12px 24px;font-size:18px;font-weight:700;border:none;border-radius:16px;background:var(--gold);color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);}
     .bridge-mic-btn.hot{background:#e74c3c;animation:pulse-mic 1.5s ease-in-out infinite;}
     .bridge-bottom .card.suggested{border-color:var(--gold)!important;box-shadow:0 0 0 4px var(--gold),0 0 30px rgba(255,215,0,0.6)!important;animation:pulse-hint 1.2s ease-in-out infinite;}
@@ -2875,7 +2875,7 @@ function toggleGameHelp(btn){
 // ══════════════════════════════════════════════════
 const PLAYERS=['South','West','North','East'];
 const PLAYER_LABELS={0:'You',1:'West',2:'Partner',3:'East'};
-let BR={started:false,hands:[[],[],[],[]],trump:null,trick:[],lead:0,tricksNS:0,tricksEW:0,trickNum:0,turn:0,busy:false};
+let BR={started:false,hands:[[],[],[],[]],trump:null,trick:[],lead:0,tricksNS:0,tricksEW:0,trickNum:0,turn:0,busy:false,nudgeTimer:null};
 
 function valRank(v){ return VALS.indexOf(v); }
 function sortHand(h){
@@ -3017,6 +3017,7 @@ function mkBridgeCard(card,faceUp,small){
 
 function playBridgeCard(player,cardIdx){
   if(BR.busy) return;
+  clearTimeout(BR.nudgeTimer);
   const card=BR.hands[player].splice(cardIdx,1)[0];
   BR.trick.push({player,card});
   BR.turn=(BR.turn+1)%4;
@@ -3145,6 +3146,18 @@ function aiPlayBridge(){
   } else {
     BR.busy=false;
     renderBridge();
+    // It's Diane's turn mid-trick — read the hint aloud
+    setTimeout(()=>{
+      if(BR.turn===0 && !BR.busy){
+        const a=getBridgeAnalysis();
+        const midTrickPhrases=[
+          "Your turn! "+a.hint,
+          "Okay Diane — "+a.hint,
+          "Now it's you! "+a.hint,
+        ];
+        bridgeNarrate(midTrickPhrases[Math.floor(Math.random()*midTrickPhrases.length)],'hint');
+      }
+    },500);
   }
 }
 
@@ -3528,7 +3541,7 @@ function resolveBridgeTrick(){
   } else {
     BR.busy=false;
     renderBridge();
-    // Enthusiastic turn announcement
+    // Enthusiastic turn announcement — always spoken so Diane knows it's her turn
     setTimeout(()=>{
       const a=getBridgeAnalysis();
       const turnPhrases=["Your turn, Diane! "+a.hint,
@@ -3539,6 +3552,21 @@ function resolveBridgeTrick(){
         "Here we go — your turn! "+a.hint+" I believe in you!",
         "The spotlight's on you, Diane! "+a.hint];
       bridgeNarrate(turnPhrases[Math.floor(Math.random()*turnPhrases.length)],'hint');
+
+      // If she hasn't played after 20 seconds, gently remind and encourage
+      clearTimeout(BR.nudgeTimer);
+      BR.nudgeTimer=setTimeout(()=>{
+        if(BR.turn===0 && !BR.busy && BR.started){
+          const a2=getBridgeAnalysis();
+          const nudges=[
+            "Take your time, Diane! I'd go with the "+a2.short+" — just give it a tap!",
+            "No rush! But if you want my advice — "+a2.hint,
+            "Still thinking? That's okay! I think the "+a2.short+" is a great play.",
+            "Whenever you're ready, Diane! The "+a2.short+" is glowing for you.",
+          ];
+          bridgeNarrate(nudges[Math.floor(Math.random()*nudges.length)],'hint');
+        }
+      },20000);
     },1000);
   }
 }
